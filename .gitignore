@@ -1,0 +1,7 @@
+*.cfg
+*.log
+*.test
+bk
+.bash_logout
+.bashrc
+.profile
