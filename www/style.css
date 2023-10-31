@@ -3,5 +3,5 @@ body { padding: 20px; background-color: #333; color:#ccc; }
 table tr td.l { text-align: left; font-size: 12px; }
 td { text-align: right; }
 pre { font-family: monospace; font-size:14px; }
-a:link, a:active { font-size: 16px; color:white; text-decoration:none; }
+a:link, a:visited, a:hover, a:active { font-size: 16px; color:white; text-decoration:none; }
 a:hover { text-decoration:underline; }
