@@ -1,4 +1,5 @@
 <?php
+
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 
@@ -15,51 +16,43 @@ define('WASSERVERBRAUCH', 123); # dummie value!
 <html><head><title>Heizkostenabrechnung Übersicht</title>
 <meta charset="utf-8">
 <link rel="stylesheet" href="style.css"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
-<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
 </head>
 <body>
-<h1>Heizkosten <?=$gas->Abrechnungsjahr?></h1>
-<p>Erzeugt die Zentralheizung auch das Warmwasser werden die Kosten dafür vorher abgezogen und ebenfalls nach Wohnfläche verteilt (§9 Absatz 1).</p>
+<h1>HK-Abrechnung <?=$gas->Abrechnungsjahr?></h1>
 
 <h2>Gasrechnung</h2>
-<p>Gasrechnung für <?=$gas->Abrechnungsjahr?> vom <?=$gas->Rechnungsdatum;?> von <?=$gas->Lieferant?> 
-für <?=$gas->KilowattstundenD?> kWh Erdgas: <strong><?=$gas->RechnungsbetragE?></strong></p>
-<p>Dies entspricht <?=$gas->KilowattstundenpreisE?> pro kWh.</p>
+<p>Gasrechnung vom <?=$gas->Rechnungsdatum;?> von <?=$gas->Lieferant?>, Abrechnungsjahr <?=$gas->Abrechnungsjahr?>,  
+<?=$gas->KilowattstundenD?> kWh Erdgas: <?=$gas->RechnungsbetragE?>. Dies entspricht einem Gaspreis von <strong><?=$gas->KilowattstundenpreisE?></strong> pro kWh.</p>
 
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
-<h2>Warmwasser</h2>
-<!--<p>Formel für Gasverbrauch pro m³ erwärmtes Wasser (lt. HeizkostenV, §9 Absatz 2-3): $$ {B = \frac{2,5 * V * (tw-10)}{H_{i}}} $$ wobei:</p>-->
-<p>Warmwasserverbrauch (lt. Kaltwasserzulauf zum Boiler): <strong><?=WASSERVERBRAUCH?> m³</strong>
-<p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> ist der Gasverbrauch für zentrale Wasserwerwärmung wie folgt zu berechnen:
-<pre>    Q = 2,5 x V x (tw-10)</pre>
-<p>Hierbei ist:</p>
+<h2>Warmwassererwärmung abziehen</h2>
+<p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> müssen bei zentraler 
+Wassererwärmung deren Kosten zunächst abgezogen werden. Nach §9 Ziffer 2 ist der Gasverbrauch für zentrale Wasserwerwärmung wie folgt 
+zu berechnen und von den Heizkosten abzuziehen:</p>
+<pre>                                  Q = 2,5 x V x (tw-10)</pre>
 <ul>
     <li>Q = Gasverbrauch in Kilowattstunden</li>
     <li>2,5 der Wert für die Erzeugeraufwandszahl des Wärmeerzeugers, mittlere spezifische Wärmekapazität des Wassers, Wärmeverluste für Warmwasserspeicher, Verteilung einschließlich Zirkulation, Messdatenerhebungen zum Warmwasserverbrauch</li>
     <li>V = Warmwasserverbrauch in m³</li>
     <li>tw = Warmwassertemperatur (üblicherweise <strong>55°</strong>)</li>
     <li>10 der Wert für die übliche Kaltwassereintrittstemperatur in die Warmwasserversorgungsanlage in Grad Celsius</li>
-    <!--<li>H<sub>i</sub> = Heizwert des Brennstoffs (10 bei Erdgas H)</li>-->
 </ul>
-<p>Mit eingesetzten Werten ergibt sich der Gasverbrauch für die Wassererwärmung in kWh:</p>
-<pre>    2,5 x <?=WASSERVERBRAUCH?> * (55-10) = <?=$gas->VerbrauchWarmwasserD?> kWh</pre>
+<p>Der Warmwasserverbrauch betrug im Jahr <?=$gas->Abrechnungsjahr?>: <strong><?=WASSERVERBRAUCH?> m³</strong>. Damit ergibt sich 
+als Gasverbrauch für die Wassererwärmung:</p>
+<pre>                            2,5 x <?=WASSERVERBRAUCH?> * (55-10) = <?=$gas->VerbrauchWarmwasserD?> kWh</pre>
 
-<!--<p>Mit eingesetzten Werten: $$ {\frac{2,5 * <?=WASSERVERBRAUCH?> * (55-10)}{10} = <?=$gas->VerbrauchWarmwasser?>\ m³} $$</p>
-<p><?=$gas->VerbrauchWarmwasser?> m³ Gasverbrauch x <?=$gas->Kubikmeterpreis?> pro m³ = <strong><?=$gas->PreisWarmwasserE?></strong>
--->
-
-<h2>Aufteilung</h2>
-
-<pre>
-  <?=$gas->RechnungsbetragE?> Gasrechnung
-- <?=$gas->PreisWarmwasserE?> Wassererwärmung
-= <?=$gas->PreisHeizungE?> Heizkosten</pre>
+<p>Nun den Gasverbrauch für Wassererwärmung mit dem Preis pro Kilowattstunde multiplizieren:</p>
+<pre>                       <?=$gas->VerbrauchWarmwasserD?> kWh Gasverbrauch x <?=$gas->KilowattstundenpreisE?> = <?=$gas->PreisWarmwasserE?></pre>
+<p>Die Gasrechnung abzüglich der Warmwasserkosten ergibt die Heizkosten:</p>
+<table>
+    <tr><td> </td><td>Gasrechnung</td><td class="alignRight"><?=$gas->RechnungsbetragE?></td></tr>
+    <tr><td>minus</td><td>Wassererwärmung</td><td class="alignRight"><?=$gas->PreisWarmwasserE?></td></tr>
+    <tr><td>gleich</td><td>Heizkosten</td><td class="alignRight"><strong><?=$gas->PreisHeizungE?></strong></td></tr>
+</table>
 
 <!-- --------------------------------------------------------------------------------------------------------------- Heizkosten nach Verbrauch -->
-<h3>70% nach Verbrauch</h3>
-<p>Nach <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">Heizkostenverordnung</a> müssen  
-50-70% der Heizkosten nach Verbrauch aufgeteilt werden (§8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
+<h2>70% nach Verbrauch</h2>
+<p>50-70% der Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
 <pre>  <?=$gas->PreisHeizungE?> x 0,7 = <strong><?=$gas->PreisHeizung70ProzentE?></strong></pre>
 <p>Diese Heizkosten teilt man durch die Summe aller Messwerte, um den Preis pro Messwert zu erhalten. 
     Anschließend multipliziert man den Preis pro Messwert mit den Messwerten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>

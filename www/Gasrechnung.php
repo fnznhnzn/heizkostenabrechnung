@@ -68,11 +68,11 @@ class Gasrechnung{
         # Warmwasser
         $this->VerbrauchWarmwasser      = 2.5 * self::WARMWASSERKUBIKMETER * self::TW / self::Hi; # vgl. HeizkostenV
         $this->VerbrauchWarmwasserD     = number_format( $this->VerbrauchWarmwasser, 2, ',', '.' );
-        $this->PreisWarmwasser          = $this->VerbrauchWarmwasser * $this->Kubikmeterpreis;
+        $this->PreisWarmwasser          = $this->VerbrauchWarmwasser * $this->Kilowattstundenpreis;
         $this->PreisWarmwasserE         = $this->euro( $this->PreisWarmwasser );
 
         # Heizung
-        $this->PreisHeizung             = $gas['Betrag'] - $this->PreisWarmwasser;
+        $this->PreisHeizung             = $this->Rechnungsbetrag - $this->PreisWarmwasser;
         $this->PreisHeizungE            = $this->euro( $this->PreisHeizung );
         $this->PreisHeizungNetto        = $this->PreisHeizung * 0.7; # nach Verbrauch
         $this->PreisHeizungNettoE       = $this->euro( $this->PreisHeizungNetto );
