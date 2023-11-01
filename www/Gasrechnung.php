@@ -12,6 +12,7 @@ class Gasrechnung{
     public $Lieferant;
     public $Kubikmeter;
     public $Kilowattstunden;
+    public $KilowattstundenD;
     public $Rechnungsbetrag;
     public $RechnungsbetragE;
     public $Kubikmeterpreis;
@@ -31,6 +32,7 @@ class Gasrechnung{
     public $seventyPercent;
     public $seventyPercentE;
     public $VerbrauchWarmwasser;
+    public $VerbrauchWarmwasserD;
     public $PreisWarmwasser;
     public $PreisWarmwasserE;
     public $gasNachFlaeche;
