@@ -11,10 +11,13 @@ class Gasrechnung{
     public $Rechnungsdatum;
     public $Lieferant;
     public $Kubikmeter;
+    public $Kilowattstunden;
     public $Rechnungsbetrag;
     public $RechnungsbetragE;
     public $Kubikmeterpreis;
     public $KubikmeterpreisE;
+    public $Kilowattstundenpreis;
+    public $KilowattstundenpreisE;
 
     # Heizung
     public $PreisHeizung;
@@ -40,11 +43,11 @@ class Gasrechnung{
         $this->Abrechnungsjahr = filter_input(INPUT_GET, 'y', FILTER_VALIDATE_INT, $options);
         if(!$this->Abrechnungsjahr >= 2023){ echo 'give us y=2023 or later'; die(); }
 
-        $this->conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "Heizkostenabrechnung");
+        $this->conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
 
         # get all gas related data
         $res = mysqli_query($this->conn, 
-        "SELECT Betrag, DATE_FORMAT(Datum,'%e.%m.%x') AS Datum, Lieferant, Kubikmeter, Betrag/Kubikmeter AS qPreis
+        "SELECT Betrag, DATE_FORMAT(Datum,'%e.%m.%x') AS Datum, Lieferant, Kubikmeter, kWh, Betrag/Kubikmeter AS qPreis, Betrag/kWh AS kWhPreis
          FROM Gasrechnungen 
          WHERE Abrechnungsjahr = '" . $this->Abrechnungsjahr . "'"
         );
@@ -53,13 +56,18 @@ class Gasrechnung{
         $this->Lieferant                = $gas['Lieferant'];
         $this->Rechnungsdatum           = $gas['Datum'];
         $this->Kubikmeter               = $gas['Kubikmeter'];
+        $this->Kilowattstunden          = $gas['kWh'];
+        $this->KilowattstundenD         = number_format( $this->Kilowattstunden, 0, ',', '.');
         $this->Rechnungsbetrag          = $gas['Betrag'];
         $this->RechnungsbetragE         = $this->euro( $this->Rechnungsbetrag);
         $this->Kubikmeterpreis          = $gas['qPreis'];
         $this->KubikmeterpreisE         = $this->euro( $this->Kubikmeterpreis );
+        $this->Kilowattstundenpreis     = $gas['kWhPreis'];
+        $this->KilowattstundenpreisE    = str_replace( '.', ',', $this->Kilowattstundenpreis ) . ' €';
 
         # Warmwasser
         $this->VerbrauchWarmwasser      = 2.5 * self::WARMWASSERKUBIKMETER * self::TW / self::Hi; # vgl. HeizkostenV
+        $this->VerbrauchWarmwasserD     = number_format( $this->VerbrauchWarmwasser, 2, ',', '.' );
         $this->PreisWarmwasser          = $this->VerbrauchWarmwasser * $this->Kubikmeterpreis;
         $this->PreisWarmwasserE         = $this->euro( $this->PreisWarmwasser );
 
