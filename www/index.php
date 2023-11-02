@@ -1,5 +1,4 @@
 <?php
-
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 
@@ -14,9 +13,9 @@ define('WASSERVERBRAUCH', 123); # dummie value!
 
 <!DOCTYPE html>
 <html><head><title>Heizkostenabrechnung Übersicht</title>
-<meta charset="utf-8">
-<link rel="stylesheet" href="style.css"/>
-</head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css"/>
+    </head>
 <body>
 <h1>HK-Abrechnung <?=$gas->Abrechnungsjahr?></h1>
 
