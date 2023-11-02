@@ -21,7 +21,8 @@ define('WASSERVERBRAUCH', 123); # dummie value!
 
 <h2>Gasrechnung</h2>
 <p>Gasrechnung vom <?=$gas->Rechnungsdatum;?> von <?=$gas->Lieferant?>, Abrechnungsjahr <?=$gas->Abrechnungsjahr?>,  
-<?=$gas->KilowattstundenD?> kWh Erdgas: <?=$gas->RechnungsbetragE?>. Dies entspricht einem Gaspreis von <strong><?=$gas->KilowattstundenpreisE?></strong> pro kWh.</p>
+<?=$gas->KilowattstundenD?> kWh Erdgas: <strong class="skyblue"><?=$gas->RechnungsbetragE?></strong>. Dies entspricht einem Gaspreis von 
+<strong class="yellow"><?=$gas->KilowattstundenpreisE?></strong> pro kWh.</p>
 
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
 <h2>Warmwassererwärmung abziehen</h2>
@@ -38,26 +39,28 @@ zu berechnen und von den Heizkosten abzuziehen:</p>
 </ul>
 <p>Der Warmwasserverbrauch betrug im Jahr <?=$gas->Abrechnungsjahr?>: <strong><?=WASSERVERBRAUCH?> m³</strong>. Damit ergibt sich 
 als Gasverbrauch für die Wassererwärmung:</p>
-<pre>                            2,5 x <?=WASSERVERBRAUCH?> * (55-10) = <?=$gas->VerbrauchWarmwasserD?> kWh</pre>
+<pre>                            2,5 x <strong><?=WASSERVERBRAUCH?></strong> * (55-10) = <strong class="green"><?=$gas->VerbrauchWarmwasserD?> kWh</strong></pre>
 
 <p>Nun den Gasverbrauch für Wassererwärmung mit dem Preis pro Kilowattstunde multiplizieren:</p>
-<pre>                       <?=$gas->VerbrauchWarmwasserD?> kWh Gasverbrauch x <?=$gas->KilowattstundenpreisE?> = <?=$gas->PreisWarmwasserE?></pre>
+<pre>                       <strong class="green"><?=$gas->VerbrauchWarmwasserD?></strong> kWh Gasverbrauch x <strong class="yellow"><?=$gas->KilowattstundenpreisE?></strong> = <strong class="pink"><?=$gas->PreisWarmwasserE?></strong></pre>
 <p>Die Gasrechnung abzüglich der Warmwasserkosten ergibt die Heizkosten:</p>
 <table>
-    <tr><td> </td><td>Gasrechnung</td><td class="alignRight"><?=$gas->RechnungsbetragE?></td></tr>
-    <tr><td>minus</td><td>Wassererwärmung</td><td class="alignRight"><?=$gas->PreisWarmwasserE?></td></tr>
-    <tr><td>gleich</td><td>Heizkosten</td><td class="alignRight"><strong><?=$gas->PreisHeizungE?></strong></td></tr>
+    <tr><td> </td><td>Gasrechnung</td><td class="alignRight"><strong class="skyblue"><?=$gas->RechnungsbetragE?></strong></td></tr>
+    <tr><td>minus</td><td>Wassererwärmung</td><td class="alignRight"><strong class="pink"><?=$gas->PreisWarmwasserE?></pink></td></tr>
+    <tr><td>gleich</td><td>Heizkosten</td><td class="alignRight"><strong class="orange"><?=$gas->PreisHeizungE?></strong></td></tr>
 </table>
 
 <!-- --------------------------------------------------------------------------------------------------------------- Heizkosten nach Verbrauch -->
 <h2>70% nach Verbrauch</h2>
 <p>50-70% der Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
-<pre>  <?=$gas->PreisHeizungE?> x 0,7 = <strong><?=$gas->PreisHeizung70ProzentE?></strong></pre>
+<pre>  <strong class="orange"><?=$gas->PreisHeizungE?></strong> x 0,7 = <strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong></pre>
 <p>Diese Heizkosten teilt man durch die Summe aller Messwerte, um den Preis pro Messwert zu erhalten. 
     Anschließend multipliziert man den Preis pro Messwert mit den Messwerten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>
-<h3>Heizkostenverteiler</h3>
+
+<!-- --------------------------------------------------------------------------------------------------------------- Heizkostenverteiler -->
+    <h2>Heizkostenverteiler</h2>
 <p>Jeder Messwert wird zwecks Vergleichbarkeit mit der Heizkörperleistung in KW (Kc) und der Trägheit (Kq) des jeweiligen Heizkörpers 
-    multipliziert und dann durch die Basisempflindlichkeit der Heizkostenverteiler geteilt (Engelmann: 2,288).</p>
+    multipliziert und dann durch die Basisempflindlichkeit der Heizkostenverteiler geteilt. Bei Engelmann HCA e2 im 1-Fühler-Modus ist der Divisor lt. Betriebshandbuch: 1,181.</p>
 <?php
 
 # Werte pro Zähler im Abrechnungsjahr (Werte des Vorjahres müssen noch abgezogen werden)
@@ -83,32 +86,31 @@ WHERE YEAR(m.Zeitpunkt) = " . ($gas->Abrechnungsjahr - 1) . "
 AND z.Whg_ID IN (SELECT ID FROM Wohnungen)
 GROUP BY Zaehler_ID";
 
-/*
-echo "<table><th>Zähler</th><th>Messwert</th><th></th><th>Kq</th><th></th><th>Kc</th><th></th><th>Basis</th><th></th><th>Wert</th>";
+
+echo '<table><th>Zähler</th><th>Messwert</th><th></th><th>Kq</th><th></th><th>Kc</th><th></th><th>Basis</th><th></th><th>Wert</th>';
 $messwerteTotal = 0;
 foreach ($gas->conn->query( $sql ) as $index => $row) {
     $messwerteLaufendesJahr[$row['zid']] = $messwerteGesamt[$row['zid']] - $row['w'];
-    $messwerteTotal += $messwerteLaufendesJahr[$row['zid']]*$row['q']*$row['c']/2.288;
+    $messwerteTotal += $messwerteLaufendesJahr[$row['zid']]*$row['q']*$row['c']/1.181;
     echo "<tr>
-    <td>".$row['zid']."</td>
-    <td>".$messwerteLaufendesJahr[$row['zid']]."</td>
+    <td>".$row['zid'].'</td>
+    <td class="center">'.$messwerteLaufendesJahr[$row['zid']].'</td>
     <td> x </td>
-    <td>".$row['q']."</td>
+    <td class="center">'.$row['q'].'</td>
     <td> x </td>
-    <td>".$row['c']."</td>
+    <td class="center">'.$row['c'].'</td>
     <td> / </td>
-    <td>2,288</td>
+    <td>1,181</td>
     <td> = </td>
-    <td>". $messwerteLaufendesJahr[$row['zid']] * $row['q'] * $row['c'] / 2.288 . "</td></tr>";
+    <td>'. $messwerteLaufendesJahr[$row['zid']] * $row['q'] * $row['c'] / 1.181 . '</td></tr>';
 }
 echo "</table>";
 
-echo "<br/>Die Summe aller in $gas->Abrechnungsjahr so berechneten Werte ist (errechnet in SQL und addiert in php) {$hkv->summeAllerZaehlerwerte()} bzw. (errechnet und addiert in php) $messwerteTotal (???)<br/>";
-*/
 ?>
-<p>Die Summe aller HKV-Werte beträgt <?=$hkv->summeAllerZaehlerwerte()?>. 
-Teilt man dadurch die nach Verbrauch aufzuteilenden Heizkosten erhält man den Preis pro Messwert.</p>
-$$ {\frac{<?=$gas->PreisHeizung70ProzentE?>}{<?=$hkv->summeAllerZaehlerwerte()?>} = <?=( $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte() )?>} $$
+<p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->summeAllerZaehlerwerte()?>.</p> 
+<p>Teilt man Kosten durch die Summe der Messwerte erhält man den Preis pro Messwert:</p>
+<pre>      <strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->summeAllerZaehlerwerte()?> = 
+<strong class="white"><?=( $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte() )?></strong></pre>
 
 <?php
 $messWertFaktor = $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte();
