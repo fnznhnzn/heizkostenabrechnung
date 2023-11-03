@@ -91,5 +91,9 @@ class Heizkostenverteiler{
         GROUP BY w.ID";
         return $sql;
     }
+
+    public function nf($n){
+        return number_format($n, 16, ',', '.');
+    }
     
 }

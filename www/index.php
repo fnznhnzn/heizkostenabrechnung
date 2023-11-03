@@ -53,8 +53,6 @@ als Gasverbrauch für die Wassererwärmung:</p>
 <h2>70% nach Verbrauch</h2>
 <p>50-70% der Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
 <pre>  <strong class="orange"><?=$gas->PreisHeizungE?></strong> x 0,7 = <strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong></pre>
-<p>Die Heizkosten geteilt durch die Summe aller Messwerte ergibt den Preis pro Wert. 
-    Diesen multipliziert man mit den Werten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>
 
 <!-- --------------------------------------------------------------------------------------------------------------- Heizkostenverteiler -->
 <h2>Heizkostenverteiler</h2>
@@ -110,14 +108,15 @@ foreach ($gas->conn->query( $sql ) as $index => $row) {
     <td> / </td>
     <td>1,181</td>
     <td> = </td>
-    <td>'. $messwerteLaufendesJahr[$row['zid']] * $row['q'] * $row['c'] / 1.181 . '</td></tr>';
+    <td>'. $hkv->nf($messwerteLaufendesJahr[$row['zid']] * $row['q'] * $row['c'] / 1.181) . '</td></tr>';
 }
 echo "</table>";
 
 ?>
-<p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->summeAllerZaehlerwerte()?>.</p> 
-<p>Teilt man die Kosten durch die Summe der Messwerte erhält man den Preis pro Messwert:</p>
-<pre><strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->summeAllerZaehlerwerte()?> = <strong class="white"><?=( $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte() )?></strong></pre>
+<p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->nf( $hkv->summeAllerZaehlerwerte() )?>.</p> 
+<p>Die Heizkosten geteilt durch die Summe aller Messwerte ergibt den Preis pro Wert. 
+    Diesen multipliziert man mit den Werten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>
+<pre><strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->summeAllerZaehlerwerte()?> = <strong class="white"><?=( $hkv->nf( $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte() ) )?> €</strong></pre>
 
 <?php
 $messWertFaktor = $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte();
@@ -146,8 +145,8 @@ foreach ($gas->conn->query( $hkv->zaehlerwerteGesamtProWohnung() ) as $index => 
 
 <!-- ------------------------------------------------------------------------------------------------------------- Heizkosten nach Wohnfläche -->
 <h3>30% nach Wohnfläche</h3>
-<p>30% der verbleibenden Heizkosten: <?=$gas->PreisHeizungE?> x 0.3 = <?=$gas->PreisHeizung30Prozent?></p>
-<p>Ergibt Kosten pro m²: <?=$gas->PreisHeizung30Prozent?> / <?=$gas->getWohnflaeche()?> = <?=$gas->preisProQuadratmeter?></p>
+<p>30% der verbleibenden Heizkosten: <strong class="orange"><?=$gas->PreisHeizungE?></strong> x 0.3 = <?=$gas->euro( $gas->PreisHeizung30Prozent )?></p>
+<p>Ergibt Kosten pro m²: <?=$gas->euro( $gas->PreisHeizung30Prozent )?> / <?=$gas->getWohnflaeche()?> = <?=$gas->preisProQuadratmeter?></p>
 <p>Macht für die einzelnen Wohnungen entsprechend deren Fläche in m²:</p>
 <table>
     <th>Mieter</th><th>m²</th><th>Faktor</th><th>Euro</th>
