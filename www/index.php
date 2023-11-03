@@ -26,9 +26,8 @@ define('WASSERVERBRAUCH', 123); # dummie value!
 
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
 <h2>Warmwassererwärmung abziehen</h2>
-<p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> müssen bei zentraler 
-Wassererwärmung deren Kosten zunächst abgezogen werden. Nach §9 Ziffer 2 ist der Gasverbrauch für zentrale Wasserwerwärmung wie folgt 
-zu berechnen und von den Heizkosten abzuziehen:</p>
+<p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> muss zentrale Warmwassererwärmung zunächt abgezogen werden. Nach §9 Ziffer 2 ist der Gasverbrauch für zentrale Wasserwerwärmung wie folgt 
+zu berechnen:</p>
 <pre>                                  Q = 2,5 x V x (tw-10)</pre>
 <ul>
     <li>Q = Gasverbrauch in Kilowattstunden</li>
@@ -45,7 +44,7 @@ als Gasverbrauch für die Wassererwärmung:</p>
 <pre>                       <strong class="green"><?=$gas->VerbrauchWarmwasserD?></strong> kWh Gasverbrauch x <strong class="yellow"><?=$gas->KilowattstundenpreisE?></strong> = <strong class="pink"><?=$gas->PreisWarmwasserE?></strong></pre>
 <p>Die Gasrechnung abzüglich der Warmwasserkosten ergibt die Heizkosten:</p>
 <table>
-    <tr><td> </td><td>Gasrechnung</td><td class="alignRight"><strong class="skyblue"><?=$gas->RechnungsbetragE?></strong></td></tr>
+    <tr><td colspan="2">Gasrechnung</td><td class="alignRight"><strong class="skyblue"><?=$gas->RechnungsbetragE?></strong></td></tr>
     <tr><td>minus</td><td>Wassererwärmung</td><td class="alignRight"><strong class="pink"><?=$gas->PreisWarmwasserE?></pink></td></tr>
     <tr><td>gleich</td><td>Heizkosten</td><td class="alignRight"><strong class="orange"><?=$gas->PreisHeizungE?></strong></td></tr>
 </table>
@@ -54,13 +53,22 @@ als Gasverbrauch für die Wassererwärmung:</p>
 <h2>70% nach Verbrauch</h2>
 <p>50-70% der Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
 <pre>  <strong class="orange"><?=$gas->PreisHeizungE?></strong> x 0,7 = <strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong></pre>
-<p>Diese Heizkosten teilt man durch die Summe aller Messwerte, um den Preis pro Messwert zu erhalten. 
-    Anschließend multipliziert man den Preis pro Messwert mit den Messwerten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>
+<p>Die Heizkosten geteilt durch die Summe aller Messwerte ergibt den Preis pro Wert. 
+    Diesen multipliziert man mit den Werten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>
 
 <!-- --------------------------------------------------------------------------------------------------------------- Heizkostenverteiler -->
-    <h2>Heizkostenverteiler</h2>
-<p>Jeder Messwert wird zwecks Vergleichbarkeit mit der Heizkörperleistung in KW (Kc) und der Trägheit (Kq) des jeweiligen Heizkörpers 
-    multipliziert und dann durch die Basisempflindlichkeit der Heizkostenverteiler geteilt. Bei Engelmann HCA e2 im 1-Fühler-Modus ist der Divisor lt. Betriebshandbuch: 1,181.</p>
+<h2>Heizkostenverteiler</h2>
+<p>Heizkörper haben unterschiedliche Größen und Eigenschaften. Um die Messwerte der Heizkostenverteiler vergleichbar
+    zu machen, werden sie zunächst wie folgt bereinigt:</p>
+<pre>Bereinigter Messwert = M x Kc x Kq / B </pre>
+wobei:
+<ul>
+    <li>M = Rohwert des Heizkostenverteilers</li>
+    <li>Kc = Leistung des Heizkörpers in Kilowatt</li>
+    <li>Kq = Trägheit des Heizkörpers</li>
+    <li>B = Basisempfindlichkeit des HKV, 1,181 bei Engelmann HCA e2 im 1-Fühler-Modus</li>
+</ul>
+
 <?php
 
 # Werte pro Zähler im Abrechnungsjahr (Werte des Vorjahres müssen noch abgezogen werden)
