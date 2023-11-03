@@ -21,13 +21,13 @@ define('WASSERVERBRAUCH', 123); # dummie value!
 
 <h2>Gasrechnung</h2>
 <p>Gasrechnung vom <?=$gas->Rechnungsdatum;?> von <?=$gas->Lieferant?>, Abrechnungsjahr <?=$gas->Abrechnungsjahr?>,  
-<?=$gas->KilowattstundenD?> kWh Erdgas: <strong class="skyblue"><?=$gas->RechnungsbetragE?></strong>. Dies entspricht einem Gaspreis von 
-<strong class="yellow"><?=$gas->KilowattstundenpreisE?></strong> pro kWh.</p>
+<?=$gas->KilowattstundenD?> kWh Erdgas, <strong class="skyblue"><?=$gas->RechnungsbetragE?></strong>. Eine kWh kostet demnach 
+<strong class="yellow"><?=$gas->KilowattstundenpreisE?></strong>.</p>
 
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
 <h2>Warmwassererwärmung abziehen</h2>
-<p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> muss zentrale Warmwassererwärmung zunächt abgezogen werden. Nach §9 Ziffer 2 ist der Gasverbrauch für zentrale Wasserwerwärmung wie folgt 
-zu berechnen:</p>
+<p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> muss zentrale Warmwassererwärmung zunächt abgezogen werden. 
+Nach §9 Ziffer 2 wird der Gasverbrauch wie folgt berechnet:</p>
 <pre>                                  Q = 2,5 x V x (tw-10)</pre>
 <ul>
     <li>Q = Gasverbrauch in Kilowattstunden</li>
@@ -51,7 +51,7 @@ als Gasverbrauch für die Wassererwärmung:</p>
 
 <!-- --------------------------------------------------------------------------------------------------------------- Heizkosten nach Verbrauch -->
 <h2>70% nach Verbrauch</h2>
-<p>50-70% der Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
+<p>50-70% der verbleibenden Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
 <pre>  <strong class="orange"><?=$gas->PreisHeizungE?></strong> x 0,7 = <strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong></pre>
 
 <!-- --------------------------------------------------------------------------------------------------------------- Heizkostenverteiler -->
@@ -114,13 +114,15 @@ echo "</table>";
 
 ?>
 <p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->nf( $hkv->summeAllerZaehlerwerte() )?>.</p> 
-<p>Die Heizkosten geteilt durch die Summe aller Messwerte ergibt den Preis pro Wert. 
-    Diesen multipliziert man mit den Werten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>
+
+<!-- ---------------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
+<h2>Verteilung auf die Wohnungen</h2>
+<p>Teilt man die Heizkosten durch die die Summe aller Messwerte erhält man den Preis pro Wert.</p>
 <pre><strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->summeAllerZaehlerwerte()?> = <strong class="white"><?=( $hkv->nf( $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte() ) )?> €</strong></pre>
 
 <?php
 $messWertFaktor = $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte();
-echo "<br/>Jetzt die gemessenen Werte pro Wohnung mit diesem Faktor multiplizieren.<br/>";
+echo "<p>Diesen multipliziert man mit den Werten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>";
 ?>
 <table>
     <th>Mieter</th><th>HKV</th><th></th><th>Faktor</th><th></th><th></th><th></th><th>Euro</th>
@@ -143,10 +145,10 @@ foreach ($gas->conn->query( $hkv->zaehlerwerteGesamtProWohnung() ) as $index => 
 ?>
 </table>
 
-<!-- ------------------------------------------------------------------------------------------------------------- Heizkosten nach Wohnfläche -->
-<h3>30% nach Wohnfläche</h3>
-<p>30% der verbleibenden Heizkosten: <strong class="orange"><?=$gas->PreisHeizungE?></strong> x 0.3 = <?=$gas->euro( $gas->PreisHeizung30Prozent )?></p>
-<p>Ergibt Kosten pro m²: <?=$gas->euro( $gas->PreisHeizung30Prozent )?> / <?=$gas->getWohnflaeche()?> = <?=$gas->preisProQuadratmeter?></p>
+<!-- -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
+<h2>30% nach Wohnfläche</h2>
+<p>30% der Heizkosten: <strong class="orange"><?=$gas->PreisHeizungE?></strong> x 0.3 = <strong class="violet"><?=$gas->euro( $gas->PreisHeizung30Prozent )?></strong></p>
+<p>Ergibt Kosten pro m²: <strong class="violet"><?=$gas->euro( $gas->PreisHeizung30Prozent )?></strong> / <?=$gas->getWohnflaeche()?> m² Gesamtfläche = <?=$hkv->nf( $gas->preisProQuadratmeter )?> €</p>
 <p>Macht für die einzelnen Wohnungen entsprechend deren Fläche in m²:</p>
 <table>
     <th>Mieter</th><th>m²</th><th>Faktor</th><th>Euro</th>
@@ -155,11 +157,14 @@ foreach( $gas->gaspreisNachWohnflaeche() as $index => $row){
     echo "<tr>
     <td> {$row['Nachname']} </td>
     <td>{$row['qm']}</td>
-    <td>x ". $gas->preisProQuadratmeter ." =</td>
-    <td> ". $gas->euro($row['gpnw']) . "</td>
+    <td>x ". $gas->preisProQuadratmeter .' =</td>
+    <td class="alignRight"> '. $gas->euro($row['gpnw']) . "</td>
     </tr>";
 }
 ?>
 </table>
+<?php 
+#print_r( $hkv->einzelneZaehlerwerte() );
+?>
 </body>
 </html>
