@@ -29,9 +29,8 @@ für <?=$gas->KilowattstundenD?> kWh Erdgas: <strong><?=$gas->RechnungsbetragE?>
 
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
 <h2>Warmwasser</h2>
-<!--<p>Formel für Gasverbrauch pro m³ erwärmtes Wasser (lt. HeizkostenV, §9 Absatz 2-3): $$ {B = \frac{2,5 * V * (tw-10)}{H_{i}}} $$ wobei:</p>-->
 <p>Warmwasserverbrauch (lt. Kaltwasserzulauf zum Boiler): <strong><?=WASSERVERBRAUCH?> m³</strong>
-<p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> ist der Gasverbrauch für zentrale Wasserwerwärmung wie folgt zu berechnen:
+<p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> ist der Gasverbrauch für zentrale Wassererwärmung wie folgt zu berechnen:
 <pre>    Q = 2,5 x V x (tw-10)</pre>
 <p>Hierbei ist:</p>
 <ul>
