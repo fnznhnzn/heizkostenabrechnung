@@ -108,9 +108,8 @@ echo "</table>";
 
 ?>
 <p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->summeAllerZaehlerwerte()?>.</p> 
-<p>Teilt man Kosten durch die Summe der Messwerte erhält man den Preis pro Messwert:</p>
-<pre>      <strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->summeAllerZaehlerwerte()?> = 
-<strong class="white"><?=( $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte() )?></strong></pre>
+<p>Teilt man die Kosten durch die Summe der Messwerte erhält man den Preis pro Messwert:</p>
+<pre><strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->summeAllerZaehlerwerte()?> = <strong class="white"><?=( $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte() )?></strong></pre>
 
 <?php
 $messWertFaktor = $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte();
