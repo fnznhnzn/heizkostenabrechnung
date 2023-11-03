@@ -30,7 +30,6 @@ define('WASSERVERBRAUCH', 123); # dummie value!
 Wassererwärmung deren Kosten zunächst abgezogen werden. Nach §9 Ziffer 2 ist der Gasverbrauch für zentrale Wasserwerwärmung wie folgt 
 zu berechnen und von den Heizkosten abzuziehen:</p>
 <pre>                                  Q = 2,5 x V x (tw-10)</pre>
->>>>>>> a29d52acfbc1060e03612c770e6031a307def375
 <ul>
     <li>Q = Gasverbrauch in Kilowattstunden</li>
     <li>2,5 der Wert für die Erzeugeraufwandszahl des Wärmeerzeugers, mittlere spezifische Wärmekapazität des Wassers, Wärmeverluste für Warmwasserspeicher, Verteilung einschließlich Zirkulation, Messdatenerhebungen zum Warmwasserverbrauch</li>

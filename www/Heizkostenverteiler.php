@@ -3,7 +3,7 @@
 class Heizkostenverteiler{
     public $conn;
     public $Abrechnungsjahr;
-    private Gasrechnung $gas;
+#    private Gasrechnung $gas;
 
     public function __construct(Gasrechnung $gas){
         # check input
@@ -11,7 +11,7 @@ class Heizkostenverteiler{
         $this->Abrechnungsjahr = filter_input(INPUT_GET, 'y', FILTER_VALIDATE_INT, $options);
         if(!$this->Abrechnungsjahr >= 2023){ echo 'give us y=2023 or later'; die(); }
         $this->conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
-        $this->gas = $gas;
+#        $this->gas = $gas;
     }
 
     public function summeAllerZaehlerwerte(){
