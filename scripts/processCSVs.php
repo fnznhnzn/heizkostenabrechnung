@@ -27,7 +27,7 @@ function chunkToDatetime($chunk){ # convert non-standard datetime
 }
 
 # 2. read csv line by line, put values into array and store some in db
-$dbc = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "Heizkostenabrechnung");
+$dbc = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
 if( $dbc->connect_errno ){
    trigger_error( $dbc->connect_error );
    exit();

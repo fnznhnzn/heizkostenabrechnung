@@ -80,7 +80,7 @@ class Heizkostenverteiler{
         }
         return $messwerteMinusVorperiode;
     }
-
+    
     public function zaehlerwerteGesamtProWohnung(){
         $sql = "SELECT MAX(Wert) AS whgTotal, Nachname
         FROM Wohnungen w
