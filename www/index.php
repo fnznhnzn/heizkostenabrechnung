@@ -5,8 +5,8 @@ ini_set('display_errors', 'on');
 require_once('Gasrechnung.php');
 $gas = new Gasrechnung();
 
-require_once('Heizkostenverteiler.php');
-$hkv = new Heizkostenverteiler($gas);
+require_once('Verteilung.php');
+$hkv = new Verteilung($gas);
 
 define('WASSERVERBRAUCH', 123); # dummie value!
 ?>
@@ -59,7 +59,6 @@ als Gasverbrauch für die Wassererwärmung:</p>
 <p>Heizkörper haben unterschiedliche Größen und Eigenschaften. Um die Messwerte der Heizkostenverteiler vergleichbar
     zu machen, werden sie zunächst wie folgt bereinigt:</p>
 <pre>Bereinigter Messwert = M x Kc x Kq / B </pre>
-wobei:
 <ul>
     <li>M = Rohwert des Heizkostenverteilers</li>
     <li>Kc = Leistung des Heizkörpers in Kilowatt</li>
@@ -113,11 +112,11 @@ foreach ($gas->conn->query( $sql ) as $index => $row) {
 echo "</table>";
 
 ?>
-<p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->nf( $hkv->summeAllerZaehlerwerte() )?>.</p> 
 
 <!-- ---------------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
 <h2>Verteilung auf die Wohnungen</h2>
-<p>Teilt man die Heizkosten durch die die Summe aller Messwerte erhält man den Preis pro Wert.</p>
+<p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->nf( $hkv->summeAllerZaehlerwerte() )?>. 
+Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert.</p>
 <pre><strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->summeAllerZaehlerwerte()?> = <strong class="white"><?=( $hkv->nf( $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte() ) )?> €</strong></pre>
 
 <?php

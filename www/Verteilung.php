@@ -1,6 +1,6 @@
 <?php
 
-class Heizkostenverteiler{
+class Verteilung{
     public $conn;
     public $Abrechnungsjahr;
 #    private Gasrechnung $gas;
@@ -60,7 +60,7 @@ class Heizkostenverteiler{
         GROUP BY w.ID";
 
         # hier die Werte in ein Array speichern, die Vorjahreswerte auf gleiche Weise ermitteln und dann abziehen
-        foreach ($this->conn->query( $sql ) as $index => $row) {
+        foreach ($this->conn->query( $sql ) as $index => $row){
             $messwerteMinusVorperiode[] = $row['whgTotal'];
         }
 
