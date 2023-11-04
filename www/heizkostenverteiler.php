@@ -9,7 +9,7 @@ $gas = new Gasrechnung();
 require_once('classes/Verteilung.php');
 $hkv = new Verteilung($gas);
 
-# Werte pro Zähler im Abrechnungsjahr (Werte des Vorjahres müssen noch abgezogen werden)
+# Werte pro Zähler im Abrechnungsjahr
 $sql = "SELECT z.ID zid, MAX(m.Wert) w
 FROM Messwerte m
 LEFT JOIN Zaehler z
@@ -22,22 +22,30 @@ foreach ($gas->conn->query( $sql ) as $index => $row) {
     $messwerteGesamt[$row['zid']] = $row['w'];
 }
 
-$sql = "SELECT z.ID zid, MAX(m.Wert) w, h.Kq q, h.Kc c
+$sql = "SELECT z.ID zid, MAX(m.Wert) vjw, h.Kq q, h.Kc c
 FROM Messwerte m
 LEFT JOIN Zaehler z
 ON m.Zaehler_ID = z.ID
 LEFT JOIN Heizkoerper h
 ON z.Heizkoerper_ID = h.ID
-WHERE YEAR(m.Zeitpunkt) = " . ($gas->Abrechnungsjahr - 1) . "
+WHERE YEAR(m.Zeitpunkt) = " . ($gas->Abrechnungsjahr - 1) . " /* Werte aus Vorjahr abziehen, um Jahreswerte zu bekommen */
 AND z.Whg_ID IN (SELECT ID FROM Wohnungen)
 GROUP BY Zaehler_ID";
 
-
-echo '<table><th>Zähler</th><th>Messwert</th><th></th><th>Kq</th><th></th><th>Kc</th><th></th><th>Basis</th><th></th><th>Wert</th>';
-$messwerteTotal = 0;
+?>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Liste Heizkostenverteiler</title>
+        <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css"/>
+    </head>
+    <body>
+        <a href="index.php?y= <?=$gas->Abrechnungsjahr?>">zurück</a>
+        <table><th>Zähler</th><th>Messwert</th><th></th><th>Kq</th><th></th><th>Kc</th><th></th><th>Basis</th><th></th><th>Wert</th>
+<?php
 foreach ($gas->conn->query( $sql ) as $index => $row) {
-    $messwerteLaufendesJahr[$row['zid']] = $messwerteGesamt[$row['zid']] - $row['w'];
-    $messwerteTotal += $messwerteLaufendesJahr[$row['zid']]*$row['q']*$row['c']/1.181;
+    $messwerteLaufendesJahr[$row['zid']] = $messwerteGesamt[$row['zid']] - $row['vjw']; # Jahreswert = Gesamtwert - Vorjahreswert (denn Zähler zählen immer weiter)
     echo "<tr>
     <td>".$row['zid'].'</td>
     <td class="center">'.$messwerteLaufendesJahr[$row['zid']].'</td>
@@ -50,4 +58,7 @@ foreach ($gas->conn->query( $sql ) as $index => $row) {
     <td> = </td>
     <td>'. $hkv->nf($messwerteLaufendesJahr[$row['zid']] * $row['q'] * $row['c'] / 1.181) . '</td></tr>';
 }
-echo "</table>";
+?>
+</table>
+</body>
+</html>

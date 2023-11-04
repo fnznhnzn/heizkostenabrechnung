@@ -65,6 +65,7 @@ als Gasverbrauch für die Wassererwärmung:</p>
     <li>Kq = Trägheit des Heizkörpers</li>
     <li>B = Basisempfindlichkeit des HKV, 1,181 bei Engelmann HCA e2 im 1-Fühler-Modus</li>
 </ul>
+<a href="heizkostenverteiler.php?y=<?=$gas->Abrechnungsjahr?>">Liste Heizkostenverteiler</a>
 
 <!-- ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
 <h3>Verteilung auf die Wohnungen</h3>
