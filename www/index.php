@@ -22,7 +22,7 @@
         <link rel="stylesheet" href="style.css"/>
     </head>
     <body>
-        <h1>HK-Abrechnung <?=$gas->Abrechnungsjahr?></h1>
+        <h1>Übersicht HK-Abrechnung <?=$gas->Abrechnungsjahr?></h1>
 
         <h2>Gasrechnung</h2>
             <p>Gasrechnung vom <?=$gas->Rechnungsdatum;?> von <?=$gas->Lieferant?>, Abrechnungsjahr <?=$gas->Abrechnungsjahr?>,  
