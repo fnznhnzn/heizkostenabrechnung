@@ -18,7 +18,7 @@ class Verteilung{
 
     public function summeAllerZaehlerwerte(){
         # Werte aller Zähler zusammen
-        $sql = "SELECT Zaehler_ID, ( MAX(m.Wert) * h.Kq * h.Kc / 2.288 ) w
+        $sql = "SELECT Zaehler_ID, ( MAX(m.Wert) * h.Kq * h.Kc / 1.181 ) w
         FROM Wohnungen w
         LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
         LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
@@ -33,7 +33,7 @@ class Verteilung{
         }
 
         # Zählerwerte aus Vorjahr
-        $sql = "SELECT Zaehler_ID, ( MAX(m.Wert) * h.Kq * h.Kc / 2.288 ) w
+        $sql = "SELECT Zaehler_ID, ( MAX(m.Wert) * h.Kq * h.Kc / 1.181 ) w
         FROM Wohnungen w
         LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
         LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
@@ -94,7 +94,12 @@ class Verteilung{
         return $sql;
     }
 
-    public function monatswerte($year, $start, $end){
+    # what methods do we need, I ask!
+    # monatswerteListe(): nicely list values by apartment and month for any part of the year 
+    # totalMeteredConsumption(): sum up all metered values for the year (there is only one gas bill per year) summeAllerZaehlerwerte()
+    # consumptionByMeter(): get measured value for an apartment for whole or part of a year
+    # consumptionByArea(): get allocated cost by square meters for whole or part of a year
+    public function monatswerteListe( $year, $monthNumberStart, $monthNumberEnd ){
         # this one subtracts the previous month with a self join, so we get actual consumption per month
         $sql = "SELECT w.ID Wohnung, YEAR(mw.Zeitpunkt) Jahr, MONTH(mw.Zeitpunkt) Monat,  MAX(mw.Wert) - MAX(mwb.Wert) Wert 
         FROM Mieter m
@@ -113,6 +118,32 @@ class Verteilung{
         }
         
         return $monatswerte;
+    }
+
+    public function consumptionByMeter( $year, $apartment, $monthNumberStart, $monthNumberEnd ){ # get allocated value for a flat for a year or a part of it
+        if($monthNumberStart < 10 ){
+            $monthNumberStart = '0' . $monthNumberStart;
+        }
+        $sql = "SELECT MAX(mw.Wert) - 
+        (
+            SELECT MAX(mwb.Wert) 
+            FROM Mieter m
+            LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID
+            LEFT JOIN Zaehler z ON z.Whg_ID = w.ID
+            LEFT JOIN Messwerte mwb ON z.ID = mwb.Zaehler_ID
+            WHERE STR_TO_DATE(mwb.Zeitpunkt, '%Y-%m-%d %H:%i:%s') < STR_TO_DATE('$year-$monthNumberStart-01 00:00:00', '%Y-%m-%d %H:%i:%s')
+        ) AS consumption
+        FROM Mieter m
+        LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID
+        LEFT JOIN Zaehler z ON z.Whg_ID = w.ID
+        LEFT JOIN Messwerte mw ON z.ID = mw.Zaehler_ID
+        WHERE YEAR(mw.Zeitpunkt) = $year
+        AND MONTH(mw.Zeitpunkt) BETWEEN $monthNumberStart AND $monthNumberEnd
+        AND w.ID = $apartment";
+    }
+
+    public function consumptionByArea( $year, $apartment, $monthNumberStart, $monthNumberEnd ){
+
     }
 
     public function nf($n){

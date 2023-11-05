@@ -11,7 +11,7 @@
 
     define('WASSERVERBRAUCH', 123); # dummie value! 
 
-    print_r( $hkv->monatswerte( 2023, 2, 5 ) );
+ 
 ?>
 
 <!DOCTYPE html>
