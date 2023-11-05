@@ -94,6 +94,27 @@ class Verteilung{
         return $sql;
     }
 
+    public function monatswerte($year, $start, $end){
+        # this one subtracts the previous month with a self join, so we get actual consumption per month
+        $sql = "SELECT w.ID Wohnung, YEAR(mw.Zeitpunkt) Jahr, MONTH(mw.Zeitpunkt) Monat,  MAX(mw.Wert) - MAX(mwb.Wert) Wert 
+        FROM Mieter m
+        LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID
+        LEFT JOIN Zaehler z ON z.Whg_ID = w.ID
+        LEFT JOIN Messwerte mw ON z.ID = mw.Zaehler_ID
+        INNER JOIN Messwerte mwb ON mw.Zaehler_ID = mwb.Zaehler_ID /* self join to get... */
+            AND mwb.Zeitpunkt < mw.Zeitpunkt /* ...all preceding values of... */
+            AND MONTH(mwb.Zeitpunkt) != MONTH(mw.Zeitpunkt) /* ...all months (before the current one) */
+        WHERE YEAR(mw.Zeitpunkt) = $year
+        AND MONTH(mw.Zeitpunkt) BETWEEN $start AND $end
+        GROUP BY Wohnung, Monat";
+        
+        foreach ($this->conn->query( $sql ) as $index => $row) {
+            $monatswerte[] = $row;
+        }
+        
+        return $monatswerte;
+    }
+
     public function nf($n){
         return number_format($n, 16, ',', '.');
     }
