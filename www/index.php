@@ -1,15 +1,15 @@
 <?php
-    declare(strict_types=1);
-    error_reporting(E_ALL);
-    ini_set('display_errors', 'on');
+declare(strict_types=1);
+error_reporting(E_ALL);
+ini_set('display_errors', 'on');
 
-    require_once('classes/Gasrechnung.php');
-    $gas = new Gasrechnung();
+require_once('classes/Gasrechnung.php');
+$gas = new Gasrechnung();
 
-    require_once('classes/Verteilung.php');
-    $hkv = new Verteilung($gas);
+require_once('classes/Verteilung.php');
+$hkv = new Verteilung($gas);
 
-    define('WASSERVERBRAUCH', 123); # dummie value! 
+define('WASSERVERBRAUCH', 123); # dummie value! 
 
  
 ?>
@@ -19,7 +19,7 @@
     <head>
         <title>Heizkostenabrechnung Übersicht</title>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="style.css"/>
+        <link rel="stylesheet" href="css/style.css"/>
     </head>
     <body>
         <h1>Übersicht HK-Abrechnung <?=$gas->Abrechnungsjahr?></h1>

@@ -1,2 +1,4 @@
 bk
-tc-lib-pdf
+vendor
+composer.json
+composer.lock
