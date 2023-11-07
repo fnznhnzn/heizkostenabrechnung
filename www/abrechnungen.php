@@ -22,7 +22,9 @@ $abr = new Abrechnung();
 
     <h1>Heizkostenabrechnung für <?=$gas->Abrechnungsjahr?></h1> 
     <h2><?=$row['Etage']?> <?=$row['Lage']?> - <?=$row['Nachname']?>, <?=$row['Vorname']?></h2>
-    <p>Abrechnungszeitraum <?=$row['Anfang']?> - <?=$row['Ende']?></p>
+    <p>Abrechnungszeitraum <?=$row['Einzug']?> - <?=$row['Auszug']?></p>
+    <p>Verbrauch <?=$hkv->meteredConsumption($gas->Abrechnungsjahr, $row['Whg_ID'], 1, 12)?></p>
+    
     
 
 <div class="page_break"></div>

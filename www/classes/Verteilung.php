@@ -97,8 +97,9 @@ class Verteilung{
     # what methods do we need, I ask!
     # monatswerteListe(): nicely list values by apartment and month for any part of the year 
     # totalMeteredConsumption(): sum up all metered values for the year (there is only one gas bill per year) summeAllerZaehlerwerte()
-    # consumptionByMeter(): get measured value for an apartment for whole or part of a year
-    # consumptionByArea(): get allocated cost by square meters for whole or part of a year
+    # meteredConsumption(): get measured value for an apartment for whole or part of a year
+    # calculatedConsumption(): get allocated cost by square meters for whole or part of a year
+
     public function monatswerteListe( $year, $monthNumberStart, $monthNumberEnd ){
         # this one subtracts the previous month with a self join, so we get actual consumption per month
         $sql = "SELECT w.ID Wohnung, YEAR(mw.Zeitpunkt) Jahr, MONTH(mw.Zeitpunkt) Monat,  MAX(mw.Wert) - MAX(mwb.Wert) Wert 
@@ -116,11 +117,10 @@ class Verteilung{
         foreach ($this->conn->query( $sql ) as $index => $row) {
             $monatswerte[] = $row;
         }
-        
         return $monatswerte;
     }
 
-    public function consumptionByMeter( $year, $apartment, $monthNumberStart, $monthNumberEnd ){ # get allocated value for a flat for a year or a part of it
+    public function meteredConsumption( $year, $apartment, $monthNumberStart, $monthNumberEnd ){ # get allocated value for a flat for a year or a part of it
         if($monthNumberStart < 10 ){
             $monthNumberStart = '0' . $monthNumberStart;
         }
@@ -140,9 +140,13 @@ class Verteilung{
         WHERE YEAR(mw.Zeitpunkt) = $year
         AND MONTH(mw.Zeitpunkt) BETWEEN $monthNumberStart AND $monthNumberEnd
         AND w.ID = $apartment";
+
+        $res = $this->conn->query( $sql ); 
+        $consumption = mysqli_fetch_assoc( $res );                       
+        return $consumption['consumption'];
     }
 
-    public function consumptionByArea( $year, $apartment, $monthNumberStart, $monthNumberEnd ){
+    public function calculatedConsumption( $year, $apartment, $monthNumberStart, $monthNumberEnd ){
 
     }
 

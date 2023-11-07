@@ -12,13 +12,12 @@ class Abrechnung{
 
     public function getBillReceivers(){ # who gets a bill?
         $sql = "SELECT *, 
-        DATE_FORMAT(Einzug, '%e.%c.%x') Anfang, 
-        DATE_FORMAT(Einzug, '%e.%c.%x') Ende
+        Einzug, Auszug
         FROM Mieter m
         LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID 
         WHERE YEAR(Einzug) = $this->Abrechnungsjahr
         OR YEAR(Auszug) = $this->Abrechnungsjahr
-        OR Auszug = '0000-00-00 00:00:00'";
+        OR Auszug = '0000-00-00'";
 
         $res = $this->conn->query($sql);
         while($row = $res->fetch_assoc()){
