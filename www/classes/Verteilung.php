@@ -1,5 +1,7 @@
 <?php
 
+# todo: Summe aller Zählerwerte unplausibel, einfachere Query schreiben!
+
 class Verteilung{
     public $conn;
     public $Abrechnungsjahr;
@@ -94,12 +96,6 @@ class Verteilung{
         return $sql;
     }
 
-    # what methods do we need, I ask!
-    # monatswerteListe(): nicely list values by apartment and month for any part of the year 
-    # totalMeteredConsumption(): sum up all metered values for the year (there is only one gas bill per year) summeAllerZaehlerwerte()
-    # meteredConsumption(): get measured value for an apartment for whole or part of a year
-    # calculatedConsumption(): get allocated cost by square meters for whole or part of a year
-
     public function monatswerteListe( $year, $monthNumberStart, $monthNumberEnd ){
         # this one subtracts the previous month with a self join, so we get actual consumption per month
         $sql = "SELECT w.ID Wohnung, YEAR(mw.Zeitpunkt) Jahr, MONTH(mw.Zeitpunkt) Monat,  MAX(mw.Wert) - MAX(mwb.Wert) Wert 
@@ -111,7 +107,7 @@ class Verteilung{
             AND mwb.Zeitpunkt < mw.Zeitpunkt /* ...all preceding values of... */
             AND MONTH(mwb.Zeitpunkt) != MONTH(mw.Zeitpunkt) /* ...all months (before the current one) */
         WHERE YEAR(mw.Zeitpunkt) = $year
-        AND MONTH(mw.Zeitpunkt) BETWEEN $start AND $end
+        AND MONTH(mw.Zeitpunkt) BETWEEN $monthNumberStart AND $monthNumberEnd
         GROUP BY Wohnung, Monat";
         
         foreach ($this->conn->query( $sql ) as $index => $row) {
@@ -120,25 +116,26 @@ class Verteilung{
         return $monatswerte;
     }
 
-    public function meteredConsumption( $year, $apartment, $monthNumberStart, $monthNumberEnd ){ # get allocated value for a flat for a year or a part of it
-        if($monthNumberStart < 10 ){
-            $monthNumberStart = '0' . $monthNumberStart;
+    public function meteredConsumption( $year, $apartment, $startDate, $endDate ){ # get allocated value for a flat for the year or a part of it
+        if( substr( $startDate,0,4 < $year) ){ 
+            $startDate  = $year . '-01-01';
         }
+  
         $sql = "SELECT MAX(mw.Wert) - 
-        (
+        ( /* deduct everything measured before start date */
             SELECT MAX(mwb.Wert) 
             FROM Mieter m
             LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID
             LEFT JOIN Zaehler z ON z.Whg_ID = w.ID
             LEFT JOIN Messwerte mwb ON z.ID = mwb.Zaehler_ID
-            WHERE STR_TO_DATE(mwb.Zeitpunkt, '%Y-%m-%d %H:%i:%s') < STR_TO_DATE('$year-$monthNumberStart-01 00:00:00', '%Y-%m-%d %H:%i:%s')
+            WHERE mwb.Zeitpunkt < STR_TO_DATE('$startDate', '%Y-%m-%d %H:%i:%s')
         ) AS consumption
         FROM Mieter m
         LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID
         LEFT JOIN Zaehler z ON z.Whg_ID = w.ID
         LEFT JOIN Messwerte mw ON z.ID = mw.Zaehler_ID
         WHERE YEAR(mw.Zeitpunkt) = $year
-        AND MONTH(mw.Zeitpunkt) BETWEEN $monthNumberStart AND $monthNumberEnd
+        AND MONTH(mw.Zeitpunkt) BETWEEN MONTH('$startDate') AND MONTH('$endDate')
         AND w.ID = $apartment";
 
         $res = $this->conn->query( $sql ); 
@@ -146,8 +143,10 @@ class Verteilung{
         return $consumption['consumption'];
     }
 
-    public function calculatedConsumption( $year, $apartment, $monthNumberStart, $monthNumberEnd ){
-
+    public function formatDate($date){
+        $date = strtotime( $date . '00:00:00' );
+        $date = date('d.m.Y', $date);
+        return $date;
     }
 
     public function nf($n){
