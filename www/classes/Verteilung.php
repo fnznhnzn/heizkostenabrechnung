@@ -15,7 +15,32 @@ class Verteilung{
         if(!$this->Abrechnungsjahr >= 2023){ echo 'give us y=2023 or later'; die(); }
         $this->conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
         $this->gas = $gas;
-        $this->preisProMesswert = $gas->PreisHeizung70Prozent / $this->summeAllerZaehlerwerte();  
+        $this->preisProMesswert = $gas->PreisHeizung70Prozent / $this->totalMeteredConsumption($gas->Abrechnungsjahr);
+    }
+
+    public function totalMeteredConsumption($year){
+        $sql = <<<SQL
+SELECT 
+(
+    SELECT SUM(w) FROM (
+        SELECT MAX(Wert) w FROM Messwerte m
+        LEFT JOIN Zaehler z ON z.ID = m.Zaehler_ID
+        WHERE YEAR(Zeitpunkt) = $year
+        GROUP BY Zaehler_ID
+    ) totalThisYearsMeters
+) - 
+(
+    SELECT SUM(w) FROM (
+        SELECT MAX(Wert) w FROM Messwerte m
+        LEFT JOIN Zaehler z ON z.ID = m.Zaehler_ID
+        WHERE YEAR(Zeitpunkt) < $year
+        GROUP BY Zaehler_ID
+    ) totalMetersBefore
+) thisYearsTotalConsumption
+SQL;
+        $res = $this->conn->query($sql);
+        $consumption = mysqli_fetch_assoc( $res );
+        return $consumption['thisYearsTotalConsumption'];
     }
 
     public function summeAllerZaehlerwerte(){
