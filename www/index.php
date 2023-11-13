@@ -74,9 +74,9 @@ Nach §9 Ziffer 2 wird der Gasverbrauch wie folgt berechnet:</p>
 
 <!-- ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
         <h3>Verteilung auf die Wohnungen</h3>
-        <p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->nf( $hkv->summeAllerZaehlerwerte() )?>. 
+        <p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->totalMeteredConsumption($gas->Abrechnungsjahr)?>. 
         Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert.</p>
-        <pre><strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->summeAllerZaehlerwerte()?> = <strong class="white"><?=( $hkv->nf( $gas->PreisHeizung70Prozent / $hkv->summeAllerZaehlerwerte() ) )?> €</strong></pre>
+        <pre><strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->totalMeteredConsumption($gas->Abrechnungsjahr)?> = <strong class="white"><?=( $hkv->nf( $gas->PreisHeizung70Prozent / $hkv->totalMeteredConsumption($gas->Abrechnungsjahr) ) )?> €</strong></pre>
         <p>Diesen multipliziert man mit den Werten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>
         <table>
             <tr><th>Mieter</th><th>HKV</th><th></th><th>Faktor</th><th></th><th></th><th></th><th>Euro</th></tr>

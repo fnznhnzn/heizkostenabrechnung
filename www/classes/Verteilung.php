@@ -1,7 +1,5 @@
 <?php
 
-# todo: Summe aller Zählerwerte unplausibel, einfachere Query schreiben!
-
 class Verteilung{
     public $conn;
     public $Abrechnungsjahr;
@@ -19,6 +17,8 @@ class Verteilung{
     }
 
     public function totalMeteredConsumption($year){
+        # How much for all allocators combined for a year? 
+        # As meters keep counting, use each one's last (highest) reading and subtract last year's.
         $sql = <<<SQL
 SELECT 
 (
@@ -27,55 +27,21 @@ SELECT
         LEFT JOIN Zaehler z ON z.ID = m.Zaehler_ID
         WHERE YEAR(Zeitpunkt) = $year
         GROUP BY Zaehler_ID
-    ) totalThisYearsMeters
-) - 
+    ) totalMeteredThisYear
+) - /* minus */
 (
     SELECT SUM(w) FROM (
         SELECT MAX(Wert) w FROM Messwerte m
         LEFT JOIN Zaehler z ON z.ID = m.Zaehler_ID
         WHERE YEAR(Zeitpunkt) < $year
         GROUP BY Zaehler_ID
-    ) totalMetersBefore
-) thisYearsTotalConsumption
+    ) totalMeteredEarlier
+) thisYearsConsumption
 SQL;
+
         $res = $this->conn->query($sql);
         $consumption = mysqli_fetch_assoc( $res );
-        return $consumption['thisYearsTotalConsumption'];
-    }
-
-    public function summeAllerZaehlerwerte(){
-        # Werte aller Zähler zusammen
-        $sql = "SELECT Zaehler_ID, ( MAX(m.Wert) * h.Kq * h.Kc / 1.181 ) w
-        FROM Wohnungen w
-        LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
-        LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
-        LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
-        WHERE YEAR(Zeitpunkt) = '" . $this->Abrechnungsjahr . "'
-        GROUP BY Zaehler_ID
-        ORDER BY Zaehler_ID";
-
-        $gesamtSumme = 0;
-        foreach ($this->conn->query( $sql ) as $index => $row) {
-            $gesamtSumme += $row['w'];
-        }
-
-        # Zählerwerte aus Vorjahr
-        $sql = "SELECT Zaehler_ID, ( MAX(m.Wert) * h.Kq * h.Kc / 1.181 ) w
-        FROM Wohnungen w
-        LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
-        LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
-        LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
-        WHERE YEAR(Zeitpunkt) = '" . ($this->Abrechnungsjahr - 1) . "'
-        GROUP BY Zaehler_ID
-        ORDER BY Zaehler_ID";
-
-        $vorjahresSumme = 0;
-        foreach ($this->conn->query( $sql ) as $index => $row) {
-            $vorjahresSumme += $row['w'];
-        }
-
-        # Gesamt Abrechungsjahr - Gesamt Vorjahr = Werte für laufendes Jahr
-        return $gesamtSumme - $vorjahresSumme;
+        return $consumption['thisYearsConsumption'];
     }
 
     public function einzelneZaehlerwerte(){
