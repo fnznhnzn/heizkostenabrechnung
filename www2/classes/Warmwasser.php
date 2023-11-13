@@ -1,6 +1,6 @@
 <?php
 
-class Warmwasser{
+class Warmwasser extends Gas{
     
     public CONST TW = 45; # Temperatur Warmwasser
     public CONST Hi = 10; # Heizwert Erdgas H
@@ -10,8 +10,9 @@ class Warmwasser{
     public $Preis_Warmwasser_pro_Quadratmeter;
 
     public function __construct(){
+        parent::__construct();
         $kWh_Gas_fuer_Warmwasser = 2.5 * self::WARMWASSERKUBIKMETER * self::TW / self::Hi;
-        $this->Preis_Warmwasser = $kWh_Gas_fuer_Warmwasser * $gas->Kilowattstundenpreis;
+        $this->Preis_Warmwasser = $kWh_Gas_fuer_Warmwasser * $this->Kilowattstundenpreis;
     }
     
     public function warmwasser_nach_flaeche( $Quadratmeter ){

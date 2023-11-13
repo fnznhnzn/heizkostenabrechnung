@@ -1,6 +1,6 @@
 <?php
 
-class Heizkostenverteilung{
+class Heizkostenverteiler extends Base {
     
     public $Preis_Heizung;
     public $Preis_Heizung_70Prozent;
@@ -8,9 +8,11 @@ class Heizkostenverteilung{
     public $Preis_pro_Messwert;
 
     public function __construct(){
+        parent::__construct();
+
         $this->Preis_Heizung = $Gas->Rechnungsbetrag - $Warmwasser->PreisWarmwasser;
         $this->Preis_Heizung_70Prozent = $this->Preis_Heizung * 0.7;
-        $this->Messergebnis_Haus = totalMeteredConsumption( $Base->Abrechnungsjahr );
+        $this->Messergebnis_Haus = totalMeteredConsumption( $this->Abrechnungsjahr );
         $this->Preis_pro_Messwert = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
     }
 

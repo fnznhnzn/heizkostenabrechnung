@@ -1,6 +1,6 @@
 <?php
 
-class Gas{
+class Gas extends Base{
     
     public $Lieferant;
     public $Rechnungsdatum;
@@ -11,6 +11,8 @@ class Gas{
     public $KilowattstundenpreisE;
 
     public function __construct(){
+        parent::__construct();
+        
         $sql = <<<SQL
             SELECT 
                 Betrag, 
@@ -22,7 +24,7 @@ class Gas{
             FROM 
                 Gasrechnungen 
             WHERE 
-                Abrechnungsjahr = $Base->Abrechnungsjahr
+                Abrechnungsjahr = $this->Abrechnungsjahr
         SQL;
 
         $res = mysqli_query( $this->conn, $sql );

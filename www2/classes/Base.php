@@ -18,7 +18,7 @@ class Base{
         # total heatet area
         $res = mysqli_query($this->conn, "SELECT SUM(qm) AS Gesamtwohnflaeche FROM Wohnungen");
         $row = mysqli_fetch_assoc($res);
-        $this->$Gesamtwohnflaeche = $row['Gesamtwohnflaeche'];
+        $this->Gesamtwohnflaeche = $row['Gesamtwohnflaeche'];
     }
 
     public function euro( $x ){
