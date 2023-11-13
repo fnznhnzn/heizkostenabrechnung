@@ -1,0 +1,84 @@
+<?php
+
+public $Preis_Heizung;
+public $Preis_Heizung_70Prozent;
+public $Messergebnnis_Haus;
+public $Preis_pro_Messwert;
+
+class Heizkostenverteilung{
+
+    public function __construct(){
+        $this->Preis_Heizung = $Gas->Rechnungsbetrag - $Warmwasser->PreisWarmwasser;
+        $this->Preis_Heizung_70Prozent = $this->Preis_Heizung * 0.7;
+        $this->Messergebnis_Haus = totalMeteredConsumption( $Base->Abrechnungsjahr );
+        $this->Preis_pro_Messwert = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
+    }
+
+    private function totalMeteredConsumption( $year ){
+        # How much for all allocators combined for a year? 
+        # As meters keep counting, use each one's last (=highest) reading and subtract last year's.
+        $sql = <<<SQL
+                SELECT 
+                (
+                    SELECT SUM(w) FROM (
+                        SELECT MAX(Wert) w FROM Messwerte m
+                        LEFT JOIN Zaehler z ON z.ID = m.Zaehler_ID
+                        WHERE YEAR(Zeitpunkt) = $year
+                        GROUP BY Zaehler_ID
+                    ) totalMeteredThisYear
+                ) - /* minus */
+                (
+                    SELECT SUM(w) FROM (
+                        SELECT MAX(Wert) w FROM Messwerte m
+                        LEFT JOIN Zaehler z ON z.ID = m.Zaehler_ID
+                        WHERE YEAR(Zeitpunkt) < $year
+                        GROUP BY Zaehler_ID
+                    ) totalMeteredEarlier
+                ) thisYearsConsumption
+        SQL;
+        
+        $res = $this->conn->query($sql);
+        $consumption = mysqli_fetch_assoc( $res );
+        return $consumption['thisYearsConsumption'];
+    }
+
+    public function meteredHeatingCostPerFlat($year, $Whg_ID, $start, $end){
+        return getMeteredData( $year, $Whg_ID, $start, $end ) * $this->Preis_pro_Messwert;
+    }
+    
+    public function getMeteredData( $year, $Whg_ID = '%', $start = $year.'-01-01', $end = $year.'-12-31' ){
+        
+        # meters keep counting, so take each one's last (=highest) reading and subtract last year's.
+        # will return year's total if only that is given
+        $sql = <<<SQL
+                    SELECT 
+                    (
+                        SELECT SUM(w) FROM (
+                            SELECT MAX(Wert) w FROM Wohnungen w
+                            LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
+                            LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
+                            LEFT JOIN Mieter mi ON w.ID = mi.Whg_ID
+                            WHERE w.ID = $Whg_ID
+                            AND DATE(Zeitpunkt) BETWEEN $start AND $end
+                            GROUP BY Zaehler_ID
+                        ) totalThisYearsMeters
+                    ) - 
+                    (
+                        SELECT SUM(w) FROM (
+                            SELECT MAX(Wert) w FROM Wohnungen w
+                            LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
+                            LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
+                            LEFT JOIN Mieter mi ON w.ID = mi.Whg_ID
+                            WHERE w.ID = $Whg_ID
+                            AND YEAR(Zeitpunkt) < $year
+                            GROUP BY Zaehler_ID
+                        ) totalMetersBefore
+                    ) consumption
+                SQL;
+            
+        $res = $this->conn->query($sql);
+        $consumption = mysqli_fetch_assoc( $res );
+        return $consumption['consumption'];
+    }
+
+}
