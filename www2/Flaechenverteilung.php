@@ -1,9 +1,9 @@
 <?php
 
-public $Preis_Heizung_30_Prozent;
-public $Preis_pro_Quadratmeter;
-
 class Flaechenverteilung{
+    
+    public $Preis_Heizung_30_Prozent;
+    public $Preis_pro_Quadratmeter;
 
     public function __construct(){
         $this->$Preis_Heizung_30_Prozent = $Heizkostenverteilung->PreisHeizung * 0.3;

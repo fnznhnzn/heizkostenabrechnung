@@ -1,10 +1,10 @@
 <?php  
-  
-public $conn;
-public $Abrechnungsjahr;
-public $Gesamtwohnflaeche;
 
 class Base{
+    
+    public $conn;
+    public $Abrechnungsjahr;
+    public $Gesamtwohnflaeche;
 
     public function __construct(){  
         # db

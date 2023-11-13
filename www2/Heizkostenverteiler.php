@@ -1,11 +1,11 @@
 <?php
 
-public $Preis_Heizung;
-public $Preis_Heizung_70Prozent;
-public $Messergebnnis_Haus;
-public $Preis_pro_Messwert;
-
 class Heizkostenverteilung{
+    
+    public $Preis_Heizung;
+    public $Preis_Heizung_70Prozent;
+    public $Messergebnnis_Haus;
+    public $Preis_pro_Messwert;
 
     public function __construct(){
         $this->Preis_Heizung = $Gas->Rechnungsbetrag - $Warmwasser->PreisWarmwasser;
@@ -46,7 +46,7 @@ class Heizkostenverteilung{
         return getMeteredData( $year, $Whg_ID, $start, $end ) * $this->Preis_pro_Messwert;
     }
     
-    public function getMeteredData( $year, $Whg_ID = '%', $start = $year.'-01-01', $end = $year.'-12-31' ){
+    public function getMeteredData( $year, $Whg_ID = '%', $firstMonth = 1, $lastMonth = 12 ){
         
         # meters keep counting, so take each one's last (=highest) reading and subtract last year's.
         # will return year's total if only that is given
@@ -59,7 +59,7 @@ class Heizkostenverteilung{
                             LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
                             LEFT JOIN Mieter mi ON w.ID = mi.Whg_ID
                             WHERE w.ID = $Whg_ID
-                            AND DATE(Zeitpunkt) BETWEEN $start AND $end
+                            AND MONTH(Zeitpunkt) BETWEEN $firstMonth AND $lastMonth
                             GROUP BY Zaehler_ID
                         ) totalThisYearsMeters
                     ) - 

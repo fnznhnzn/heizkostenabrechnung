@@ -1,4 +1,7 @@
 <?php
+
+class Gas{
+    
     public $Lieferant;
     public $Rechnungsdatum;
     public $Kilowattstunden;
@@ -6,8 +9,6 @@
     public $RechnungsbetragE;
     public $Kilowattstundenpreis;
     public $KilowattstundenpreisE;
-
-class Gas{
 
     public function __construct(){
         $sql = <<<SQL
@@ -35,5 +36,5 @@ class Gas{
         $this->Kilowattstundenpreis     = $gas['kWhPreis'];
         $this->KilowattstundenpreisE    = str_replace( '.', ',', $this->Kilowattstundenpreis ) . ' €';
     }
-    
+
 }
