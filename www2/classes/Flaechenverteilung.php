@@ -1,13 +1,14 @@
 <?php
 
-class Flaechenverteilung{
+class Flaechenverteilung extends Base {
     
-    public $Preis_Heizung_30_Prozent;
+    public $PreisHeizung30Prozent;
     public $Preis_pro_Quadratmeter;
 
-    public function __construct(){
-        $this->$Preis_Heizung_30_Prozent = $Heizkostenverteilung->PreisHeizung * 0.3;
-        $Preis_pro_Quadratmeter = $this->Preis_Heizung_30_Prozent / $Base->Gesamtwohnflaeche;
+    public function __construct( $PreisHeizung ){
+        parent::__construct();
+        $this->PreisHeizung30Prozent = $PreisHeizung * 0.3;
+        $Preis_pro_Quadratmeter = $this->PreisHeizung30Prozent / $this->Gesamtwohnflaeche;
     }
 
     public function calculatedHeatingCostPerFlat( $year, $Whg_ID, $start, $end ){

@@ -1,18 +1,17 @@
 <?php
 
 class Heizkostenverteiler extends Base {
-    
+
     public $Preis_Heizung;
     public $Preis_Heizung_70Prozent;
-    public $Messergebnnis_Haus;
+    public $Messergebnis_Haus;
     public $Preis_pro_Messwert;
 
-    public function __construct(){
+    public function __construct( $Preis_Warmwasser ){
         parent::__construct();
-
-        $this->Preis_Heizung = $Gas->Rechnungsbetrag - $Warmwasser->PreisWarmwasser;
+        $this->Preis_Heizung = $this->Rechnungsbetrag - $Preis_Warmwasser;
         $this->Preis_Heizung_70Prozent = $this->Preis_Heizung * 0.7;
-        $this->Messergebnis_Haus = totalMeteredConsumption( $this->Abrechnungsjahr );
+        $this->Messergebnis_Haus = $this->getMeteredData( $this->Abrechnungsjahr );
         $this->Preis_pro_Messwert = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
     }
 
@@ -20,8 +19,7 @@ class Heizkostenverteiler extends Base {
         return getMeteredData( $year, $Whg_ID, $start, $end ) * $this->Preis_pro_Messwert;
     }
     
-    public function getMeteredData( $year, $Whg_ID = '%', $firstMonth = 1, $lastMonth = 12 ){
-        
+    public function getMeteredData( $year, $Whg_ID = "'%'", $firstMonth = 1, $lastMonth = 12 ){   
         # meters keep counting, so take each one's last (=highest) reading and subtract last year's.
         # will return year's total if only that is given
         $sql = <<<SQL

@@ -1,6 +1,6 @@
 <?php
 
-class Warmwasser extends Gas{
+class Warmwasser extends Base {
     
     public CONST TW = 45; # Temperatur Warmwasser
     public CONST Hi = 10; # Heizwert Erdgas H

@@ -1,6 +1,6 @@
 <?php  
 
-class Base{
+class Base {
     
     public $conn;
     public $Abrechnungsjahr;
@@ -28,7 +28,7 @@ class Base{
         $row = mysqli_fetch_assoc($res);
         $this->Gesamtwohnflaeche = $row['Gesamtwohnflaeche'];
 
-        # Gasrechnung
+        # gas bill
         $sql = <<<SQL
             SELECT 
                 Betrag, 
