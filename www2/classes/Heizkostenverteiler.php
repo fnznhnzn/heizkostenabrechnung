@@ -52,5 +52,5 @@ class Heizkostenverteiler extends Base {
         $consumption = mysqli_fetch_assoc( $res );
         return $consumption['consumption'];
     }
-
+    
 }

@@ -11,8 +11,8 @@ class Warmwasser extends Base {
 
     public function __construct(){
         parent::__construct();
-        $kWh_Gas_fuer_Warmwasser = 2.5 * self::WARMWASSERKUBIKMETER * self::TW / self::Hi;
-        $this->Preis_Warmwasser = $kWh_Gas_fuer_Warmwasser * $this->Kilowattstundenpreis;
+        $kWh_Gas_fuer_Warmwasser = 2.5 * self::WARMWASSERKUBIKMETER * self::TW / self::Hi; # see HeizkostenV
+        $this->Preis_Warmwasser = $kWh_Gas_fuer_Warmwasser * $this->Kilowattstundenpreis; # money spent
     }
     
     public function warmwasser_nach_flaeche( $Quadratmeter ){

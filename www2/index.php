@@ -12,6 +12,6 @@ $Base                   = new Base();
 $Warmwasser             = new Warmwasser();
 $Heizkostenverteiler    = new Heizkostenverteiler( $Warmwasser->Preis_Warmwasser );
 $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_Heizung );
-#die(); # wie beerbt man mehrere Klassen? Traits?
+
 
 

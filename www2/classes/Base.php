@@ -1,11 +1,11 @@
 <?php  
 
 class Base {
-    
+    # immutables
     public $conn;
     public $Abrechnungsjahr;
     public $Gesamtwohnflaeche;
-
+    # gas bill
     public $Lieferant;
     public $Rechnungsdatum;
     public $Kilowattstunden;
