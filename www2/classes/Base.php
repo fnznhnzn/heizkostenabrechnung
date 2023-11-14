@@ -6,6 +6,14 @@ class Base{
     public $Abrechnungsjahr;
     public $Gesamtwohnflaeche;
 
+    public $Lieferant;
+    public $Rechnungsdatum;
+    public $Kilowattstunden;
+    public $Rechnungsbetrag;
+    public $RechnungsbetragE;
+    public $Kilowattstundenpreis;
+    public $KilowattstundenpreisE;
+
     public function __construct(){  
         # db
         $this->conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
@@ -19,6 +27,32 @@ class Base{
         $res = mysqli_query($this->conn, "SELECT SUM(qm) AS Gesamtwohnflaeche FROM Wohnungen");
         $row = mysqli_fetch_assoc($res);
         $this->Gesamtwohnflaeche = $row['Gesamtwohnflaeche'];
+
+        # Gasrechnung
+        $sql = <<<SQL
+            SELECT 
+                Betrag, 
+                DATE_FORMAT( Datum, '%e.%m.%x' ) AS Datum, 
+                Lieferant, 
+                Kubikmeter, 
+                kWh, 
+                Betrag / kWh AS kWhPreis
+            FROM 
+                Gasrechnungen 
+            WHERE 
+                Abrechnungsjahr = $this->Abrechnungsjahr
+        SQL;
+
+        $res = mysqli_query( $this->conn, $sql );
+        $gas = mysqli_fetch_assoc( $res );
+
+        $this->Lieferant                = $gas['Lieferant'];
+        $this->Rechnungsdatum           = $gas['Datum'];
+        $this->Kilowattstunden          = $gas['kWh'];
+        $this->Rechnungsbetrag          = $gas['Betrag'];
+        $this->RechnungsbetragE         = $this->euro( $this->Rechnungsbetrag);
+        $this->Kilowattstundenpreis     = $gas['kWhPreis'];
+        $this->KilowattstundenpreisE    = str_replace( '.', ',', $this->Kilowattstundenpreis ) . ' €';
     }
 
     public function euro( $x ){

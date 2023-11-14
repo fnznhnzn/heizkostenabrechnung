@@ -1,5 +1,5 @@
 <?php
-
+### defunct, put all that in Base!
 class Gas extends Base{
     
     public $Lieferant;
