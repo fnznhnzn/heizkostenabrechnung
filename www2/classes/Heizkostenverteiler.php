@@ -16,34 +16,6 @@ class Heizkostenverteiler extends Base {
         $this->Preis_pro_Messwert = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
     }
 
-    private function totalMeteredConsumption( $year ){
-        # How much for all allocators combined for a year? 
-        # As meters keep counting, use each one's last (=highest) reading and subtract last year's.
-        $sql = <<<SQL
-                SELECT 
-                (
-                    SELECT SUM(w) FROM (
-                        SELECT MAX(Wert) w FROM Messwerte m
-                        LEFT JOIN Zaehler z ON z.ID = m.Zaehler_ID
-                        WHERE YEAR(Zeitpunkt) = $year
-                        GROUP BY Zaehler_ID
-                    ) totalMeteredThisYear
-                ) - /* minus */
-                (
-                    SELECT SUM(w) FROM (
-                        SELECT MAX(Wert) w FROM Messwerte m
-                        LEFT JOIN Zaehler z ON z.ID = m.Zaehler_ID
-                        WHERE YEAR(Zeitpunkt) < $year
-                        GROUP BY Zaehler_ID
-                    ) totalMeteredEarlier
-                ) thisYearsConsumption
-        SQL;
-        
-        $res = $this->conn->query($sql);
-        $consumption = mysqli_fetch_assoc( $res );
-        return $consumption['thisYearsConsumption'];
-    }
-
     public function meteredHeatingCostPerFlat($year, $Whg_ID, $start, $end){
         return getMeteredData( $year, $Whg_ID, $start, $end ) * $this->Preis_pro_Messwert;
     }
