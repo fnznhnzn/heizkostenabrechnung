@@ -7,10 +7,10 @@ class Gas extends Base{
     public $Kilowattstunden;
     public $Rechnungsbetrag;
     public $RechnungsbetragE;
-    public $Kilowattstundenpreis;
+    public static $Kilowattstundenpreis;
     public $KilowattstundenpreisE;
 
-    public function __construct(){
+    public static function init(){
         parent::__construct();
         
         $sql = <<<SQL
@@ -35,7 +35,7 @@ class Gas extends Base{
         $this->Kilowattstunden          = $gas['kWh'];
         $this->Rechnungsbetrag          = $gas['Betrag'];
         $this->RechnungsbetragE         = $this->euro( $this->Rechnungsbetrag);
-        $this->Kilowattstundenpreis     = $gas['kWhPreis'];
+        self::$Kilowattstundenpreis     = $gas['kWhPreis'];
         $this->KilowattstundenpreisE    = str_replace( '.', ',', $this->Kilowattstundenpreis ) . ' €';
     }
 

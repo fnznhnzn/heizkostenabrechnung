@@ -60,7 +60,7 @@ class Heizkostenverteiler extends Base {
                             LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
                             LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
                             LEFT JOIN Mieter mi ON w.ID = mi.Whg_ID
-                            WHERE w.ID = $Whg_ID
+                            WHERE w.ID LIKE $Whg_ID
                             AND MONTH(Zeitpunkt) BETWEEN $firstMonth AND $lastMonth
                             GROUP BY Zaehler_ID
                         ) totalThisYearsMeters
@@ -71,7 +71,7 @@ class Heizkostenverteiler extends Base {
                             LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
                             LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
                             LEFT JOIN Mieter mi ON w.ID = mi.Whg_ID
-                            WHERE w.ID = $Whg_ID
+                            WHERE w.ID LIKE $Whg_ID
                             AND YEAR(Zeitpunkt) < $year
                             GROUP BY Zaehler_ID
                         ) totalMetersBefore
