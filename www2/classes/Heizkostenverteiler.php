@@ -23,7 +23,13 @@ class Heizkostenverteiler extends Base {
         return getMeteredData( $year, $Whg_ID, $start, $end ) * $this->Preis_pro_Messwert;
     }
     
-    public function getMeteredData( $year, $Whg_ID = "'%'", $movedIn = "'2023-01-01'", $movedOut = "'2023-12-31'" ){   
+    public function getMeteredData( $year, $Whg_ID = '%', $movedIn = '2023-01-01', $movedOut = '2023-12-31' ){  
+        if( substr($movedIn,0,4) < $year || !$movedIn ){
+            $movedIn = $year . '-01-01';
+        } 
+        if( substr($movedOut,0,4) > $year || !$movedOut ){
+            $movedOut = $year . '-12-31';
+        }
         # meters keep counting, so take each one's last (=highest) reading and subtract last year's.
         # will return year's total if only that is given
         $sql = <<<SQL
@@ -34,8 +40,8 @@ class Heizkostenverteiler extends Base {
                             LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
                             LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
                             LEFT JOIN Mieter mi ON w.ID = mi.Whg_ID
-                            WHERE w.ID LIKE $Whg_ID
-                            AND MONTH(Zeitpunkt) BETWEEN MONTH(STR_TO_DATE($movedIn, '%Y-%m-%d')) AND MONTH(STR_TO_DATE($movedOut, '%Y-%m-%d'))
+                            WHERE w.ID LIKE '$Whg_ID'
+                            AND MONTH(Zeitpunkt) BETWEEN MONTH(STR_TO_DATE('$movedIn', '%Y-%m-%d')) AND MONTH(STR_TO_DATE('$movedOut', '%Y-%m-%d'))
                             GROUP BY Zaehler_ID
                         ) totalThisYearsMeters
                     ) - 
@@ -45,7 +51,7 @@ class Heizkostenverteiler extends Base {
                             LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
                             LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
                             LEFT JOIN Mieter mi ON w.ID = mi.Whg_ID
-                            WHERE w.ID LIKE $Whg_ID
+                            WHERE w.ID LIKE '$Whg_ID'
                             AND YEAR(Zeitpunkt) < $year
                             GROUP BY Zaehler_ID
                         ) totalMetersBefore

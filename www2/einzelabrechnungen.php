@@ -23,7 +23,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
     <body>
 <!-- begin hyperloop ---------------------------------------------------------------------------------------------- -->
 <?php foreach($Base->getBillReceivers() as $index => $row){ 
-    $mC = $Heizkostenverteiler->getMeteredData($Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
+    $tenantsConsumption = $Heizkostenverteiler->getMeteredData($Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
     ?>
 
     <h1>Heizkostenabrechnung für <?=$Base->Abrechnungsjahr?></h1> 
@@ -34,13 +34,13 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
     <p>70% der Heizkosten sind <?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?>. Geteilt durch die Gesamtsumme der Messwerte (<?=$Heizkostenverteiler->getMeteredData($Base->Abrechnungsjahr)?>) ergibt das einen Preis pro Messwert von <?=$Heizkostenverteiler->Preis_pro_Messwert?> €.</p>
 
-    <p>Letzterer mal <strong><?=$Heizkostenverteiler->getMeteredData($Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'])?></strong> gemessene Werte macht <strong><?=$Heizkostenverteiler->euro($hkv->preisProMesswert * $mC)?></strong> verbrauchsmäßig zugeordnete Heizkosten.</p>
+    <p>Letzterer multipliziert mit <strong><?=$tenantsConsumption?></strong> gemessene Werten macht <strong><?=$Heizkostenverteiler->euro($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption)?></strong> verbrauchsmäßig zugeordnete Heizkosten.</p>
 
-    <p>30% der Heizkosten entspricht <?=$gas->PreisHeizung30ProzentE?>, geteilt durch die gesamte Wohnfläche des Hauses von <?=$abr->Gesamtflaeche?> ergibt einen Preis pro m² von <?=$gas->preisProQuadratmeter?> €</p>
+    <p>30% der Heizkosten entspricht <?=$Flaechenverteilung->PreisHeizung30ProzentE?>, geteilt durch die gesamte Wohnfläche des Hauses von <?=$Base->Gesamtwohnflaeche?> ergibt einen Preis pro m² von <?=$Flaechenverteilung->Preis_pro_QuadratmeterE?></p>
 
-    <p>Multipliziert mit der Wohnfläche von <strong><?=$row['qm']?></strong> m² sind das <strong><?=$gas->euro( $gas->preisProQuadratmeter * $row['qm'] )?></strong></p>
+    <p>Dieser mal Wohnfläche von <strong><?=$row['qm']?></strong> m² ist <strong><?=$Base->euro( $Flaechenverteilung->Preis_pro_Quadratmeter * $row['qm'] )?></strong></p>
 
-    <p>Die Heizkosten betragen insgesamt also <?=$gas->euro($hkv->preisProMesswert * $mC)?> + <?=$gas->euro( $gas->preisProQuadratmeter * $row['qm'] )?> = <strong><?=$gas->euro( ($hkv->preisProMesswert * $mC) + ($gas->preisProQuadratmeter * $row['qm']) )?></strong></p>
+    <p>Die Heizkosten betragen insgesamt also <?=$Base->euro($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption)?> + <?=$Base->euro( $Flaechenverteilung->Preis_pro_Quadratmeter * $row['qm'] )?> = <strong><?=$Base->euro( ($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption) + ($Flaechenverteilung->Preis_pro_Quadratmeter * $row['qm']) )?></strong></p>
 
 <div class="page_break"></div>
 <br/>
