@@ -60,4 +60,35 @@ class Base {
         return $fmt->formatCurrency( $x, "euro" );
     } 
 
+    public function getBillReceivers(){ # who gets a bill?
+        $sql = "SELECT *, Einzug, Auszug
+        FROM Mieter m
+        LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID 
+        WHERE Auszug = '0000-00-00' /* either moved (in and) out this year or still lives here */
+        OR YEAR(Auszug) = $this->Abrechnungsjahr"; 
+
+        $res = $this->conn->query($sql);
+        while($row = $res->fetch_assoc()){ # adjust in and out date for calculation
+            if( substr($row['Einzug'],0,4) < $this->Abrechnungsjahr ){
+                $row['Abrechnungsbeginn'] = $this->Abrechnungsjahr . '-01-01';
+            } else {
+                $row['Abrechnungsbedinn'] = $row['Einzug'];
+            }
+            if( $row['Auszug'] === '0000-00-00' ){
+                $row['Abrechnungsende'] = $this->Abrechnungsjahr . '-12-31';
+            } else {
+                $row['Abrechnungsende'] = $row['Auszug'];
+            }
+            $billReceivers[] = $row;
+        }
+
+        return $billReceivers;
+    } 
+
+    public function formatDate($date){
+        $date = strtotime( $date . '00:00:00' );
+        $date = date('d.m.Y', $date);
+        return $date;
+    }
+
 }
