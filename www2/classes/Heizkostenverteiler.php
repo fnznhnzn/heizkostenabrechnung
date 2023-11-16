@@ -15,23 +15,19 @@ class Heizkostenverteiler extends Base {
         $this->Preis_HeizungE = $this->euro( $this->Preis_Heizung );
         $this->Preis_Heizung_70Prozent = $this->Preis_Heizung * 0.7;
         $this->Preis_Heizung_70ProzentE = $this->euro( $this->Preis_Heizung_70Prozent );
-        $this->Messergebnis_Haus = $this->getMeteredData( $this->Abrechnungsjahr );
+        $this->Messergebnis_Haus = $this->getMeteredData( $this->Abrechnungsjahr, '0000-00-00', '0000-00-00' ); # 0000-00-00 give us full year
         $this->Preis_pro_Messwert = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
     }
-
-    public function meteredHeatingCostPerFlat($year, $Whg_ID, $start, $end){
-        return getMeteredData( $year, $Whg_ID, $start, $end ) * $this->Preis_pro_Messwert;
-    }
     
-    public function getMeteredData( $year, $Whg_ID = '%', $movedIn = '2023-01-01', $movedOut = '2023-12-31' ){  
-        if( substr($movedIn,0,4) < $year || !$movedIn ){
+    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%' ){  
+        if( substr($movedIn,0,4) != $year ){
             $movedIn = $year . '-01-01';
         } 
-        if( substr($movedOut,0,4) > $year || !$movedOut ){
+        if( substr($movedOut,0,4) != $year ){
             $movedOut = $year . '-12-31';
         }
         # meters keep counting, so take each one's last (=highest) reading and subtract last year's.
-        # will return year's total if only that is given
+        # will return total if no apartment given
         $sql = <<<SQL
                     SELECT 
                     (

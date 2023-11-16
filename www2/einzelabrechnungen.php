@@ -23,8 +23,8 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
     <body>
 <!-- begin hyperloop ---------------------------------------------------------------------------------------------- -->
 <?php foreach($Base->getBillReceivers() as $index => $row){ 
-    $tenantsConsumption = $Heizkostenverteiler->getMeteredData($Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
-    ?>
+    $tenantsConsumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'],  $row['Whg_ID'] );
+?>
 
     <h1>Heizkostenabrechnung für <?=$Base->Abrechnungsjahr?></h1> 
     <h2><?=$row['Etage']?> <?=$row['Lage']?> - <?=$row['Nachname']?>, <?=$row['Vorname']?></h2>
@@ -32,7 +32,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
     <p><?=$Base->RechnungsbetragE?> Gasrechnung abzüglich <?=$Warmwasser->Preis_WarmwasserE?> Warmwasser = <?=$Heizkostenverteiler->Preis_HeizungE?> Heizkosten. Aufteilung lt. HeizkostenV: 70% per Verbrauch, 30% per Fläche.</p>
 
-    <p>70% der Heizkosten sind <?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?>. Geteilt durch die Gesamtsumme der Messwerte (<?=$Heizkostenverteiler->getMeteredData($Base->Abrechnungsjahr)?>) ergibt das einen Preis pro Messwert von <?=$Heizkostenverteiler->Preis_pro_Messwert?> €.</p>
+    <p>70% der Heizkosten sind <?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?>. Geteilt durch die Gesamtsumme der Messwerte (<?=$Heizkostenverteiler->Messergebnis_Haus?>) ergibt das einen Preis pro Messwert von <?=$Heizkostenverteiler->Preis_pro_Messwert?> €.</p>
 
     <p>Letzterer multipliziert mit <strong><?=$tenantsConsumption?></strong> gemessene Werten macht <strong><?=$Heizkostenverteiler->euro($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption)?></strong> verbrauchsmäßig zugeordnete Heizkosten.</p>
 
