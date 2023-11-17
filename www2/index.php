@@ -15,3 +15,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
 
 
+# do
+# 1. Test schreiben
+# 2. Plausibilität prüfen
+# 3. Prüftool für einzelne Zähler bzw. Heizkörper

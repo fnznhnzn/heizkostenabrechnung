@@ -28,25 +28,30 @@ class Heizkostenverteiler extends Base {
         }
         # meters keep counting, so take each one's last (=highest) reading and subtract last year's.
         # will return total if no apartment given
+        # values of heat cost allocators are mathematically corrected by radiator key figures
         $sql = <<<SQL
                     SELECT 
                     (
-                        SELECT SUM(w) FROM (
-                            SELECT MAX(Wert) w FROM Wohnungen w
-                            LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
-                            LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
-                            LEFT JOIN Mieter mi ON w.ID = mi.Whg_ID
+                        SELECT SUM(val) FROM (
+                            SELECT MAX( Wert * h.Kq * h.Kc / 1.181 ) val /* Wert x Leistung x Trägheit / Basisempfindlichkeit */
+                            FROM Wohnungen w
+                            LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
+                            LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
+                            LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
+                            LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
                             WHERE w.ID LIKE '$Whg_ID'
                             AND MONTH(Zeitpunkt) BETWEEN MONTH(STR_TO_DATE('$movedIn', '%Y-%m-%d')) AND MONTH(STR_TO_DATE('$movedOut', '%Y-%m-%d'))
                             GROUP BY Zaehler_ID
                         ) totalThisYearsMeters
                     ) - 
                     (
-                        SELECT SUM(w) FROM (
-                            SELECT MAX(Wert) w FROM Wohnungen w
-                            LEFT JOIN Zaehler z ON w.ID = z.Whg_ID
-                            LEFT JOIN Messwerte m ON z.ID = m.Zaehler_ID
-                            LEFT JOIN Mieter mi ON w.ID = mi.Whg_ID
+                        SELECT SUM(val) FROM (
+                            SELECT MAX( Wert * h.Kq * h.Kc / 1.181 ) val 
+                            FROM Wohnungen w
+                            LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
+                            LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
+                            LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
+                            LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
                             WHERE w.ID LIKE '$Whg_ID'
                             AND YEAR(Zeitpunkt) < $year
                             GROUP BY Zaehler_ID

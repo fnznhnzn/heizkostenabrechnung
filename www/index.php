@@ -25,14 +25,13 @@ define('WASSERVERBRAUCH', 123); # dummie value!
         <h1>Übersicht HK-Abrechnung <?=$gas->Abrechnungsjahr?></h1>
 
         <h2>Gasrechnung</h2>
-            <p>Gasrechnung vom <?=$gas->Rechnungsdatum;?> von <?=$gas->Lieferant?>, Abrechnungsjahr <?=$gas->Abrechnungsjahr?>,  
-            <?=$gas->KilowattstundenD?> kWh Erdgas, <strong class="skyblue"><?=$gas->RechnungsbetragE?></strong>. Eine kWh kostet demnach 
-            <strong class="yellow"><?=$gas->KilowattstundenpreisE?></strong>.</p>
+            <p>Gasrechnung von <?=$gas->Lieferant?> vom <?=$gas->Rechnungsdatum;?> für das Jahr <?=$gas->Abrechnungsjahr?>:<br/>  
+            <?=$gas->KilowattstundenD?> Kilowattstunden Erdgas, <strong class="skyblue"><?=$gas->RechnungsbetragE?></strong><br/>
+            Eine Kilowattstunde kostet damit <strong class="yellow"><?=$gas->KilowattstundenpreisE?></strong></p>
 
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
-        <h2>Warmwassererwärmung abziehen</h2>
-        <p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> muss zentrale Warmwassererwärmung zunächt abgezogen werden. 
-Nach §9 Ziffer 2 wird der Gasverbrauch wie folgt berechnet:</p>
+        <h2>Wassererwärmung</h2>
+        <p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/" target="_blank">HeizkostenV</a> müssen die Kosten für die Warmwassererwärmung zunächt abgezogen werden. Nach §9 Ziffer 2 ergibt sich der Gasverbrauch für eine zentrale Wassererwärmung wie folgt:</p>
         <pre>                                  Q = 2,5 x V x (tw-10)</pre>
         <ul>
             <li>Q = Gasverbrauch in Kilowattstunden</li>
@@ -41,13 +40,15 @@ Nach §9 Ziffer 2 wird der Gasverbrauch wie folgt berechnet:</p>
             <li>tw = Warmwassertemperatur (üblicherweise <strong>55°</strong>)</li>
             <li>10 der Wert für die übliche Kaltwassereintrittstemperatur in die Warmwasserversorgungsanlage in Grad Celsius</li>
         </ul>
-        <p>Der Warmwasserverbrauch betrug im Jahr <?=$gas->Abrechnungsjahr?>: <strong><?=WASSERVERBRAUCH?> m³</strong>. Damit ergibt sich 
-        als Gasverbrauch für die Wassererwärmung:</p>
+        <p><?=$gas->Abrechnungsjahr?> wurden insgesamt <strong><?=WASSERVERBRAUCH?></strong> Kubikmeter warmes Wasser verbraucht. Damit ergibt sich 
+        als Gasverbrauch für die Wassererwärmung (s.o.):</p>
         <pre>                            2,5 x <strong><?=WASSERVERBRAUCH?></strong> * (55-10) = <strong class="green"><?=$gas->VerbrauchWarmwasserD?> kWh</strong></pre>
 
-        <p>Nun den Gasverbrauch für Wassererwärmung mit dem Preis pro Kilowattstunde multiplizieren:</p>
+        <p>Die Kosten für die gesamte Wassererwärmung betragen folglich:</p>
         <pre>                       <strong class="green"><?=$gas->VerbrauchWarmwasserD?></strong> kWh Gasverbrauch x <strong class="yellow"><?=$gas->KilowattstundenpreisE?></strong> = <strong class="pink"><?=$gas->PreisWarmwasserE?></strong></pre>
-        <p>Die Gasrechnung abzüglich der Warmwasserkosten ergibt die Heizkosten:</p>
+        
+        <h2>Heizkosten</h2>
+        <p>Die Gasrechnung abzüglich der Kosten für die Wassererwärmung ergibt die Heizkosten:</p>
         <table>
             <tr><td colspan="2">Gasrechnung</td><td class="alignRight"><strong class="skyblue"><?=$gas->RechnungsbetragE?></strong></td></tr>
             <tr><td>minus</td><td>Wassererwärmung</td><td class="alignRight"><strong class="pink"><?=$gas->PreisWarmwasserE?></pink></td></tr>
@@ -55,14 +56,13 @@ Nach §9 Ziffer 2 wird der Gasverbrauch wie folgt berechnet:</p>
         </table>
 
 <!-- -------------------------------------------------------------------------------------------------------- 70% Heizkosten nach Verbrauch -->
-        <h2>70% nach Verbrauch</h2>
-        <p>50-70% der verbleibenden Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
+        <h2>Verbrauchsabhängige Aufteilung</h2>
+        <p>50-70% der verbleibenden Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §6 + §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
         <pre>  <strong class="orange"><?=$gas->PreisHeizungE?></strong> x 0,7 = <strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong></pre>
 
 <!-- -------------------------------------------------------------------------------------------------------- Heizkostenverteiler -->
         <h3>Heizkostenverteiler</h3>
-        <p>Heizkörper haben unterschiedliche Größen und Eigenschaften. Um die Messwerte der Heizkostenverteiler vergleichbar
-            zu machen, werden sie zunächst wie folgt bereinigt:</p>
+        <p>An jedem Heizkörper ist ein Heizkostenverteiler (HKV) befestigt. Heizkörper haben jedoch unterschiedliche Größen und Eigenschaften. Um die Messwerte der HKV vergleichbar zu machen, werden deren Messwerte wie folgt bereinigt:</p>
         <pre>Bereinigter Messwert = M x Kc x Kq / B </pre>
         <ul>
             <li>M = Rohwert des Heizkostenverteilers</li>
@@ -74,8 +74,8 @@ Nach §9 Ziffer 2 wird der Gasverbrauch wie folgt berechnet:</p>
 
 <!-- ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
         <h3>Verteilung auf die Wohnungen</h3>
-        <p>Die Summe aller HKV-Werte <?=$gas->Abrechnungsjahr?> beträgt: <?=$hkv->totalMeteredConsumption($gas->Abrechnungsjahr)?>. 
-        Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert.</p>
+        <p>Die Summe aller HKV-Messwerte des gesamten Hauses im Jahr <?=$gas->Abrechnungsjahr?> betrug: <?=$hkv->totalMeteredConsumption($gas->Abrechnungsjahr)?>. 
+        Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert:</p>
         <pre><strong class="brown"><?=$gas->PreisHeizung70ProzentE?></strong> / <?=$hkv->totalMeteredConsumption($gas->Abrechnungsjahr)?> = <strong class="white"><?=( $hkv->nf( $gas->PreisHeizung70Prozent / $hkv->totalMeteredConsumption($gas->Abrechnungsjahr) ) )?> €</strong></pre>
         <p>Diesen multipliziert man mit den Werten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>
         <table>
