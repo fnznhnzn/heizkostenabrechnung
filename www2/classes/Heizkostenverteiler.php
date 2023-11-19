@@ -19,7 +19,7 @@ class Heizkostenverteiler extends Base {
         $this->Preis_pro_Messwert = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
     }
     
-    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%' ){  
+    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){  
         if( substr($movedIn,0,4) != $year ){
             $movedIn = $year . '-01-01';
         } 
@@ -40,7 +40,10 @@ class Heizkostenverteiler extends Base {
                             LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
                             LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
                             WHERE w.ID LIKE '$Whg_ID'
-                            AND MONTH(Zeitpunkt) BETWEEN MONTH(STR_TO_DATE('$movedIn', '%Y-%m-%d')) AND MONTH(STR_TO_DATE('$movedOut', '%Y-%m-%d'))
+                            AND MONTH(Zeitpunkt) 
+                                BETWEEN MONTH(STR_TO_DATE('$movedIn', '%Y-%m-%d')) 
+                                AND MONTH(STR_TO_DATE('$movedOut', '%Y-%m-%d'))
+                            AND Zaehler_ID LIKE '$zaehlerID'
                             GROUP BY Zaehler_ID
                         ) totalThisYearsMeters
                     ) - 
@@ -54,6 +57,7 @@ class Heizkostenverteiler extends Base {
                             LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
                             WHERE w.ID LIKE '$Whg_ID'
                             AND YEAR(Zeitpunkt) < $year
+                            AND Zaehler_ID LIKE '$zaehlerID'
                             GROUP BY Zaehler_ID
                         ) totalMetersBefore
                     ) consumption
