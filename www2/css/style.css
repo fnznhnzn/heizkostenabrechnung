@@ -1,0 +1,21 @@
+*  { font-family: Calibri; }
+body { width:750px; padding: 20px; background-color: #333; color:#ccc; }
+h2 { margin-bottom:0; }
+p { margin-top:4px; }
+td { border-bottom: 1px solid grey; }
+td { padding:0 6px 0 6px; }
+td.alignRight { text-align: right; }
+td.center { text-align: center; }
+pre { font-family: monospace; }
+a:link, a:visited, a:hover, a:active { font-size: 16px; color:white; text-decoration:none; }
+a:hover { text-decoration:underline; }
+ul li { font-size:12px; }
+.underline { text-decoration: underline; }
+strong.yellow   { color:yellow; }
+strong.skyblue  { color:skyblue; }
+strong.green    { color:green; }
+strong.pink     { color:pink; }
+strong.orange   { color:orange; }
+strong.brown    { color:brown; }
+strong.white    { color:white; }
+strong.violet     { color:violet; }

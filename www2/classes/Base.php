@@ -64,8 +64,8 @@ class Base {
         $sql = "SELECT *, Einzug, Auszug
         FROM Mieter m
         LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID 
-        WHERE Auszug = '0000-00-00' /* either moved (in and) out this year or still lives here */
-        OR YEAR(Auszug) = $this->Abrechnungsjahr"; 
+        WHERE YEAR(Auszug) = $this->Abrechnungsjahr
+        OR Auszug = '0000-00-00'"; /* either moved (in and) out this year or still lives here */
 
         $res = $this->conn->query($sql);
         while($row = $res->fetch_assoc()){ # adjust in and out date for calculation
@@ -89,6 +89,10 @@ class Base {
         $date = strtotime( $date . '00:00:00' );
         $date = date('d.m.Y', $date);
         return $date;
+    }
+
+    public function nf($n){
+        return number_format($n, 16, ',', '.');
     }
 
 }
