@@ -72,9 +72,9 @@ class Base {
             if( substr($row['Einzug'],0,4) < $this->Abrechnungsjahr ){
                 $row['Abrechnungsbeginn'] = $this->Abrechnungsjahr . '-01-01';
             } else {
-                $row['Abrechnungsbedinn'] = $row['Einzug'];
+                $row['Abrechnungsbeginn'] = $row['Einzug'];
             }
-            if( $row['Auszug'] === '0000-00-00' ){
+            if( $row['Auszug'] === '0000-00-00' || substr($row['Auszug'],0,4) > $this->Abrechnungsjahr ){ // not set or moves out some time after this year
                 $row['Abrechnungsende'] = $this->Abrechnungsjahr . '-12-31';
             } else {
                 $row['Abrechnungsende'] = $row['Auszug'];

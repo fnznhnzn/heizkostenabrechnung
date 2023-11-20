@@ -43,7 +43,7 @@
             "port": 9003,
             "serverReadyAction": {
                 "pattern": "Development Server \\(http://localhost:([0-9]+)\\) started",
-                "uriFormat": "http://localhost:%s/www2/einzelabrechnungen.php?y=2023",
+                "uriFormat": "http://localhost:%s/www2/gesamtabrechnung.php?y=2023",
                 "action": "openExternally"
             }
         }

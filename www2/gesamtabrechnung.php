@@ -83,39 +83,36 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
             <tr><th>Mieter</th><th>HKV</th><th></th><th>Faktor</th><th></th><th></th><th></th><th>Euro</th></tr>
 
 <?php
-$e=0;
-foreach ($Heizkostenverteilung->getMeteredData($Base->Abrechnungsjahr,  )) ) as $index => $row) {
+foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
+    $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
-    <td>' . $row['whgTotal'] . '</td>
+    <td>' . $consumption . '</td>
     <td>x</td>
-    <td>' . $hkv->preisProMesswert . '</td>
+    <td>' . $Heizkostenverteiler->Preis_pro_Messwert . '</td>
     <td>=</td>
-    <td class="alignRight">' . $Base->euro($hkv->einzelneZaehlerwerte()[$e] * $hkv->preisProMesswert) . '</td>
+    <td class="alignRight">' . $Base->euro($consumption * $Heizkostenverteiler->Preis_pro_Messwert ) . '</td>
     </tr>'; 
-    $kostenNachVerbrauchProWohnung[$e]['Nachname'] = $row['Nachname'];
-    $kostenNachVerbrauchProWohnung[$e]['Heizkosten'] = $hkv->einzelneZaehlerwerte()[$e] * $hkv->preisProMesswert; 
-    $e++;
 }
 ?>
         </table>
 
 <!-- -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
         <h2>30% nach Wohnfläche</h2>
-        <p>30% der Heizkosten: <strong class="orange"><?=$Base->PreisHeizungE?></strong> x 0.3 = <strong class="violet"><?=$Base->euro( $Base->PreisHeizung30Prozent )?></strong></p>
-        <p>Ergibt Kosten pro m²: <strong class="violet"><?=$Base->euro( $Base->PreisHeizung30Prozent )?></strong> / <?=$Base->getWohnflaeche()?> m² Gesamtfläche = <?=$hkv->nf( $Base->preisProQuadratmeter )?> €</p>
+        <p>30% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0.3 = <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></p>
+        <p>Ergibt Kosten pro m²: <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong> / <?=$Base->Gesamtwohnflaeche?> m² Gesamtfläche = <?=$Flaechenverteilung->Preis_pro_Quadratmeter?> €</p>
         <p>Macht für die einzelnen Wohnungen entsprechend deren Fläche in m²:</p>
         <table>
             <tr><th>Mieter</th><th>m²</th><th>Faktor</th><th>Euro</th></tr>
 <?php
-foreach( $Base->gaspreisNachWohnflaeche() as $index => $row){
-    echo "<tr>
-    <td> {$row['Nachname']} </td>
-    <td>{$row['qm']}</td>
-    <td>x ". $Base->preisProQuadratmeter .' =</td>
-    <td class="alignRight"> '. $Base->euro($row['gpnw']) . "</td>
-    </tr>";
-    $kostenNachFlaecheProWohnung[] = $row['gpnw'];
+foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
+    $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+    echo '<tr>';
+    echo '<td>' . $row['Nachname'] . '</td>';
+    echo '<td>' . $row['qm'] . '</td>';
+    echo '<td>x '. $Flaechenverteilung->Preis_pro_Quadratmeter . ' =</td>';
+    echo '<td class="alignRight"> ' . $proportionateCost . '</td>';
+    echo '</tr>';
 }
 ?>
         </table>
@@ -125,12 +122,14 @@ foreach( $Base->gaspreisNachWohnflaeche() as $index => $row){
                 <tr><th>Mieter</th><th>p.Verbrauch</th><th>p.Fläche</th><th>Summe</th></tr>
 <?php
 $i=0;
-foreach( $kostenNachVerbrauchProWohnung as $index => $row){
+foreach( $Heizkostenverteiler->getBillReceivers()    as $index => $row){
+    $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
+    $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
     echo '<tr>
         <td>' . $row['Nachname'] . '</td>
-        <td class="alignRight">' . $Base->euro( $row['Heizkosten'] ) . '</td>
-        <td class="alignRight">' . $Base->euro( $kostenNachFlaecheProWohnung[$i] ) . '</td>
-        <td class="alignRight"><strong>' . $Base->euro( $row['Heizkosten'] + $kostenNachFlaecheProWohnung[$i] ) . '</strong></td>
+        <td class="alignRight">' . $consumption * $Heizkostenverteiler->Preis_pro_Messwert . '</td>
+        <td class="alignRight">' . $proportionateCost . '</td>
+        <td class="alignRight"><strong>' . ($consumption * $Heizkostenverteiler->Preis_pro_Messwert) + $proportionateCost . '</strong></td>
         </tr>';
         $i++;
 }
