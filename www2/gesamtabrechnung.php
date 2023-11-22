@@ -121,17 +121,17 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
             <table>
                 <tr><th>Mieter</th><th>p.Verbrauch</th><th>p.Fläche</th><th>Summe</th></tr>
 <?php
-$i=0;
 foreach( $Heizkostenverteiler->getBillReceivers()    as $index => $row){
     $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
+    $consumptionCost = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
     $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+
     echo '<tr>
         <td>' . $row['Nachname'] . '</td>
-        <td class="alignRight">' . $consumption * $Heizkostenverteiler->Preis_pro_Messwert . '</td>
+        <td class="alignRight">' . $consumptionCost . '</td>
         <td class="alignRight">' . $proportionateCost . '</td>
-        <td class="alignRight"><strong>' . ($consumption * $Heizkostenverteiler->Preis_pro_Messwert) + $proportionateCost . '</strong></td>
+        <td class="alignRight"><strong>' . ( $consumptionCost + $proportionateCost ) . '</strong></td>
         </tr>';
-        $i++;
 }
 ?>
     </body>
