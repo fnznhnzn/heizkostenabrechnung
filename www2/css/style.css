@@ -6,7 +6,7 @@ td { border-bottom: 1px solid grey; }
 td { padding:0 6px 0 6px; }
 td.alignRight { text-align: right; }
 td.center { text-align: center; }
-pre { font-family: monospace; }
+pre { font-family: monospace; font-size:14px; }
 a:link, a:visited, a:hover, a:active { font-size: 16px; color:white; text-decoration:none; }
 a:hover { text-decoration:underline; }
 ul li { font-size:12px; }

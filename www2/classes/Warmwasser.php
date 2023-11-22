@@ -4,7 +4,7 @@ class Warmwasser extends Base {
     
     public CONST TW = 45; # Temperatur Warmwasser
     public CONST Hi = 10; # Heizwert Erdgas H
-    public CONST WARMWASSERKUBIKMETER = 123; # <= to be changed soon!
+    public CONST WARMWASSERKUBIKMETER = 308; # <= to be changed soon!
     
     public $kWh_Gas_fuer_Warmwasser;
     public $Preis_Warmwasser;

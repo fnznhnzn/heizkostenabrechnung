@@ -26,26 +26,26 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
         <h2>Gasrechnung</h2>
             <p>Gasrechnung von <?=$Base->Lieferant?> vom <?=$Base->Rechnungsdatum;?> für das Jahr <?=$Base->Abrechnungsjahr?>:<br/>  
-            <?=$Base->Kilowattstunden?> Kilowattstunden Erdgas, <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong><br/>
-            Eine Kilowattstunde kostet damit <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong></p>
+            <?=$Base->Kilowattstunden?> Kilowattstunden Erdgas kosteten <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong><br/>
+            Der Preis für eine Kilowattstunde beträgt damit genau <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong></p>
 
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
         <h2>Wassererwärmung</h2>
         <p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/" target="_blank">HeizkostenV</a> müssen die Kosten für die Warmwassererwärmung zunächt abgezogen werden. Nach §9 Ziffer 2 ergibt sich der Gasverbrauch für eine zentrale Wassererwärmung wie folgt:</p>
-        <pre>                                  Q = 2,5 x V x (tw-10)</pre>
+        <pre>                            2,5 x V x (tw-10) = Q</pre>
         <ul>
-            <li>Q = Gasverbrauch in Kilowattstunden</li>
             <li>2,5 der Wert für die Erzeugeraufwandszahl des Wärmeerzeugers, mittlere spezifische Wärmekapazität des Wassers, Wärmeverluste für Warmwasserspeicher, Verteilung einschließlich Zirkulation, Messdatenerhebungen zum Warmwasserverbrauch</li>
             <li>V = Warmwasserverbrauch in m³</li>
             <li>tw = Warmwassertemperatur (üblicherweise <strong>55°</strong>)</li>
             <li>10 der Wert für die übliche Kaltwassereintrittstemperatur in die Warmwasserversorgungsanlage in Grad Celsius</li>
+            <li>Q = Gasverbrauch in Kilowattstunden</li>
         </ul>
         <p><?=$Base->Abrechnungsjahr?> wurden insgesamt <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> Kubikmeter warmes Wasser verbraucht. Damit ergibt sich 
         als Gasverbrauch für die Wassererwärmung (s.o.):</p>
         <pre>                            2,5 x <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> * (55-10) = <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> kWh</strong></pre>
 
         <p>Die Kosten für die gesamte Wassererwärmung betragen folglich:</p>
-        <pre>                       <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser?></strong> kWh Gasverbrauch x <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong> = <strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></strong></pre>
+        <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser?></strong> kWh Gasverbrauch x <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong> = <strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></strong></pre>
         
 <!-- ---------------------------------------------------------------------------------------------------------------------------- Heizung -->
         <h2>Heizung</h2>
