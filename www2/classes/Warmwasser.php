@@ -10,6 +10,7 @@ class Warmwasser extends Base {
     public $kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor;
     public $Preis_Warmwasser;
     public $Preis_WarmwasserE;
+    public $Preis_Warmwasser_BrunataStyle;
     public $Preis_Warmwasser_pro_Quadratmeter;
     public $Preis_Warmwasser_pro_QuadratmeterE;
 
@@ -19,6 +20,7 @@ class Warmwasser extends Base {
         $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor = $this->kWh_Gas_fuer_Warmwasser * 1.11;
         $this->Preis_Warmwasser = $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor * $this->Kilowattstundenpreis; # money spent
         $this->Preis_WarmwasserE = $this->euro( $this->Preis_Warmwasser );
+        $this->Preis_Warmwasser_BrunataStyle = $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor / $this->Kilowattstunden * $this->Rechnungsbetrag;
         $this->Preis_Warmwasser_pro_Quadratmeter = $this->Preis_Warmwasser / $this->Gesamtwohnflaeche;
         $this->Preis_Warmwasser_pro_QuadratmeterE = $this->euro( $this->Preis_Warmwasser_pro_Quadratmeter );
     }

@@ -32,23 +32,25 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
         <h2>Wassererwärmung</h2>
         <p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/" target="_blank">HeizkostenV</a> müssen die Kosten für die Warmwassererwärmung zunächt abgezogen werden. Nach §9 Ziffer 2 ergibt sich der Gasverbrauch für eine zentrale Wassererwärmung wie folgt:</p>
-        <pre>                            2,5 x V x (tw-10) = Q</pre>
+        <pre>                            2,5 x V x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = Q</pre>
         <ul>
             <li>2,5 der Wert für die Erzeugeraufwandszahl des Wärmeerzeugers, mittlere spezifische Wärmekapazität des Wassers, Wärmeverluste für Warmwasserspeicher, Verteilung einschließlich Zirkulation, Messdatenerhebungen zum Warmwasserverbrauch</li>
             <li>V = Warmwasserverbrauch in m³</li>
-            <li>tw = Warmwassertemperatur (üblicherweise <strong>55°</strong>)</li>
-            <li>10 der Wert für die übliche Kaltwassereintrittstemperatur in die Warmwasserversorgungsanlage in Grad Celsius</li>
+            <li>tw = Warmwassertemperatur (üblicherweise <strong><?=$Warmwasser::TW?>°</strong>)</li>
+            <li><?=$Warmwasser::Hi?> der Wert für die übliche Kaltwassereintrittstemperatur in die Warmwasserversorgungsanlage in Grad Celsius</li>
             <li>Q = Gasverbrauch in Kilowattstunden</li>
         </ul>
         <p><?=$Base->Abrechnungsjahr?> wurden insgesamt <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> Kubikmeter warmes Wasser verbraucht. Damit ergibt sich 
         als Gasverbrauch für die Wassererwärmung (s.o.):</p>
-        <pre>                            2,5 x <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> x (55-10) = <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> kWh</pre>
+        <pre>                            2,5 x <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> kWh</pre>
 
         <p>Gemäß §9 HeizkostenV muss der Gasverbrauch mit 1,11 multipliziert werden:
         <pre>    <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> x 1,11 = <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong></pre>
         <p>Die Kosten für die gesamte Wassererwärmung betragen folglich:</p>
         <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh Gasverbrauch x <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong> = <strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></strong></pre>
-        
+        <p>Oder im klassischen Dreisatz:</p>
+        <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh für Warmwasser : <?=$Base->Kilowattstunden?> kWh Gesamtverbrauch x <?=$Base->RechnungsbetragE?> = <?=$Base->euro($Warmwasser->Preis_Warmwasser_BrunataStyle)?></pre>
+
 <!-- ---------------------------------------------------------------------------------------------------------------------------- Heizung -->
         <h2>Heizung</h2>
         <p>Die Gasrechnung abzüglich der Kosten für die Wassererwärmung ergibt die Heizkosten:</p>
@@ -61,7 +63,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 <!-- -------------------------------------------------------------------------------------------------------- 70% Heizkosten nach Verbrauch -->
         <h2>Verbrauchsabhängige Aufteilung</h2>
         <p>50-70% der verbleibenden Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §6 + §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
-        <pre>  <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0,7 = <strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></pre>
+        <p>70% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0,7 = <strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></p>
 
 <!-- -------------------------------------------------------------------------------------------------------- Heizkostenverteiler -->
         <h3>Heizkostenverteiler</h3>
@@ -77,10 +79,27 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
 <!-- ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
         <h3>Verteilung auf die Wohnungen</h3>
-        <p>Die Summe aller HKV-Messwerte des gesamten Hauses im Jahr <?=$Base->Abrechnungsjahr?> betrug: <?=$Heizkostenverteiler->Messergebnis_Haus?>. 
-        Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert:</p>
-        <pre><strong class="brown"><?=$Heizkostenverteiler->Preis_pro_Messwert?></strong> / <?=$Heizkostenverteiler->Messergebnis_Haus?> = <strong class="white"><?=$Base->nf( $Heizkostenverteiler->Preis_pro_Messwert )?> €</strong></pre>
-        <p>Diesen multipliziert man mit den Werten einer Wohnung und erhält so deren Anteil an den Heizkosten.</p>
+        <p>Die Summe aller HKV-Messwerte des gesamten Hauses im Jahr <?=$Base->Abrechnungsjahr?> betrug: <?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?>. 
+        Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert.</p>
+
+<!-- -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
+<h2>30% nach Wohnfläche</h2>
+        <p>30% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0.3 = <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></p>
+        <p>Ergibt Kosten pro m²: <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong> / <?=$Base->Gesamtwohnflaeche?> m² Gesamtfläche = <?=$Flaechenverteilung->Preis_pro_Quadratmeter?> €</p>
+
+             
+        <br/>
+        <table>
+            <tr><th>Anteil</th><th>Preis</th><th>Aufteilung</th><th>Gesamteinheiten</th><th>Preis pro Einheit</th></tr>
+            <tr><td>70%</td><td><strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></td><td>HKV</td><td><?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?></td><td><?=$Base->nf( $Heizkostenverteiler->Preis_pro_Messwert )?> €</td></tr>
+            <tr><td>30%</td><td><strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></td><td>m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Flaechenverteilung->Preis_pro_Quadratmeter?> €</td></tr>
+        </table>
+        <small>HKV = Heizkostenverteiler (Messgeräte an den Heizkörpern)</small>
+        <br/>
+
+<!-- ------------------------------------------------------------------------------------------------------ Heizkosten nach HKV pro Wohnung -->
+<br/>
+<h2>Pro Wohnung nach HKV</h2>
         <table>
             <tr><th>Mieter</th><th>HKV</th><th></th><th>Faktor</th><th></th><th></th><th></th><th>Euro</th></tr>
 
@@ -99,11 +118,9 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
 ?>
         </table>
 
-<!-- -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
-        <h2>30% nach Wohnfläche</h2>
-        <p>30% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0.3 = <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></p>
-        <p>Ergibt Kosten pro m²: <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong> / <?=$Base->Gesamtwohnflaeche?> m² Gesamtfläche = <?=$Flaechenverteilung->Preis_pro_Quadratmeter?> €</p>
-        <p>Macht für die einzelnen Wohnungen entsprechend deren Fläche in m²:</p>
+<!-- ------------------------------------------------------------------------------------------------------ Heizkosten nach Wohnfläche pro Wohnung -->
+<br/>
+<h2>Pro Wohnung nach Wohnfläche</h2>
         <table>
             <tr><th>Mieter</th><th>m²</th><th>Faktor</th><th>Euro</th></tr>
 <?php
@@ -119,7 +136,9 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 ?>
         </table>
 <!-- ------------------------------------------------------------------------------------------------------- Heizkosten gesamt pro Wohnung -->
-        <h2>Heizkosten gesamt pro Wohnung für <?=$Base->Abrechnungsjahr?></h2>
+<br/>
+<h2>Heizkosten gesamt pro Wohnung für <?=$Base->Abrechnungsjahr?></h2>
+
             <table>
                 <tr><th>Mieter</th><th>p.Verbrauch</th><th>p.Fläche</th><th>Summe</th></tr>
 <?php
