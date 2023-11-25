@@ -21,7 +21,7 @@ class Base {
         # year (from GET )
         $options = array('options'=>array('min_range'=>2023));
         $this->Abrechnungsjahr = filter_input(INPUT_GET, 'y', FILTER_VALIDATE_INT, $options);
-        if(!$this->Abrechnungsjahr >= 2023){ echo 'give us y=2023 or later'; die(); }
+        if(!$this->Abrechnungsjahr >= 2023){ $this->Abrechnungsjahr = 2023; } # come up with someting nicer? pull down menu maybe?
         
         # total heatet area
         $res = mysqli_query($this->conn, "SELECT SUM(qm) AS Gesamtwohnflaeche FROM Wohnungen");
@@ -35,8 +35,7 @@ class Base {
                 DATE_FORMAT( Datum, '%e.%m.%x' ) AS Datum, 
                 Lieferant, 
                 Kubikmeter, 
-                kWh, 
-                Betrag / kWh AS kWhPreis
+                kWh
             FROM 
                 Gasrechnungen 
             WHERE 
@@ -51,7 +50,7 @@ class Base {
         $this->Kilowattstunden          = $gas['kWh'];
         $this->Rechnungsbetrag          = $gas['Betrag'];
         $this->RechnungsbetragE         = $this->euro( $this->Rechnungsbetrag);
-        $this->Kilowattstundenpreis     = $gas['kWhPreis'];
+        $this->Kilowattstundenpreis     = $this->Rechnungsbetrag / $this->Kilowattstunden;
         $this->KilowattstundenpreisE    = str_replace( '.', ',', $this->Kilowattstundenpreis ) . ' €';
     }
 

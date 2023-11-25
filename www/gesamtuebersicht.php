@@ -26,7 +26,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
         <h2>Gasrechnung</h2>
             <p>Gasrechnung von <?=$Base->Lieferant?> vom <?=$Base->Rechnungsdatum;?> für das Jahr <?=$Base->Abrechnungsjahr?>:<br/>  
-            <?=$Base->Kilowattstunden?> Kilowattstunden Erdgas kosteten <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong><br/>
+            <strong class="red"><?=$Base->Kilowattstunden?></strong> Kilowattstunden Erdgas kosteten <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong><br/>
             Der Preis für eine Kilowattstunde beträgt damit genau <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong></p>
 
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
@@ -44,12 +44,12 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         als Gasverbrauch für die Wassererwärmung (s.o.):</p>
         <pre>                            2,5 x <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> kWh</pre>
 
-        <p>Gemäß §9 HeizkostenV muss der Gasverbrauch mit 1,11 multipliziert werden:
+        <p>Gemäß §9 HeizkostenV muss der Gasverbrauch bei brennwertbezogener Abrechnung mit 1,11 multipliziert werden:
         <pre>    <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> x 1,11 = <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong></pre>
         <p>Die Kosten für die gesamte Wassererwärmung betragen folglich:</p>
         <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh Gasverbrauch x <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong> = <strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></strong></pre>
-        <p>Oder im klassischen Dreisatz:</p>
-        <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh für Warmwasser : <?=$Base->Kilowattstunden?> kWh Gesamtverbrauch x <?=$Base->RechnungsbetragE?> = <?=$Base->euro($Warmwasser->Preis_Warmwasser_BrunataStyle)?></pre>
+        <p>Oder mit Verhälnissen gerechnet:</p>
+        <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh für Warmwasser : <strong class="red"><?=$Base->Kilowattstunden?></strong> kWh Gesamtverbrauch x <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong> = <?=$Base->euro($Warmwasser->Preis_Warmwasser_BrunataStyle)?></pre>
 
 <!-- ---------------------------------------------------------------------------------------------------------------------------- Heizung -->
         <h2>Heizung</h2>
@@ -155,5 +155,11 @@ foreach( $Heizkostenverteiler->getBillReceivers()    as $index => $row){
         </tr>';
 }
 ?>
+        </table>
+<!-- --------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
+<br/>
+<h2>Kohlendioxidkostenverteilungsgesetz</h2>
+<p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. Die Aufteilung dürfte als Altbau ca. 25/75 betragen, d.h. 75% der Kohlendioxidkosten werden nach Fläche auf die Mieter verteilt.</p>
+<p><a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a></p>
     </body>
 </html>

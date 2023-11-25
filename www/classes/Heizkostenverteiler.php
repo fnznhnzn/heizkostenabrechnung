@@ -67,5 +67,27 @@ class Heizkostenverteiler extends Base {
         $consumption = mysqli_fetch_assoc( $res );
         return $consumption['consumption'];
     }
+
+    public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){
+        $sql = <<<SQL
+            SELECT YEAR(Zeitpunkt) y, MONTH(Zeitpunkt) m, MAX( Wert * h.Kq * h.Kc / 1.181 ) v
+            FROM Wohnungen w
+            LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
+            LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
+            LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
+            LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
+            WHERE w.ID LIKE '$Whg_ID'
+            AND MONTH(Zeitpunkt) 
+                BETWEEN MONTH(STR_TO_DATE('$movedIn', '%Y-%m-%d')) 
+                AND MONTH(STR_TO_DATE('$movedOut', '%Y-%m-%d'))
+            GROUP BY MONTH(Zeitpunkt)
+        SQL;
+
+        $res = $this->conn->query($sql);
+        while($row = $res->fetch_assoc()){
+            $return[] = $row;
+        }
+        return $return;
+    }
     
 }
