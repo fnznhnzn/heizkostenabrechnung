@@ -40,7 +40,7 @@
             "port": 9003,
             "serverReadyAction": {
                 "pattern": "Development Server \\(http://localhost:([0-9]+)\\) started",
-                "uriFormat": "http://localhost:%s/www/public/monatswerte.php",
+                "uriFormat": "http://localhost:%s/www/heizkostenverteilerliste.php?y=2023",
                 "action": "openExternally"
             }
         }

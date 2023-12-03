@@ -13,28 +13,17 @@ $Warmwasser             = new Warmwasser();
 $Heizkostenverteiler    = new Heizkostenverteiler( $Warmwasser->Preis_Warmwasser );
 $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_Heizung );
 
-# Werte pro Zähler im Abrechnungsjahr
-$sql = "SELECT z.ID zid, MAX(m.Wert) w
-FROM Messwerte m
-LEFT JOIN Zaehler z
-ON m.Zaehler_ID = z.ID
-WHERE YEAR(m.Zeitpunkt) = {$Base->Abrechnungsjahr}
-AND z.Whg_ID IN (SELECT ID FROM Wohnungen) /* otherwise gateway picks up rogue meters not yet blacklisted */
-GROUP BY Zaehler_ID";
-
-foreach ($Base->conn->query( $sql ) as $index => $row) {
-    $messwerteGesamt[$row['zid']] = $row['w'];
-}
-
-$sql = "SELECT z.ID zid, MAX(m.Wert) vjw, h.Kq q, h.Kc c
-FROM Messwerte m
-LEFT JOIN Zaehler z
-ON m.Zaehler_ID = z.ID
-LEFT JOIN Heizkoerper h
-ON z.Heizkoerper_ID = h.ID
-WHERE YEAR(m.Zeitpunkt) = " . ($Base->Abrechnungsjahr - 1) . " /* Werte aus Vorjahr abziehen, um Jahreswerte zu bekommen */
-AND z.Whg_ID IN (SELECT ID FROM Wohnungen)
-GROUP BY Zaehler_ID";
+# get heat cost allocators
+$sql = <<<SQL
+    SELECT z.ID z, mi.Nachname n, z.Raum r
+    FROM Zaehler z
+    LEFT JOIN Messwerte m ON m.Zaehler_ID = z.ID
+    LEFT JOIN Heizkoerper h ON h.ID = z.Heizkoerper_ID
+    LEFT JOIN Wohnungen w ON w.ID = z.Whg_ID
+    LEFT JOIN Mieter mi ON mi.ID = z.Whg_ID
+    GROUP BY z.ID
+    ORDER BY w.ID, Raum, z.ID
+SQL;
 
 ?>
 <!DOCTYPE html>
@@ -42,25 +31,28 @@ GROUP BY Zaehler_ID";
     <head>
         <title>Liste Heizkostenverteiler</title>
         <meta charset="utf-8">
-    <link rel="stylesheet" href="style.css"/>
+        <link rel="stylesheet" href="css/style.css"/>
     </head>
     <body>
         <a href="/?y= <?=$Base->Abrechnungsjahr?>">zurück</a>
-        <table><th>Zähler</th><th>Messwert</th><th></th><th>Kq</th><th></th><th>Kc</th><th></th><th>Basis</th><th></th><th>Wert</th>
+        <table><th>Zähler</th><th>Mieter</th><th>Raum</th><th>p.a.</th><th>alle Werte</th>
 <?php
+$nn;
 foreach ($Base->conn->query( $sql ) as $index => $row) {
-    $messwerteLaufendesJahr[$row['zid']] = $messwerteGesamt[$row['zid']] - $row['vjw']; # Jahreswert = Gesamtwert - Vorjahreswert (denn Zähler zählen immer weiter)
-    echo "<tr>
-    <td>".$row['zid'].'</td>
-    <td class="center">'.$messwerteLaufendesJahr[$row['zid']].'</td>
-    <td> x </td>
-    <td class="center">'.$row['q'].'</td>
-    <td> x </td>
-    <td class="center">'.$row['c'].'</td>
-    <td> / </td>
-    <td>1,181</td>
-    <td> = </td>
-    <td>'. $Base->nf($messwerteLaufendesJahr[$row['zid']] * $row['q'] * $row['c'] / 1.181) . '</td></tr>';
+    $total = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, '2023-01-01', '2023-12-31', '%', $row['z'] );
+    $resArray = $Heizkostenverteiler->getLastMeteredValue( $row['z'], false );
+    global $nn;
+    if( $nn !== $row['n'] && $nn !== null ) { echo "\r\n".'<tr><td colspan="14"><br/></td></tr>'."\r\n"; }
+    echo '<tr>
+    <td>'.$row['z'].'</td>
+    <td>'.$row['n'].'</td>
+    <td>'.$row['r'].'</td>
+    <td class="alignRight">'. round( floatval( $total ), 1 ) . '</td>';
+    foreach( $resArray as $val){
+        echo '<td class="alignRight">' . round(floatval($val['LetzterWert']),1) . '</td>';
+    }
+    echo "\r\n" . '</tr>';
+    $nn = $row['n']; 
 }
 ?>
 </table>

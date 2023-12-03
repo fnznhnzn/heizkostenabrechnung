@@ -19,7 +19,7 @@ class Heizkostenverteiler extends Base {
         $this->Preis_pro_Messwert = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
     }
     
-    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){  
+    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){ # Jahreswerte pro Wohnung oder Zähler 
         if( substr($movedIn,0,4) != $year ){
             $movedIn = $year . '-01-01';
         } 
@@ -92,6 +92,31 @@ class Heizkostenverteiler extends Base {
         return $resArray;
     }
 
+    public function getLastMeteredValue( $zaehlerID, $lastOnly = false ){
+        # subtracts every previous value (as if meter started fresh)
+        $sql = <<<SQL
+                SELECT 
+                Zaehler_ID,
+                Zeitpunkt,
+                Wert * h.Kq * h.Kc / 1.181 AS Wert,
+                ( Wert - LAG(Wert) OVER ( ORDER BY m.Zeitpunkt) ) * h.Kq * h.Kc / 1.181 AS LetzterWert
+                FROM Wohnungen w
+                LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
+                LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
+                LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
+                LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
+                WHERE m.Zaehler_ID = '$zaehlerID'
+        SQL;
+        if( $lastOnly === true ){ 
+            $sql = $sql . 'ORDER BY Zeitpunkt DESC LIMIT 1'; 
+        }
+        $res = $this->conn->query($sql);
+        while($row = $res->fetch_assoc()){
+            $resArray[] = $row;
+        }
+        return $resArray;
+    }
+
     private function parkedSQL(){
         $sql = <<<SQL
             SELECT 
@@ -113,20 +138,6 @@ class Heizkostenverteiler extends Base {
             ORDER BY z.Raum, z.ID, Zeitpunkt
             SQL;
 
-        # this one subtracts the previous value of each line as if the meter started fresh after each mesurement
-        $sql = <<<SQL
-                SELECT 
-                Zaehler_ID,
-                Zeitpunkt,
-                Wert,
-                Wert - LAG(Wert) OVER ( ORDER BY m.Zeitpunkt) Entwicklung
-                FROM Wohnungen w
-                LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
-                LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
-                LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
-                LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
-                WHERE m.Zaehler_ID = 21116054
-        SQL;
     }
                 
 }         
