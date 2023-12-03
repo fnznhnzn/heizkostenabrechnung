@@ -17,6 +17,7 @@ class Base {
     public function __construct(){  
         # db
         $this->conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
+        $this->conn->query("SET lc_time_names = 'de_DE'");
         
         # year (from GET )
         $options = array('options'=>array('min_range'=>2023));

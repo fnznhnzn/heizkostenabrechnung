@@ -28,12 +28,12 @@ class Heizkostenverteiler extends Base {
         }
         # meters keep counting, so take each one's last (=highest) reading and subtract last year's.
         # will return total if no apartment given
-        # values of heat cost allocators are mathematically corrected by radiator key figures
+        # values of heat cost allocators are mathematically corrected by radiator characteristics
         $sql = <<<SQL
                     SELECT 
                     (
                         SELECT SUM(val) FROM (
-                            SELECT MAX( Wert * h.Kq * h.Kc / 1.181 ) val /* Wert x Leistung x Trägheit / Basisempfindlichkeit */
+                            SELECT MAX( Wert * h.Kq * h.Kc / 1.181 ) val /* Wert x Leistung x Trägheit : Basisempfindlichkeit */
                             FROM Wohnungen w
                             LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
                             LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
@@ -70,7 +70,9 @@ class Heizkostenverteiler extends Base {
 
     public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){
         $sql = <<<SQL
-            SELECT YEAR(Zeitpunkt) y, MONTH(Zeitpunkt) m, MAX( Wert * h.Kq * h.Kc / 1.181 ) v
+            SELECT 
+                CONCAT( SUBSTRING( MONTHNAME( Zeitpunkt ), 1 ,3 ), ' ', YEAR( Zeitpunkt ) ) d, 
+                MAX( Wert * h.Kq * h.Kc / 1.181 ) v
             FROM Wohnungen w
             LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
             LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
@@ -85,9 +87,46 @@ class Heizkostenverteiler extends Base {
 
         $res = $this->conn->query($sql);
         while($row = $res->fetch_assoc()){
-            $return[] = $row;
+            $resArray[] = $row;
         }
-        return $return;
+        return $resArray;
     }
-    
-}
+
+    private function parkedSQL(){
+        $sql = <<<SQL
+            SELECT 
+                CONCAT(SUBSTRING(MONTHNAME(Zeitpunkt),1,3),' ',YEAR(Zeitpunkt)) d, 
+                /*MAX( Wert * h.Kq * h.Kc / 1.181 ) v*/
+                z.Raum,
+                z.ID,
+                Wert * h.Kq * h.Kc / 1.181 v
+            FROM Wohnungen w
+            LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
+            LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
+            LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
+            LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
+            WHERE w.ID LIKE '1'
+            AND MONTH(Zeitpunkt) 
+                BETWEEN MONTH(STR_TO_DATE('2023-01-01', '%Y-%m-%d')) 
+                AND MONTH(STR_TO_DATE('2023-12-31', '%Y-%m-%d'))
+            GROUP BY z.ID, MONTH(Zeitpunkt)
+            ORDER BY z.Raum, z.ID, Zeitpunkt
+            SQL;
+
+        # this one subtracts the previous value of each line as if the meter started fresh after each mesurement
+        $sql = <<<SQL
+                SELECT 
+                Zaehler_ID,
+                Zeitpunkt,
+                Wert,
+                Wert - LAG(Wert) OVER ( ORDER BY m.Zeitpunkt) Entwicklung
+                FROM Wohnungen w
+                LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
+                LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
+                LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
+                LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
+                WHERE m.Zaehler_ID = 21116054
+        SQL;
+    }
+                
+}         

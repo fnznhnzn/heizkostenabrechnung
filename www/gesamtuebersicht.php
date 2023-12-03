@@ -161,5 +161,17 @@ foreach( $Heizkostenverteiler->getBillReceivers()    as $index => $row){
 <h2>Kohlendioxidkostenverteilungsgesetz</h2>
 <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. Die Aufteilung dürfte als Altbau ca. 25/75 betragen, d.h. 75% der Kohlendioxidkosten werden nach Fläche auf die Mieter verteilt.</p>
 <p><a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a></p>
+
+
+<h2>Energieeffizienz-Richtlinie (EED)</h2>
+<p>Die <a href="https://bak.de/politik-und-praxis/klima-energie-und-ressourcen/gesetze-und-richtlinien/eu-gesetzgebung-2/eu-energieeffizienzrichtlinie-eed/" target="_blank">EED</a> verlangt folgende Informationen in der Abrechnung:
+<ul>
+    <li>Vorjahresverbrauch des Nutzers (klimabereinigt)</li>
+    <li>klimabereinigter Vergleich zu einem genormten Durchschnittsnutzer</li>
+    <li>Informationen zum Brennstoffmix (zum Beispiel bei Fernwärme)</li>
+    <li>der CO2-Gehalt des Brennstoffmixes oder Brennstoffes</li>
+    <li>aktuelle Energiepreise, der Gesamt-Energiekosten</li>
+</ul>
+
     </body>
 </html>
