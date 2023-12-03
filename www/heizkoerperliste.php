@@ -1,5 +1,5 @@
 <?php
-$conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "Heizkostenabrechnung");
+$conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
 $sql = "SELECT * FROM Heizkoerper ORDER BY Kc";
 ?>
 <!DOCTYPE html>
