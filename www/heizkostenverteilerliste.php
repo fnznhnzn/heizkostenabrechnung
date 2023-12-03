@@ -45,7 +45,7 @@ GROUP BY Zaehler_ID";
     <link rel="stylesheet" href="style.css"/>
     </head>
     <body>
-        <a href="gesamtabrechnung.php?y= <?=$Base->Abrechnungsjahr?>">zurück</a>
+        <a href="/?y= <?=$Base->Abrechnungsjahr?>">zurück</a>
         <table><th>Zähler</th><th>Messwert</th><th></th><th>Kq</th><th></th><th>Kc</th><th></th><th>Basis</th><th></th><th>Wert</th>
 <?php
 foreach ($Base->conn->query( $sql ) as $index => $row) {
