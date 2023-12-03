@@ -1,7 +1,10 @@
+*.csv
 *.cfg
 *.log
 *.test
 bk
+scripts/db.sql.gz
 .bash_logout
 .bashrc
 .profile
+
