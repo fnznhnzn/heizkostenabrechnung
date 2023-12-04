@@ -42,7 +42,7 @@ foreach ($Base->conn->query( $sql ) as $index => $row) {
     $total = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, '2023-01-01', '2023-12-31', '%', $row['z'] );
     $resArray = $Heizkostenverteiler->getLastMeteredValue( $row['z'], false );
     global $nn;
-    if( $nn !== $row['n'] && $nn !== null ) { echo "\r\n".'<tr><td colspan="14"><br/></td></tr>'."\r\n"; }
+    if( $nn !== $row['n'] && $nn !== null ) { echo "\r\n".'<tr><td colspan="14" style="border:none;"><br/></td></tr>'."\r\n"; }
     echo '<tr>
     <td>'.$row['z'].'</td>
     <td>'.$row['n'].'</td>
