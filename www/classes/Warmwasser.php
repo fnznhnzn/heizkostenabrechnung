@@ -26,6 +26,11 @@ class Warmwasser extends Base {
     }
     
     public function preis_pro_Wohnung( $Quadratmeter ){
+        return $this->Preis_Warmwasser_pro_Quadratmeter * $Quadratmeter;
+    }
+
+        
+    public function preis_pro_WohnungE( $Quadratmeter ){
         return $this->euro( $this->Preis_Warmwasser_pro_Quadratmeter * $Quadratmeter );
     }
 

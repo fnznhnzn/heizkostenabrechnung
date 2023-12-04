@@ -21,7 +21,7 @@ class Base {
         
         # year (from GET )
         $options = array('options'=>array('min_range'=>2023));
-        $this->Abrechnungsjahr = filter_input(INPUT_GET, 'y', FILTER_VALIDATE_INT, $options);
+        $this->Abrechnungsjahr = filter_input(INPUT_GET, 'heizkosten', FILTER_VALIDATE_INT, $options);
         if(!$this->Abrechnungsjahr >= 2023){ $this->Abrechnungsjahr = 2023; } # come up with someting nicer? pull down menu maybe?
         
         # total heatet area
@@ -33,7 +33,7 @@ class Base {
         $sql = <<<SQL
             SELECT 
                 Betrag, 
-                DATE_FORMAT( Datum, '%e.%m.%x' ) AS Datum, 
+                DATE_FORMAT( Datum, '%e.%m.%warmwasserkosten' ) AS Datum, 
                 Lieferant, 
                 Kubikmeter, 
                 kWh
@@ -55,9 +55,9 @@ class Base {
         $this->KilowattstundenpreisE    = str_replace( '.', ',', $this->Kilowattstundenpreis ) . ' €';
     }
 
-    public function euro( $x ){
+    public function euro( $warmwasserkosten ){
         $fmt = new NumberFormatter( 'de_DE', NumberFormatter::CURRENCY );
-        return $fmt->formatCurrency( $x, "euro" );
+        return $fmt->formatCurrency( $warmwasserkosten, "euro" );
     } 
 
     public function getBillReceivers(){ # who gets a bill?
@@ -95,4 +95,9 @@ class Base {
         return number_format($n, 16, ',', '.');
     }
 
+    public function percentage($warmwasserkosten, $heizkosten){
+        $percent[0] = round( $warmwasserkosten / ($warmwasserkosten + $heizkosten) * 100, 2);
+        $percent[1] = round( 100 - $percent[0], 2);
+        return $percent;
+    }
 }
