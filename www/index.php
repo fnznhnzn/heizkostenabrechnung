@@ -33,6 +33,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         <h2>Wassererwärmung</h2>
         <p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/" target="_blank">HeizkostenV</a> müssen die Kosten für die Warmwassererwärmung zunächt abgezogen werden. Nach §9 Ziffer 2 ergibt sich der Gasverbrauch für eine zentrale Wassererwärmung wie folgt:</p>
         <pre>                            2,5 x V x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = Q</pre>
+        <p>Dabei ist:</p>
         <ul>
             <li>2,5 der Wert für die Erzeugeraufwandszahl des Wärmeerzeugers, mittlere spezifische Wärmekapazität des Wassers, Wärmeverluste für Warmwasserspeicher, Verteilung einschließlich Zirkulation, Messdatenerhebungen zum Warmwasserverbrauch</li>
             <li>V = Warmwasserverbrauch in m³</li>
@@ -43,17 +44,16 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         <p><?=$Base->Abrechnungsjahr?> wurden insgesamt <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> Kubikmeter warmes Wasser verbraucht. Damit ergibt sich 
         als Gasverbrauch für die Wassererwärmung (s.o.):</p>
         <pre>                            2,5 x <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> kWh</pre>
-
         <p>Gemäß §9 HeizkostenV muss der Gasverbrauch bei brennwertbezogener Abrechnung mit 1,11 multipliziert werden:
         <pre>    <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> x 1,11 = <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong></pre>
         <p>Die Kosten für die gesamte Wassererwärmung betragen folglich:</p>
         <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh Gasverbrauch x <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong> = <strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></strong></pre>
         <p>Oder mit Verhälnissen gerechnet:</p>
-        <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh für Warmwasser : <strong class="red"><?=$Base->Kilowattstunden?></strong> kWh Gesamtverbrauch x <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong> = <?=$Base->euro($Warmwasser->Preis_Warmwasser_BrunataStyle)?></pre>
+        <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh für Warmwasser : <strong class="red"><?=$Base->Kilowattstunden?></strong> kWh Gesamtverbrauch x <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong> = <strong class="pink"><?=$Base->euro($Warmwasser->Preis_Warmwasser_BrunataStyle)?></strong></pre>
 
 <!-- ---------------------------------------------------------------------------------------------------------------------------- Heizung -->
         <h2>Heizung</h2>
-        <p>Die Gasrechnung abzüglich der Kosten für die Wassererwärmung ergibt die Heizkosten:</p>
+        <p>Die Gasrechnung abzüglich der Kosten für die Wassererwärmung ergibt die eigentlichen Heizkosten:</p>
         <table>
             <tr><td colspan="2">Gasrechnung</td><td class="alignRight"><strong class="skyblue"><?=$Base->RechnungsbetragE?></strong></td></tr>
             <tr><td>minus</td><td>Wassererwärmung</td><td class="alignRight"><strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></pink></td></tr>
@@ -69,13 +69,14 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         <h3>Heizkostenverteiler</h3>
         <p>An jedem Heizkörper ist ein Heizkostenverteiler (HKV) befestigt. Heizkörper haben jedoch unterschiedliche Größen und Eigenschaften. Um die Messwerte der HKV vergleichbar zu machen, werden deren Messwerte wie folgt bereinigt:</p>
         <pre>Bereinigter Messwert = M x Kc x Kq / B </pre>
+        <p>Dabei ist:</p>
         <ul>
             <li>M = Rohwert des Heizkostenverteilers</li>
             <li>Kc = Leistung des Heizkörpers in Kilowatt</li>
             <li>Kq = Trägheit des Heizkörpers</li>
             <li>B = Basisempfindlichkeit des HKV, 1,181 bei Engelmann HCA e2 im 1-Fühler-Modus</li>
         </ul>
-        <a href="heizkostenverteilerliste.php?y=<?=$Base->Abrechnungsjahr?>">Liste Heizkostenverteiler</a>
+        <a href="heizkostenverteilerliste.php?y=<?=$Base->Abrechnungsjahr?>">=> Liste Heizkostenverteiler</a>
 
 <!-- ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
         <h3>Verteilung auf die Wohnungen</h3>
@@ -99,7 +100,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
 <!-- ------------------------------------------------------------------------------------------------------ Heizkosten nach HKV pro Wohnung -->
 <br/>
-<h2>Pro Wohnung nach HKV</h2>
+<h2>Kosten pro Wohnung nach HKV</h2>
         <table>
             <tr><th>Mieter</th><th>HKV</th><th></th><th>Faktor</th><th></th><th></th><th></th><th>Euro</th></tr>
 
@@ -120,7 +121,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
 
 <!-- ------------------------------------------------------------------------------------------------------ Heizkosten nach Wohnfläche pro Wohnung -->
 <br/>
-<h2>Pro Wohnung nach Wohnfläche</h2>
+<h2>Kosten pro Wohnung nach Wohnfläche</h2>
         <table>
             <tr><th>Mieter</th><th>m²</th><th>Faktor</th><th>Euro</th></tr>
 <?php
