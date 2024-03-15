@@ -23,6 +23,7 @@ class Base {
         $options = array('options'=>array('min_range'=>2023));
         $this->Abrechnungsjahr = filter_input(INPUT_GET, 'heizkosten', FILTER_VALIDATE_INT, $options);
         if(!$this->Abrechnungsjahr){ $this->Abrechnungsjahr = date('Y') -1; } # if none given, do last year
+            # maybe some year chooser in the future?
         
         # total heatet area
         $res = mysqli_query($this->conn, "SELECT SUM(qm) AS Gesamtwohnflaeche FROM Wohnungen");
@@ -63,9 +64,9 @@ class Base {
     public function getBillReceivers(){ # who gets a bill?
         $sql = "SELECT *, Einzug, Auszug
         FROM Mieter m
-        LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID 
-        WHERE YEAR(Auszug) = $this->Abrechnungsjahr
-        OR Auszug = '0000-00-00'"; /* either moved (in and) out this year or still lives here */
+        LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID
+        WHERE YEAR(Auszug) = $this->Abrechnungsjahr /* moved out this year */
+        OR ( YEAR(Einzug) <= $this->Abrechnungsjahr AND Auszug = '0000-00-00' ) /* still lives here */ ";
 
         $res = $this->conn->query($sql);
         while($row = $res->fetch_assoc()){ # adjust in and out date for calculation
