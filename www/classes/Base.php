@@ -22,7 +22,7 @@ class Base {
         # year (from GET )
         $options = array('options'=>array('min_range'=>2023));
         $this->Abrechnungsjahr = filter_input(INPUT_GET, 'heizkosten', FILTER_VALIDATE_INT, $options);
-        if(!$this->Abrechnungsjahr >= 2023){ $this->Abrechnungsjahr = 2023; } # come up with someting nicer? pull down menu maybe?
+        if(!$this->Abrechnungsjahr){ $this->Abrechnungsjahr = date('Y') -1; } # if none given, do last year
         
         # total heatet area
         $res = mysqli_query($this->conn, "SELECT SUM(qm) AS Gesamtwohnflaeche FROM Wohnungen");
