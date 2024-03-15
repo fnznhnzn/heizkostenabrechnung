@@ -10,6 +10,7 @@ $sql = "SELECT * FROM Heizkoerper ORDER BY Kc";
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
 </head>
 <body>
+<?php include("nav.inc.php"); ?>
 <table>
 <tr><th>ID</th><th>B</th><th>H</th><th>T</th><th>Hersteller</th><th>Art</th><th>Segmente</th><th>Segmentbreite</th><th>Schichtung</th><th>Kq</th><th>Kc</th><th>Foto</th></tr>
 <?php foreach ($conn->query( $sql ) as $index => $row) { ?>

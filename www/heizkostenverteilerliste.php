@@ -1,4 +1,8 @@
 <?php
+/* Einzelwerte pro Monat, wie theoretisch nach Heizkostenverordnung vorgeschrieben.
+ * Skript ist erst am Anfang aber lovely LAG()-Funktion in Mariadb funktioniert!
+ * Es fehlen noch Monatsangaben in der Spalten und die Auswahl des Jahres
+ */
 declare(strict_types=1);
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
@@ -33,6 +37,7 @@ SQL;
         <meta charset="utf-8">
         <link rel="stylesheet" href="css/style.css"/>
     </head>
+    <?php include("nav.inc.php"); ?>
     <body>
         <a href="/?y= <?=$Base->Abrechnungsjahr?>">zurück</a>
         <table><th>Zähler</th><th>Mieter</th><th>Raum</th><th>p.a.</th><th>alle Werte</th>

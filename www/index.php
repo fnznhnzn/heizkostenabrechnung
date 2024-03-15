@@ -1,4 +1,16 @@
 <?php
+/*
+1.  Warmwasser
+2.  Heizung
+3.  70% Heizkosten nach Verbrauch
+4.  Heizkostenverteiler
+5.  Verteilung auf die Wohnungen
+6.  30% nach Fläche
+7.  Heizkosten nach HKV pro Wohnung
+8.  Heizkosten nach Wohnfläche pro Wohnung
+9.  Heizkosten gesamt pro Wohnung
+10. Kohlendioxidkostenverteilungsgesetz
+*/
 declare(strict_types=1);
 error_reporting(E_ALL);
 ini_set('display_errors', 'on');
@@ -22,6 +34,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         <link rel="stylesheet" href="css/style.css"/>
     </head>
     <body>
+        <?php include("nav.inc.php"); ?>
         <h1>Übersicht HK-Abrechnung <?=$Base->Abrechnungsjahr?></h1>
 
         <h2>Gasrechnung</h2>
@@ -29,7 +42,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
             <strong class="red"><?=$Base->Kilowattstunden?></strong> Kilowattstunden Erdgas kosteten <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong><br/>
             Der Preis für eine Kilowattstunde beträgt damit <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong></p>
 
-<!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
+<!-- 1. --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
         <h2>Wassererwärmung</h2>
         <p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/" target="_blank">HeizkostenV</a> müssen die Kosten für die Warmwassererwärmung zunächt abgezogen werden. Nach §9 Ziffer 2 ergibt sich der Gasverbrauch für eine zentrale Wassererwärmung wie folgt:</p>
         <pre>                            2,5 x V x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = Q</pre>
@@ -51,7 +64,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         <p>Oder mit Verhälnissen gerechnet:</p>
         <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh für Warmwasser : <strong class="red"><?=$Base->Kilowattstunden?></strong> kWh Gesamtverbrauch x <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong> = <strong class="pink"><?=$Base->euro($Warmwasser->Preis_Warmwasser_BrunataStyle)?></strong></pre>
 
-<!-- ---------------------------------------------------------------------------------------------------------------------------- Heizung -->
+<!-- 2. ---------------------------------------------------------------------------------------------------------------------------- Heizung -->
         <h2>Heizung</h2>
         <p>Die Gasrechnung abzüglich der Kosten für die Wassererwärmung ergibt die eigentlichen Heizkosten:</p>
         <table>
@@ -60,12 +73,12 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
             <tr><td>gleich</td><td>Heizkosten</td><td class="alignRight"><strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong></td></tr>
         </table>
 
-<!-- -------------------------------------------------------------------------------------------------------- 70% Heizkosten nach Verbrauch -->
+<!-- 3. -------------------------------------------------------------------------------------------------------- 70% Heizkosten nach Verbrauch -->
         <h2>Verbrauchsabhängige Aufteilung</h2>
         <p>50-70% der verbleibenden Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §6 + §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
         <p>70% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0,7 = <strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></p>
 
-<!-- -------------------------------------------------------------------------------------------------------- Heizkostenverteiler -->
+<!-- 4. -------------------------------------------------------------------------------------------------------- Heizkostenverteiler -->
         <h3>Heizkostenverteiler</h3>
         <p>An jedem Heizkörper ist ein Heizkostenverteiler (HKV) befestigt. Heizkörper haben jedoch unterschiedliche Größen und Eigenschaften. Um die Messwerte der HKV vergleichbar zu machen, werden deren Messwerte wie folgt bereinigt:</p>
         <pre>Bereinigter Messwert = M x Kc x Kq / B </pre>
@@ -78,12 +91,12 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         </ul>
         <a href="heizkostenverteilerliste.php?y=<?=$Base->Abrechnungsjahr?>">=> Liste Heizkostenverteiler</a>
 
-<!-- ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
+<!-- 5. ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
         <h3>Verteilung auf die Wohnungen</h3>
         <p>Die Summe aller HKV-Messwerte des gesamten Hauses im Jahr <?=$Base->Abrechnungsjahr?> betrug: <?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?>. 
         Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert.</p>
 
-<!-- -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
+<!-- 6. -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
 <h2>30% nach Wohnfläche</h2>
         <p>30% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0.3 = <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></p>
         <p>Ergibt Kosten pro m²: <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong> / <?=$Base->Gesamtwohnflaeche?> m² Gesamtfläche = <?=$Flaechenverteilung->Preis_pro_Quadratmeter?> €</p>
@@ -98,7 +111,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         <small>HKV = Heizkostenverteiler (Messgeräte an den Heizkörpern)</small>
         <br/>
 
-<!-- ------------------------------------------------------------------------------------------------------ Heizkosten nach HKV pro Wohnung -->
+<!-- 7. ------------------------------------------------------------------------------------------------------ Heizkosten nach HKV pro Wohnung -->
 <br/>
 <h2>Kosten pro Wohnung nach HKV</h2>
         <table>
@@ -119,7 +132,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
 ?>
         </table>
 
-<!-- ------------------------------------------------------------------------------------------------------ Heizkosten nach Wohnfläche pro Wohnung -->
+<!-- 8. ------------------------------------------------------------------------------------------------------ Heizkosten nach Wohnfläche pro Wohnung -->
 <br/>
 <h2>Kosten pro Wohnung nach Wohnfläche</h2>
         <table>
@@ -136,7 +149,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 }
 ?>
         </table>
-<!-- ------------------------------------------------------------------------------------------------------- Heizkosten gesamt pro Wohnung -->
+<!-- 9. ------------------------------------------------------------------------------------------------------- Heizkosten gesamt pro Wohnung -->
 <br/>
 <h2>Heizkosten gesamt pro Wohnung für <?=$Base->Abrechnungsjahr?></h2>
 
@@ -157,10 +170,20 @@ foreach( $Heizkostenverteiler->getBillReceivers()    as $index => $row){
 }
 ?>
         </table>
-<!-- --------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
+<!-- 10. --------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <br/>
 <h2>Kohlendioxidkostenverteilungsgesetz</h2>
 <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. Die Aufteilung dürfte als Altbau ca. 25/75 betragen, d.h. 75% der Kohlendioxidkosten werden nach Fläche auf die Mieter verteilt.</p>
 <p><a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a></p>
+
+<h2>Energieeffizienz-Richtlinie (EED)</h2>
+<p>Die <a href="https://bak.de/politik-und-praxis/klima-energie-und-ressourcen/gesetze-und-richtlinien/eu-gesetzgebung-2/eu-energieeffizienzrichtlinie-eed/" target="_blank">EED</a> verlangt folgende Informationen in der Abrechnung:
+<ul>
+    <li>Vorjahresverbrauch des Nutzers (klimabereinigt)</li>
+    <li>klimabereinigter Vergleich zu einem genormten Durchschnittsnutzer</li>
+    <li>Informationen zum Brennstoffmix (zum Beispiel bei Fernwärme)</li>
+    <li>der CO2-Gehalt des Brennstoffmixes oder Brennstoffes</li>
+    <li>aktuelle Energiepreise, der Gesamt-Energiekosten</li>
+
     </body>
 </html>
