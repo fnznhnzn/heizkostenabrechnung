@@ -25,9 +25,9 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         <h1>Übersicht HK-Abrechnung <?=$Base->Abrechnungsjahr?></h1>
 
         <h2>Gasrechnung</h2>
-            <p>Gasrechnung von <?=$Base->Lieferant?> vom <?=$Base->Rechnungsdatum;?> für das Jahr <?=$Base->Abrechnungsjahr?>:<br/>  
+            <p>Gasrechnung vom <?=$Base->Rechnungsdatum?> von <?=$Base->Lieferant?> für das Jahr <?=$Base->Abrechnungsjahr?>:<br/>  
             <strong class="red"><?=$Base->Kilowattstunden?></strong> Kilowattstunden Erdgas kosteten <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong><br/>
-            Der Preis für eine Kilowattstunde beträgt damit genau <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong></p>
+            Der Preis für eine Kilowattstunde beträgt damit <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong></p>
 
 <!-- --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
         <h2>Wassererwärmung</h2>
@@ -41,7 +41,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
             <li><?=$Warmwasser::Hi?> der Wert für die übliche Kaltwassereintrittstemperatur in die Warmwasserversorgungsanlage in Grad Celsius</li>
             <li>Q = Gasverbrauch in Kilowattstunden</li>
         </ul>
-        <p><?=$Base->Abrechnungsjahr?> wurden insgesamt <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> Kubikmeter warmes Wasser verbraucht. Damit ergibt sich 
+        <p>In <?=$Base->Abrechnungsjahr?> wurden insgesamt <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> Kubikmeter warmes Wasser verbraucht. Damit ergibt sich 
         als Gasverbrauch für die Wassererwärmung (s.o.):</p>
         <pre>                            2,5 x <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> kWh</pre>
         <p>Gemäß §9 HeizkostenV muss der Gasverbrauch bei brennwertbezogener Abrechnung mit 1,11 multipliziert werden:

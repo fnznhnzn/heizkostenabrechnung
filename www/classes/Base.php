@@ -33,7 +33,7 @@ class Base {
         $sql = <<<SQL
             SELECT 
                 Betrag, 
-                DATE_FORMAT( Datum, '%e.%m.%warmwasserkosten' ) AS Datum, 
+                DATE_FORMAT( Datum, '%e.%m.%Y' ) AS Datum, 
                 Lieferant, 
                 Kubikmeter, 
                 kWh
