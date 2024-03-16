@@ -2,6 +2,9 @@
 /* Einzelwerte pro Monat, wie theoretisch nach Heizkostenverordnung vorgeschrieben.
  * Skript ist erst am Anfang aber lovely LAG()-Funktion in Mariadb funktioniert!
  * Es fehlen noch Monatsangaben in der Spalten und die Auswahl des Jahres
+ *
+ * + wichtig zu klären: Resetten die HKV am 31.12. oder nicht? (den csv-Daten nach zu urteilen sieht es fast so aus)
+ * + Müssen HKV bei Niederwettberg noch auf Ultimo umgestellt werden (Monatsletzen)?
  */
 declare(strict_types=1);
 error_reporting(E_ALL);
@@ -29,6 +32,9 @@ $sql = <<<SQL
     ORDER BY w.ID, Raum, z.ID
 SQL;
 
+#print_r( $Heizkostenverteiler->getLastMeteredValue( '21116062', false ) );
+#die();
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -46,20 +52,22 @@ foreach ($Base->conn->query( $sql ) as $index => $row) {
     global $nn; 
     # empty row before new tenant
     if( $nn !== $row['n'] && $nn !== null ) { 
-        echo "\r\n".'<tr><td colspan="14" style="border:none;"><br/></td></tr>'."\r\n"; 
+        echo "\r\n".'<tr><td colspan="14" style="border:none;"><br/></td></tr>'."\r\n";
     }
+
     $total = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, '2023-01-01', '2023-12-31', '%', $row['z'] );
-    $resArray = $Heizkostenverteiler->getLastMeteredValue( $row['z'], false );
     # z = Zähler-ID, n = Nachname, r = Raum, total = Jahresgesamt
     echo '<tr>
     <td>'.$row['z'].'</td>
     <td>'.$row['n'].'</td>
     <td>'.$row['r'].'</td>
     <td class="alignRight">'. round( floatval( $total ), 1 ) . '</td>';
+    $resArray = $Heizkostenverteiler->getLastMeteredValue( $row['z'], false );
     foreach( $resArray as $val){
         echo '<td class="alignRight">' . round(floatval($val['LetzterWert']),1) . '</td>';
     }
     echo "\r\n" . '</tr>';
+
     $nn = $row['n']; 
 }
 ?>
