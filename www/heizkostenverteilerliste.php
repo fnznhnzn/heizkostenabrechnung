@@ -37,17 +37,20 @@ SQL;
         <meta charset="utf-8">
         <link rel="stylesheet" href="css/style.css"/>
     </head>
-    <?php include("nav.inc.php"); ?>
     <body>
-        <a href="/?y= <?=$Base->Abrechnungsjahr?>">zurück</a>
+        <?php include("nav.inc.php"); ?>
         <table><th>Zähler</th><th>Mieter</th><th>Raum</th><th>p.a.</th><th>alle Werte</th>
 <?php
 $nn;
 foreach ($Base->conn->query( $sql ) as $index => $row) {
+    global $nn; 
+    # empty row before new tenant
+    if( $nn !== $row['n'] && $nn !== null ) { 
+        echo "\r\n".'<tr><td colspan="14" style="border:none;"><br/></td></tr>'."\r\n"; 
+    }
     $total = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, '2023-01-01', '2023-12-31', '%', $row['z'] );
     $resArray = $Heizkostenverteiler->getLastMeteredValue( $row['z'], false );
-    global $nn;
-    if( $nn !== $row['n'] && $nn !== null ) { echo "\r\n".'<tr><td colspan="14" style="border:none;"><br/></td></tr>'."\r\n"; }
+    # z = Zähler-ID, n = Nachname, r = Raum, total = Jahresgesamt
     echo '<tr>
     <td>'.$row['z'].'</td>
     <td>'.$row['n'].'</td>
