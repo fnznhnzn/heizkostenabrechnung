@@ -1,7 +1,6 @@
 <?php
 # todo:
 # deal with error codes
-# is it better to store month-end-values?
 #
 
 # 1. look for uploaded csv and log files
@@ -42,7 +41,13 @@ foreach( $CSVs as $c ) {
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
-            $sql .= '"' . chunkToDatetime( $chunks[9] ) . '"';
+            // Sensus does not send a timestamp (sic!), so we must use csv file creation time to not break uniqueness of records in db
+            if($chunks[1] === 'SEN'){
+                $csvFileCreationTime = date( 'Y-m-d H:i:s', filemtime( dirname(__DIR__, 1) . '/' . $c ) );
+                $sql .= '"' . $csvFileCreationTime . '"';
+            } else {
+                $sql .= '"' . chunkToDatetime( $chunks[9] ) . '"';
+            }
             $sql .= ', Wert = ';
             $sql .= $chunks[10];
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
