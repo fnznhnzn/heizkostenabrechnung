@@ -1,7 +1,28 @@
 <?php
-# todo:
-# deal with error codes
-#
+/*
+ * The name "processCSVs" is a little misleading because it implies that something is actually
+ * done to them. But they are only read, not ever changed. Hence "parseCSVs" would have been a
+ * better name, but what the heck!
+ *
+ * This script, run by a cron job reads the CSV files uploaded by the gateway via ftp line by line.
+ * The m-bus protocol lets each meter start with a line of attribute names followed
+ * by the actual values in the next line. 
+ *
+ * Values are written to a db table with a combined unique index of timestamp and value. So this
+ * script can be run repeatedly without harm.
+ *
+ * After parsing, the csv files are moved to a seperate directory named after the current year.
+ *
+ * Sensus meters don't send a timestamp, so file creation time is used instead.
+ *
+ * Work is done in the following order:
+ * 1 read
+ * 2 parse
+ * 3 move
+ *
+ * todo:
+ * deal with error codes
+*/
 
 # 1. look for uploaded csv and log files
 $files = scandir( dirname(__DIR__) );
