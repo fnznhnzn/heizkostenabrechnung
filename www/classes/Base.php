@@ -5,10 +5,12 @@ class Base {
     public $conn;
     public $Abrechnungsjahr;
     public $Gesamtwohnflaeche;
+    public $GesamtwohnflaecheD;
     # gas bill
     public $Lieferant;
     public $Rechnungsdatum;
     public $Kilowattstunden;
+    public $KilowattstundenD;
     public $Rechnungsbetrag;
     public $RechnungsbetragE;
     public $Kilowattstundenpreis;
@@ -29,6 +31,7 @@ class Base {
         $res = mysqli_query($this->conn, "SELECT SUM(qm) AS Gesamtwohnflaeche FROM Wohnungen");
         $row = mysqli_fetch_assoc($res);
         $this->Gesamtwohnflaeche = $row['Gesamtwohnflaeche'];
+        $this->GesamtwohnflaecheD = number_format( $this->Gesamtwohnflaeche, 2, ',', '.');
 
         # gas bill
         $sql = <<<SQL
@@ -50,6 +53,7 @@ class Base {
         $this->Lieferant                = $gas['Lieferant'];
         $this->Rechnungsdatum           = $gas['Datum'];
         $this->Kilowattstunden          = $gas['kWh'];
+        $this->KilowattstundenD         = number_format( $gas['kWh'], 0, ',', '.' );
         $this->Rechnungsbetrag          = $gas['Betrag'];
         $this->RechnungsbetragE         = $this->euro( $this->Rechnungsbetrag);
         $this->Kilowattstundenpreis     = $this->Rechnungsbetrag / $this->Kilowattstunden;
@@ -91,7 +95,7 @@ class Base {
         $date = date('d.m.Y', $date);
         return $date;
     }
-
+    
     public function nf($n){
         return number_format($n, 16, ',', '.');
     }
