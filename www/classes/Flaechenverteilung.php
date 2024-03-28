@@ -6,6 +6,7 @@ class Flaechenverteilung extends Base {
     public $PreisHeizung30ProzentE;
     public $Preis_pro_Quadratmeter;
     public $Preis_pro_QuadratmeterE;
+    public $Preis_pro_QuadratmeterD;
 
     public function __construct( $PreisHeizung ){
         parent::__construct();
@@ -13,6 +14,7 @@ class Flaechenverteilung extends Base {
         $this->PreisHeizung30ProzentE = $this->euro( $this->PreisHeizung30Prozent);
         $this->Preis_pro_Quadratmeter = $this->PreisHeizung30Prozent / $this->Gesamtwohnflaeche;
         $this->Preis_pro_QuadratmeterE = $this->euro($this->Preis_pro_Quadratmeter);
+        $this->Preis_pro_QuadratmeterD = number_format($this->Preis_pro_Quadratmeter, 12, ',', '.');
     }
 
     public function calculatedHeatingCostPerFlat( $year, $Whg_ID, $movedIn, $movedOut ){

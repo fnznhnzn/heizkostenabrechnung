@@ -9,6 +9,7 @@ class Heizkostenverteiler extends Base {
     public $Messergebnis_Haus;
     public $Messergebnis_HausD;
     public $Preis_pro_Messwert;
+    public $Preis_pro_MesswertD;
 
     public function __construct( $Preis_Warmwasser ){
         parent::__construct();
@@ -19,6 +20,7 @@ class Heizkostenverteiler extends Base {
         $this->Messergebnis_Haus = $this->getMeteredData( $this->Abrechnungsjahr, '0000-00-00', '0000-00-00' ); # 0000-00-00 give us full year
         $this->Messergebnis_HausD = number_format( $this->Messergebnis_Haus, 12, ',', '.');
         $this->Preis_pro_Messwert = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
+        $this->Preis_pro_MesswertD = number_format($this->Preis_pro_Messwert, 12, ',', '.');
     }
     
     public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){ # Jahreswerte pro Wohnung oder Zähler 
