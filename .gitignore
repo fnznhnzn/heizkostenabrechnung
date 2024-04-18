@@ -7,4 +7,4 @@ scripts/db.sql.gz
 .bash_logout
 .bashrc
 .profile
-
+scripts/db.sql.gz
