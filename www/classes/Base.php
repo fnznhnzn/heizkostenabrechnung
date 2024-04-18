@@ -66,11 +66,23 @@ class Base {
     } 
 
     public function getBillReceivers(){ # who gets a bill?
-        $sql = "SELECT *, Einzug, Auszug
-        FROM Mieter m
-        LEFT JOIN Wohnungen w ON m.Whg_ID = w.ID
-        WHERE YEAR(Auszug) = $this->Abrechnungsjahr /* moved out this year */
-        OR ( YEAR(Einzug) <= $this->Abrechnungsjahr AND Auszug = '0000-00-00' ) /* still lives here */ ";
+        $sql =
+        "SELECT
+            *, Einzug, Auszug FROM Mieter m
+        LEFT JOIN
+            Wohnungen w ON m.Whg_ID = w.ID
+        WHERE
+            YEAR(Auszug) = $this->Abrechnungsjahr /* moved out this year */
+            OR
+        ( /* moved in before or during year, moved out after (or never), so still lives here! */
+            YEAR(Einzug) <= $this->Abrechnungsjahr
+                AND
+                (
+                    Auszug = '0000-00-00'
+                    OR
+                    YEAR(Auszug) > $this->Abrechnungsjahr
+                )
+        )";
 
         $res = $this->conn->query($sql);
         while($row = $res->fetch_assoc()){ # adjust in and out date for calculation
