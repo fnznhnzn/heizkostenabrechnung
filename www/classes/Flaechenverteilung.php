@@ -14,7 +14,7 @@ class Flaechenverteilung extends Base {
         $this->PreisHeizung30ProzentE = $this->euro( $this->PreisHeizung30Prozent);
         $this->Preis_pro_Quadratmeter = $this->PreisHeizung30Prozent / $this->Gesamtwohnflaeche;
         $this->Preis_pro_QuadratmeterE = $this->euro($this->Preis_pro_Quadratmeter);
-        $this->Preis_pro_QuadratmeterD = number_format($this->Preis_pro_Quadratmeter, 12, ',', '.');
+        $this->Preis_pro_QuadratmeterD = number_format($this->Preis_pro_Quadratmeter, 10, ',', '.');
     }
 
     public function calculatedHeatingCostPerFlat( $year, $Whg_ID, $movedIn, $movedOut ){

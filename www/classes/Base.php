@@ -109,7 +109,7 @@ class Base {
     }
     
     public function nf($n){
-        return number_format($n, 16, ',', '.');
+        return number_format($n, 10, ',', '.');
     }
 
     public function percentage($warmwasserkosten, $heizkosten){

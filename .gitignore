@@ -2,9 +2,8 @@
 *.cfg
 *.log
 *.test
+*.gz
 bk
-scripts/db.sql.gz
 .bash_logout
 .bashrc
 .profile
-db.sql.gz

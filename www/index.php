@@ -105,8 +105,8 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         <br/>
         <table>
             <tr><th>Anteil</th><th>Preis</th><th>Aufteilung</th><th>Gesamteinheiten</th><th>Preis pro Einheit</th></tr>
-            <tr><td>70%</td><td><strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></td><td>HKV</td><td><?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?></td><td><?=$Base->nf( $Heizkostenverteiler->Preis_pro_Messwert )?> €</td></tr>
-            <tr><td>30%</td><td><strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></td><td>m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Flaechenverteilung->Preis_pro_Quadratmeter?> €</td></tr>
+            <tr><td>70%</td><td><strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></td><td>HKV</td><td><?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?></td><td><?=$Heizkostenverteiler->Preis_pro_MesswertD?> €</td></tr>
+            <tr><td>30%</td><td><strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></td><td>m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Flaechenverteilung->Preis_pro_QuadratmeterD?> €</td></tr>
         </table>
         <small>HKV = Heizkostenverteiler (Messgeräte an den Heizkörpern)</small>
         <br/>
@@ -122,9 +122,9 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
     $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
-    <td>' . $consumption . '</td>
+    <td class="alignRight">' . $consumption . '</td>
     <td>x</td>
-    <td>' . $Heizkostenverteiler->Preis_pro_Messwert . '</td>
+    <td class="alignRight">' . $Heizkostenverteiler->Preis_pro_MesswertD . '</td>
     <td>=</td>
     <td class="alignRight">' . $Base->euro($consumption * $Heizkostenverteiler->Preis_pro_Messwert ) . '</td>
     </tr>'; 
@@ -143,7 +143,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
     echo '<tr>';
     echo '<td>' . $row['Nachname'] . '</td>';
     echo '<td>' . $row['qm'] . '</td>';
-    echo '<td>x '. $Flaechenverteilung->Preis_pro_Quadratmeter . ' =</td>';
+    echo '<td>x '. $Flaechenverteilung->Preis_pro_QuadratmeterD . ' =</td>';
     echo '<td class="alignRight"> ' . $proportionateCost . '</td>';
     echo '</tr>';
 }
