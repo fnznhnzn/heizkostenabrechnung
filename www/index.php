@@ -93,7 +93,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
 <!-- 5. ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
         <h3>Verteilung auf die Wohnungen</h3>
-        <p>Die Summe aller HKV-Messwerte des gesamten Hauses im Jahr <?=$Base->Abrechnungsjahr?> betrug: <?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?>. 
+        <p>Die Summe der jeweils wie s.o. bereinigten HKV-Messwerte des gesamten Hauses im Jahr <?=$Base->Abrechnungsjahr?> betrug: <?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?>. 
         Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert.</p>
 
 <!-- 6. -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
