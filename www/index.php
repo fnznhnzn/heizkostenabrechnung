@@ -134,7 +134,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
 
 }
 ?>
-            <tr><td colspan="5"></td><td class="alignRight"><?=$Base->euro( $hkvSum )?></td></tr>
+            <tr><td colspan="5"></td><td class="alignRight"><strong class="brown"><?=$Base->euro( $hkvSum )?></strong></td></tr>
         </table>
 
 <!-- 8. ------------------------------------------------------------------------------------------------------ Heizkosten nach Wohnfläche pro Wohnung -->
@@ -143,16 +143,19 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
         <table>
             <tr><th>Mieter</th><th>m²</th><th>Faktor</th><th>Euro</th></tr>
 <?php
+$sqmSum = 0;
 foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
     $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+    $sqmSum += $proportionateCost;
     echo '<tr>';
     echo '<td>' . $row['Nachname'] . '</td>';
     echo '<td>' . $row['qm'] . '</td>';
     echo '<td>x '. $Flaechenverteilung->Preis_pro_QuadratmeterD . ' =</td>';
-    echo '<td class="alignRight"> ' . $proportionateCost . '</td>';
+    echo '<td class="alignRight">' . $Base->euro( $proportionateCost ) . '</td>';
     echo '</tr>';
 }
 ?>
+            <tr><td colspan="3"></td><td class="alignRight"><strong class="violet"><?=$Base->euro( $sqmSum )?></strong></td></tr>
         </table>
 <!-- 9. ------------------------------------------------------------------------------------------------------- Heizkosten gesamt pro Wohnung -->
 <br/>
