@@ -200,16 +200,22 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
     </table>
     <br/>
     <table>
-        <tr><th>Mieter</th><th>Fläche</th><th>Kosten</th></tr>
+        <tr><th>Mieter</th><th>Zeitraum</th><th>Fläche</th><th>Kosten</th></tr>
 <?php
+$totalqm = 0;
+$totalww = 0;
 foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
+    $totalqm += $row['qm'];
+    $totalww += $row['qm'] * $Warmwasser->Preis_Warmwasser_pro_Quadratmeter;
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
-    <td>' . $row['qm'] . '</td>
-    <td>' . $Base->euro( $row['qm'] * $Warmwasser->Preis_Warmwasser_pro_Quadratmeter ) . '</td>
+    <td>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>
+    <td class="alignRight">' . $row['qm'] . '</td>
+    <td class="alignRight">' . $Base->euro( $row['qm'] * $Warmwasser->Preis_Warmwasser_pro_Quadratmeter ) . '</td>
     </tr>';
 }
 ?>
+        <tr><td colspan="3"></td><td><?=$Base->euro( $totalww )?></td></tr>
     </table>
 
 <br/>
