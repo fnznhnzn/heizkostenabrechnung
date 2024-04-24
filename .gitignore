@@ -3,7 +3,9 @@
 *.log
 *.test
 *.gz
+utils
 bk
 .bash_logout
 .bashrc
 .profile
+

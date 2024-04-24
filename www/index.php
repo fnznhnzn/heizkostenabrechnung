@@ -118,18 +118,23 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
             <tr><th>Mieter</th><th>HKV</th><th></th><th>Faktor</th><th></th><th></th><th></th><th>Euro</th></tr>
 
 <?php
+$hkvSum = 0;
 foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
     $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
+    $price = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
+    $hkvSum += $price;
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
     <td class="alignRight">' . $consumption . '</td>
     <td>x</td>
     <td class="alignRight">' . $Heizkostenverteiler->Preis_pro_MesswertD . '</td>
     <td>=</td>
-    <td class="alignRight">' . $Base->euro($consumption * $Heizkostenverteiler->Preis_pro_Messwert ) . '</td>
+    <td class="alignRight">' . $Base->euro( $price ) . '</td>
     </tr>'; 
+
 }
 ?>
+            <tr><td colspan="5"></td><td class="alignRight"><?=$Base->euro( $hkvSum )?></td></tr>
         </table>
 
 <!-- 8. ------------------------------------------------------------------------------------------------------ Heizkosten nach Wohnfläche pro Wohnung -->
