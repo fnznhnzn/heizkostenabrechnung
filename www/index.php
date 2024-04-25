@@ -20,11 +20,13 @@ require_once('classes/Base.php');
 require_once('classes/Warmwasser.php');
 require_once('classes/Heizkostenverteiler.php');
 require_once('classes/Flaechenverteilung.php');
+require_once('classes/Kohlendioxydaufteilungsgesetz.php');
 
 $Base                   = new Base();
 $Warmwasser             = new Warmwasser();
 $Heizkostenverteiler    = new Heizkostenverteiler( $Warmwasser->Preis_Warmwasser );
 $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_Heizung );
+$CO2AufG                = new Kohlendioxydaufteilungsgesetz( $Base->Gesamtwohnflaeche );
 ?>
 
 <!DOCTYPE html>
@@ -221,9 +223,20 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
 <br/>
 <!-- 11. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <h2>Kohlendioxidkostenaufteilungsgesetz</h2>
-<p>CO<sub>2</sub>KostAufG</p>
+<p>CO₂KostAufG</p>
 <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. Die Aufteilung dürfte als Altbau ca. 25/75 betragen, d.h. 75% der Kohlendioxidkosten werden nach Fläche auf die Mieter verteilt.</p>
+<p>Berechnung:</p>
+<pre>   Jährlicher Brennstoffverbrauch (kWh/a) * Emissionsfaktor (kg CO₂/kWh) = Jährlicher Kohlendioxidausstoß kg CO₂/a</pre>
+<p>Der Emissionsfaktor für Erdgas beträgt 0,20088 kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>
+<pre>   <?=$Base->Kilowattstunden?> kWh/a x 0,20088 kg CO₂/kWh = <?=$Base->Kilowattstunden * 0.20088?> kg CO₂/a</pre>
+<p>Geteilt durch die Gesamtwohnfläche des Hauses ergibt sich ein Wert pro Quadratmeter und Jahr:</p>
+<pre>   <?=$Base->Kilowattstunden * 0.20088?> kg CO₂/a : <?=$Base->Gesamtwohnflaeche?> m² = <?=$Base->Kilowattstunden * 0.20088 / $Base->Gesamtwohnflaeche?> kg CO₂/m²/a</pre>
+<p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von 80/20 Mieter/Vermieter.</p>
+<p>Der Preis pro Tonne CO₂ betrug in 2023 30 € pro Tonne, also:</p>
+<pre>   <?=$Base->Kilowattstunden*0.20088?> : 1000 x 30 = <?=$Base->euro($Base->Kilowattstunden*0.20088/1000*30)?></pre>
+<p>20% oder <?=$Base->euro($Base->Kilowattstunden*0.20088/1000*30*0.2)?> davon entfallen auf den Vermieter. Die verbleibenden 80% verteilen sich nach m²:</p>
 <p><a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a></p>
+
 
 <h2>Energieeffizienz-Richtlinie (EED)</h2>
 <p>Die <a href="https://bak.de/politik-und-praxis/klima-energie-und-ressourcen/gesetze-und-richtlinien/eu-gesetzgebung-2/eu-energieeffizienzrichtlinie-eed/" target="_blank">EED</a> verlangt folgende Informationen in der Abrechnung:
