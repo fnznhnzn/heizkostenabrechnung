@@ -224,7 +224,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
 <!-- 11. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <h2>Kohlendioxidkostenaufteilungsgesetz</h2>
 <p>CO₂KostAufG</p>
-<p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. Die Aufteilung dürfte als Altbau ca. 25/75 betragen, d.h. 75% der Kohlendioxidkosten werden nach Fläche auf die Mieter verteilt.</p>
+<p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. Die Aufteilung dürfte als Altbau ca. 25/75 betragen, d.h. 75% der Kohlendioxidkosten werden nach Fläche auf die Mieter verteilt.</p>
 <p>Berechnung:</p>
 <pre>   Jährlicher Brennstoffverbrauch (kWh/a) * Emissionsfaktor (kg CO₂/kWh) = Jährlicher Kohlendioxidausstoß kg CO₂/a</pre>
 <p>Der Emissionsfaktor für Erdgas beträgt 0,20088 kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>

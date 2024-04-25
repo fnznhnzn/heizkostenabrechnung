@@ -14,6 +14,7 @@ class Warmwasser extends Base {
     public $Preis_Warmwasser_BrunataStyle;
     public $Preis_Warmwasser_pro_Quadratmeter;
     public $Preis_Warmwasser_pro_QuadratmeterE;
+    public $Preis_Warmwasser_pro_QuadratmeterD;
 
     public function __construct(){
         parent::__construct();
