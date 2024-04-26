@@ -1,14 +1,15 @@
 <?php # Kohlendioxydkostenaufteilungsgesetz
 
-class CO2AufG {
-    public $kWh; # Energieverbrauch p.a.
-    public $brennstoff;
-    public $wohnflaeche;
-    public $gebaeudeart;
-    public $abrechnungsjahr;
+class CO2AufG extends Base {
+    public $Kilowattstunden; # Energieverbrauch p.a.
+    public $Brennstoff;
+    public $Gesamtwohnflaeche;
+    public $Gebaeudeart;
+    public $Abrechnungsjahr;
 
-    public function Emissionsfaktor( $brennstoff ){
-        switch( $brennstoff ) {
+    public function Emissionsfaktor(){
+        $ef = 0;
+        switch( $this->Brennstoff ) {
             case 'Erdgas':     $ef = 0.20088; break;
             case 'Heizöl':     $ef = 0.2664;  break;
             case 'Flüssiggas': $ef = 0.23580; break;
@@ -17,44 +18,60 @@ class CO2AufG {
         return $ef;
     }
 
-    public function Emission( $kWh, $brennstoff ){ # gesamt in Tonnen p.a.
-        return $kWh * $this->Emissionsfaktor( $brennstoff ) / 1000;
+    public function Emission(){ # kg/a
+        return $this->Kilowattstunden * $this->Emissionsfaktor();
     }
 
-    public function Aufteilungsverhaeltnis( $co2PerSqm, $gebaeudeart ){
-        switch( $co2PerSqm ){
-            case $co2PerSqm < 12:  $av = 100; break;
-            case $co2PerSqm < 17:  $av = 90;  break;
-            case $co2PerSqm < 22:  $av = 80;  break;
-            case $co2PerSqm < 27:  $av = 70;  break;
-            case $co2PerSqm < 32:  $av = 60;  break;
-            case $co2PerSqm < 37:  $av = 50;  break;
-            case $co2PerSqm < 42:  $av = 40;  break;
-            case $co2PerSqm < 47:  $av = 30;  break;
-            case $co2PerSqm < 52:  $av = 20;  break;
-            case $co2PerSqm >=52:  $av = 5;   break;
+    public function co2proQm(){
+        return $this->Kilowattstunden * $this->Emissionsfaktor() / $this->Gesamtwohnflaeche;
+    }
+
+    private function Vermieteranteil(){
+        $co2 = $this->co2proQm();
+        switch( $co2 ){
+            case $co2 < 12:  $vm = 0;  break;
+            case $co2 < 17:  $vm = 10; break;
+            case $co2 < 22:  $vm = 20; break;
+            case $co2 < 27:  $vm = 30; break;
+            case $co2 < 32:  $vm = 40; break;
+            case $co2 < 37:  $vm = 50; break;
+            case $co2 < 42:  $vm = 60; break;
+            case $co2 < 47:  $vm = 70; break;
+            case $co2 < 52:  $vm = 80; break;
+            case $co2 >=52:  $vm = 95; break;
         }
-        return $av;
-    }
 
-    public function co2perQm( $kWh, $brennstoff, $wohnflaeche ){
-        return $kWh * $this->Emissionsfaktor( $brennstoff ) / $wohnflaeche;
-    }
-
-    public function Kohlendioxydpreis( $abrechnungsjahr ){
-        switch( $abrechnungsjahr ){
-            case '2024': $ep = 45; break;
-            default: $ep = 30; break;
+        if( $this->Gebaeudeart === 'Denkmalgeschützter Altbau'){
+            $vm = $vm / 2;
         }
-        return $ep;
+        return $vm;
     }
 
-    public function Gesamtemissionspreis( $kWh, $brennstoff, $abrechnungsjahr ){
-        return $this->Emission( $kWh, $brennstoff ) * $this->Kohlendioxydpreis( $abrechnungsjahr );
+    public function Verteilung(){
+        $vermieter = $this->Vermieteranteil();
+        $mieter = 100 - $this->Vermieteranteil();
+        return $mieter . '/' . $vermieter;
     }
 
-    public function getAnteile( $kWh, $brennstoff, $abrechnungsjahr, $gebaeudeart ){
+    public function Kohlendioxydpreis(){
+        switch( $this->Abrechnungsjahr ){
+            case '2024': $kp = 45; break;
+            default: $kp = 30; break;
+        }
+        return $kp;
+    }
 
+    public function Emissionspreis(){
+        return $this->Emission( $this->Kilowattstunden, $this->Brennstoff ) * $this->Kohlendioxydpreis( $this->Abrechnungsjahr ) / 1000;
+    }
+
+    public function Vermieterkosten(){
+        return $this->Emissionspreis( $this->Kilowattstunden, $this->Brennstoff, $this->Abrechnungsjahr ) * $this->Vermieteranteil() / 100;
+    }
+
+    public function Mieterkosten(){
+        return $this->Emissionspreis( $this->Kilowattstunden, $this->Brennstoff, $this->Abrechnungsjahr, $this->Gebaeudeart) - 
+        $this->Vermieterkosten( $this->Kilowattstunden, $this->Brennstoff, $this->Abrechnungsjahr, $this->Gebaeudeart );
     }
 }
 

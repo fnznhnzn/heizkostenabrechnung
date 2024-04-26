@@ -6,6 +6,8 @@ class Base {
     public $Abrechnungsjahr;
     public $Gesamtwohnflaeche;
     public $GesamtwohnflaecheD;
+    public $Gebaeudeart;
+    public $Brennstoff;
     # gas bill
     public $Lieferant;
     public $Rechnungsdatum;
@@ -20,6 +22,12 @@ class Base {
         # db
         $this->conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
         $this->conn->query("SET lc_time_names = 'de_DE'");
+
+        # building type
+        $this->Gebaeudeart = 'Denkmalgeschützter Altbau';
+
+        # fossil type
+        $this->Brennstoff = 'Erdgas';
         
         # year (from GET )
         $options = array('options'=>array('min_range'=>2023));

@@ -10,7 +10,7 @@
 8.  Heizkosten nach Wohnfläche pro Wohnung
 9.  Heizkosten gesamt pro Wohnung
 10. Warmwasserkosten
-11. Kohlendioxidkostenverteilungsgesetz
+11. Kohlendioxidkostenaufteilungsgesetz
 */
 declare(strict_types=1);
 error_reporting(E_ALL);
@@ -26,7 +26,7 @@ $Base                   = new Base();
 $Warmwasser             = new Warmwasser();
 $Heizkostenverteiler    = new Heizkostenverteiler( $Warmwasser->Preis_Warmwasser );
 $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_Heizung );
-$CO2AufG                = new CO2AufG( $Base->Gesamtwohnflaeche );
+$CO2AufG                = new CO2AufG();
 ?>
 
 <!DOCTYPE html>
@@ -227,14 +227,14 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
 <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. <a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a></p>
 <p>Berechnung:</p>
 <pre>   Jährlicher Brennstoffverbrauch (kWh/a) * Emissionsfaktor (kg CO₂/kWh) = Jährlicher Kohlendioxidausstoß kg CO₂/a</pre>
-<p>Der Emissionsfaktor für Erdgas beträgt 0,20088 kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>
-<pre>   <?=$Base->Kilowattstunden?> kWh/a x 0,20088 kg CO₂/kWh = <?=$Base->Kilowattstunden * 0.20088?> kg CO₂/a</pre>
+<p>Der Emissionsfaktor für Erdgas beträgt <?=$CO2AufG->Emissionsfaktor()?> kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>
+<pre>   <?=$Base->Kilowattstunden?> kWh/a x 0,20088 kg CO₂/kWh = <?=$CO2AufG->Emission()?> kg CO₂/a</pre>
 <p>Geteilt durch die Gesamtwohnfläche des Hauses ergibt sich ein Wert pro Quadratmeter und Jahr:</p>
-<pre>   <?=$Base->Kilowattstunden * 0.20088?> kg CO₂/a : <?=$Base->Gesamtwohnflaeche?> m² = <?=$Base->Kilowattstunden * 0.20088 / $Base->Gesamtwohnflaeche?> kg CO₂/m²/a</pre>
-<p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von 80/20 Mieter/Vermieter.</p>
+<pre>   <?=$CO2AufG->Emission()?> kg CO₂/a : <?=$Base->Gesamtwohnflaeche?> m² = <?=$CO2AufG->co2proQm()?> kg CO₂/m²/a</pre>
+<p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von <?=$CO2AufG->Verteilung()?> Mieter/Vermieter.</p>
 <p>Der Preis pro Tonne CO₂ betrug in 2023 30 € pro Tonne, also:</p>
-<pre>   <?=$Base->Kilowattstunden*0.20088?> : 1000 x 30 = <?=$Base->euro($Base->Kilowattstunden*0.20088/1000*30)?></pre>
-<p>20% oder <?=$Base->euro($Base->Kilowattstunden*0.20088/1000*30*0.2)?> davon entfallen auf den Vermieter. Die verbleibenden 80% verteilen sich nach m²:</p>
+<pre>   <?=$CO2AufG->Emission()?> kg CO₂/m²/a : 1000 x <?=$CO2AufG->Kohlendioxydpreis()?> = <?=$Base->euro($CO2AufG->Emissionspreis())?></pre>
+<p>20% oder <?=$Base->euro($CO2AufG->Vermieterkosten())?> davon entfallen auf den Vermieter. Die verbleibenden 80% oder <?=$Base->euro($CO2AufG->Mieterkosten())?> verteilen sich nach m²:</p>
 <p><a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a></p>
 
 
