@@ -20,13 +20,13 @@ require_once('classes/Base.php');
 require_once('classes/Warmwasser.php');
 require_once('classes/Heizkostenverteiler.php');
 require_once('classes/Flaechenverteilung.php');
-require_once('classes/Kohlendioxydaufteilungsgesetz.php');
+require_once('classes/CO2AufG.php');
 
 $Base                   = new Base();
 $Warmwasser             = new Warmwasser();
 $Heizkostenverteiler    = new Heizkostenverteiler( $Warmwasser->Preis_Warmwasser );
 $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_Heizung );
-$CO2AufG                = new Kohlendioxydaufteilungsgesetz( $Base->Gesamtwohnflaeche );
+$CO2AufG                = new CO2AufG( $Base->Gesamtwohnflaeche );
 ?>
 
 <!DOCTYPE html>
@@ -224,7 +224,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
 <!-- 11. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <h2>Kohlendioxidkostenaufteilungsgesetz</h2>
 <p>CO₂KostAufG</p>
-<p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. Die Aufteilung dürfte als Altbau ca. 25/75 betragen, d.h. 75% der Kohlendioxidkosten werden nach Fläche auf die Mieter verteilt.</p>
+<p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. <a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a></p>
 <p>Berechnung:</p>
 <pre>   Jährlicher Brennstoffverbrauch (kWh/a) * Emissionsfaktor (kg CO₂/kWh) = Jährlicher Kohlendioxidausstoß kg CO₂/a</pre>
 <p>Der Emissionsfaktor für Erdgas beträgt 0,20088 kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>
