@@ -170,6 +170,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 $consumptionCostSum = 0;
 $proportionateCostSum = 0;
 foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
+    $totalHeatingCost = 0;
     $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
     $consumptionCost = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
     $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
@@ -224,18 +225,17 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
 <!-- 11. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <h2>Kohlendioxidkostenaufteilungsgesetz</h2>
 <p>CO₂KostAufG</p>
-<p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und soll zusätzliche Anreize für Energieeffiezienz schaffen. <a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a></p>
+<p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und der mit steigendem CO₂-Austoß größer werdende Vermieteranteil sollen zusätzliche Anreize für Energieeffiezienz schaffen. [<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
 <p>Berechnung:</p>
 <pre>   Jährlicher Brennstoffverbrauch (kWh/a) * Emissionsfaktor (kg CO₂/kWh) = Jährlicher Kohlendioxidausstoß kg CO₂/a</pre>
 <p>Der Emissionsfaktor für Erdgas beträgt <?=$CO2AufG->Emissionsfaktor()?> kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>
-<pre>   <?=$Base->Kilowattstunden?> kWh/a x 0,20088 kg CO₂/kWh = <?=$CO2AufG->Emission()?> kg CO₂/a</pre>
+<pre>   <strong class="red"><?=$Base->Kilowattstunden?></strong> kWh/a x 0,20088 kg CO₂/kWh = <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/a</pre>
 <p>Geteilt durch die Gesamtwohnfläche des Hauses ergibt sich ein Wert pro Quadratmeter und Jahr:</p>
-<pre>   <?=$CO2AufG->Emission()?> kg CO₂/a : <?=$Base->Gesamtwohnflaeche?> m² = <?=$CO2AufG->co2proQm()?> kg CO₂/m²/a</pre>
-<p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von <?=$CO2AufG->Verteilung()?> Mieter/Vermieter.</p>
-<p>Der Preis pro Tonne CO₂ betrug in 2023 30 € pro Tonne, also:</p>
-<pre>   <?=$CO2AufG->Emission()?> kg CO₂/m²/a : 1000 x <?=$CO2AufG->Kohlendioxydpreis()?> = <?=$Base->euro($CO2AufG->Emissionspreis())?></pre>
+<pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/a : <?=$Base->Gesamtwohnflaeche?> m² = <?=$CO2AufG->co2proQm()?> kg CO₂/m²/a</pre>
+<p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von <?=$CO2AufG->Verteilung()?> für den Mieter/Vermieter.</p>
+<p>Der Preis pro Tonne CO₂ betrug in 2023 <?=$CO2AufG->Kohlendioxydpreis()?> € pro Tonne oder <?=$CO2AufG->Kohlendioxydpreis(true)?> € pro kg. Es ergibt sich ergo ein Gesamtpreis:</p>
+<pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/m²/a x <?=$CO2AufG->Kohlendioxydpreis(true)?> € = <?=$Base->euro($CO2AufG->Emissionspreis())?></pre>
 <p>20% oder <?=$Base->euro($CO2AufG->Vermieterkosten())?> davon entfallen auf den Vermieter. Die verbleibenden 80% oder <?=$Base->euro($CO2AufG->Mieterkosten())?> verteilen sich nach m²:</p>
-<p><a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a></p>
 
 
 <h2>Energieeffizienz-Richtlinie (EED)</h2>

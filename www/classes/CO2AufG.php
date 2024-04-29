@@ -53,10 +53,13 @@ class CO2AufG extends Base {
         return $mieter . '/' . $vermieter;
     }
 
-    public function Kohlendioxydpreis(){
-        switch( $this->Abrechnungsjahr ){
+    public function Kohlendioxydpreis($proKg = false){
+        switch( $this->Abrechnungsjahr ){ # Preis pro Tonne
             case '2024': $kp = 45; break;
             default: $kp = 30; break;
+        }
+        if( $proKg === true ){
+            $kp /= 1000;
         }
         return $kp;
     }
