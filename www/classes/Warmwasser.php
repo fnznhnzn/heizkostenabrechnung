@@ -29,13 +29,17 @@ class Warmwasser extends Base {
         $this->Preis_Warmwasser_pro_QuadratmeterD = number_format( $this->Preis_Warmwasser_pro_Quadratmeter, 12, ',', '.' );
     }
     
-    public function preis_pro_Wohnung( $Quadratmeter ){
-        return $this->Preis_Warmwasser_pro_Quadratmeter * $Quadratmeter;
+    public function preis_pro_Wohnung( $Quadratmeter, $Abrechnungsbeginn, $Abrechnungsende ){
+        $TageImJahr = $this->daysInYear( $this->Abrechnungsjahr );
+        $Abrechnungstage = $this->ComputeDays($Abrechnungsbeginn, $Abrechnungsende);
+        $Jahreskosten = $this->Preis_Warmwasser_pro_Quadratmeter * $Quadratmeter;
+        $Anteil = $Jahreskosten / $TageImJahr * $Abrechnungstage;
+        return $Anteil;
     }
 
         
-    public function preis_pro_WohnungE( $Quadratmeter ){
-        return $this->euro( $this->Preis_Warmwasser_pro_Quadratmeter * $Quadratmeter );
+    public function preis_pro_WohnungE( $Quadratmeter, $Abrechnungsbeginn, $Abrechnungsende ){
+        return $this->euro( $this->Preis_pro_Wohnung( $Quadratmeter, $Abrechnungsbeginn, $Abrechnungsende ) );
     }
 
 }

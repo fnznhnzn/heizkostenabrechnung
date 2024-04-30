@@ -144,7 +144,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
 <br/>
 <h2>Heizkosten pro Wohnung nach Wohnfläche</h2>
         <table>
-            <tr><th>Mieter</th><th>m²</th><th>Faktor</th><th>Euro</th></tr>
+            <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>m²</th><th>Faktor</th><th>Euro</th></tr>
 <?php
 $sqmSum = 0;
 foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
@@ -152,13 +152,15 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
     $sqmSum += $proportionateCost;
     echo '<tr>';
     echo '<td>' . $row['Nachname'] . '</td>';
+    echo '<td>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>';
+    echo '<td>' . $CO2AufG->ComputeDays($row['Abrechnungsbeginn'], $row['Abrechnungsende']) . ' </td>';
     echo '<td>' . $row['qm'] . '</td>';
     echo '<td>x '. $Flaechenverteilung->Preis_pro_QuadratmeterD . ' =</td>';
     echo '<td class="alignRight">' . $Base->euro( $proportionateCost ) . '</td>';
     echo '</tr>';
 }
 ?>
-            <tr><td colspan="3"></td><td class="alignRight"><strong class="violet"><?=$Base->euro( $sqmSum )?></strong></td></tr>
+            <tr><td colspan="4"></td><td class="alignRight"><strong class="violet"><?=$Base->euro( $sqmSum )?></strong></td></tr>
         </table>
 <!-- 9. ------------------------------------------------------------------------------------------------------- Heizkosten gesamt pro Wohnung -->
 <br/>
@@ -203,7 +205,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
     </table>
     <br/>
     <table>
-        <tr><th>Mieter</th><th>Zeitraum</th><th>m²</th><th>Kosten</th></tr>
+        <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>m²</th><th>Kosten</th></tr>
 <?php
 $totalqm = 0;
 $totalww = 0;
@@ -213,12 +215,13 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
     <td>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>
+    <td>' . $CO2AufG->ComputeDays($row['Abrechnungsbeginn'], $row['Abrechnungsende']) . '</td>
     <td class="alignRight">' . $row['qm'] . '</td>
     <td class="alignRight">' . $Base->euro( $row['qm'] * $Warmwasser->Preis_Warmwasser_pro_Quadratmeter ) . '</td>
     </tr>';
 }
 ?>
-        <tr><td colspan="3"></td><td><?=$Base->euro( $totalww )?></td></tr>
+        <tr><td colspan="4"></td><td><?=$Base->euro( $totalww )?></td></tr>
     </table>
 
 <br/>

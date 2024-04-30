@@ -108,14 +108,14 @@ class Base {
         }
 
         return $billReceivers;
-    } 
+    }
 
     public function formatDate($date){
         $date = strtotime( $date . '00:00:00' );
         $date = date('d.m.Y', $date);
         return $date;
     }
-    
+
     public function nf($n){
         return number_format($n, 10, ',', '.');
     }
@@ -124,5 +124,21 @@ class Base {
         $percent[0] = round( $warmwasserkosten / ($warmwasserkosten + $heizkosten) * 100, 2);
         $percent[1] = round( 100 - $percent[0], 2);
         return $percent;
+    }
+
+    public function ComputeDays( $fromDate, $toDate ){
+        $startDate = new DateTime($fromDate);
+        $endDate = new DateTime($toDate);
+        $difference = $endDate->diff($startDate);
+        $days = $difference->format("%a") + 1; # 1st of January counts as a day too
+        return $days;
+    }
+
+    public function daysInYear(){
+        if( date('L', strtotime( $this->Abrechnungsjahr . '-01-01' ) ) ){
+            return 366;
+        } else {
+            return 365;
+        }
     }
 }

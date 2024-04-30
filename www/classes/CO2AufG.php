@@ -91,22 +91,6 @@ class CO2AufG extends Base {
             return $part;
         }
     }
-
-    public function ComputeDays( $fromDate, $toDate ){
-        $startDate = new DateTime($fromDate);
-        $endDate = new DateTime($toDate);
-        $difference = $endDate->diff($startDate);
-        $days = $difference->format("%a") + 1; # 1st of January counts as a day too
-        return $days;
-    }
-
-    public function daysInYear(){
-        if( date('L', strtotime( $this->Abrechnungsjahr . '-01-01' ) ) ){
-            return 366;
-        } else {
-            return 365;
-        }
-    }
 }
 
 
