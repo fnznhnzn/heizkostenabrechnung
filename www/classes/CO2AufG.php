@@ -26,6 +26,10 @@ class CO2AufG extends Base {
         return $this->Kilowattstunden * $this->Emissionsfaktor() / $this->Gesamtwohnflaeche;
     }
 
+    public function co2proQmTenant(){
+        return $this->Mieterkosten() / $this->Gesamtwohnflaeche;
+    }
+
     private function Vermieteranteil(){
         $co2 = $this->co2proQm();
         switch( $co2 ){
@@ -75,6 +79,33 @@ class CO2AufG extends Base {
     public function Mieterkosten(){
         return $this->Emissionspreis( $this->Kilowattstunden, $this->Brennstoff, $this->Abrechnungsjahr, $this->Gebaeudeart) - 
         $this->Vermieterkosten( $this->Kilowattstunden, $this->Brennstoff, $this->Abrechnungsjahr, $this->Gebaeudeart );
+    }
+
+    public function costPerTenant( $qm, $fromDate, $toDate, $euroFormatted = false ){
+        $daysBilled = $this->computeDays( $fromDate, $toDate );
+        $cost = $this->co2proQmTenant() * $qm;
+        $part = $cost / $this->daysInYear() * $daysBilled;
+        if( $euroFormatted === true ){
+            return $this->euro( $part );
+        } else {
+            return $part;
+        }
+    }
+
+    public function ComputeDays( $fromDate, $toDate ){
+        $startDate = new DateTime($fromDate);
+        $endDate = new DateTime($toDate);
+        $difference = $endDate->diff($startDate);
+        $days = $difference->format("%a") + 1; # 1st of January counts as a day too
+        return $days;
+    }
+
+    public function daysInYear(){
+        if( date('L', strtotime( $this->Abrechnungsjahr . '-01-01' ) ) ){
+            return 366;
+        } else {
+            return 365;
+        }
     }
 }
 

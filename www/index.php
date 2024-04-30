@@ -203,7 +203,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
     </table>
     <br/>
     <table>
-        <tr><th>Mieter</th><th>Zeitraum</th><th>Fläche</th><th>Kosten</th></tr>
+        <tr><th>Mieter</th><th>Zeitraum</th><th>m²</th><th>Kosten</th></tr>
 <?php
 $totalqm = 0;
 $totalww = 0;
@@ -224,19 +224,36 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
 <br/>
 <!-- 11. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <h2>Kohlendioxidkostenaufteilungsgesetz</h2>
-<p>CO₂KostAufG</p>
-<p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und der mit steigendem CO₂-Austoß größer werdende Vermieteranteil sollen zusätzliche Anreize für Energieeffiezienz schaffen. [<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
-<p>Berechnung:</p>
-<pre>   Jährlicher Brennstoffverbrauch (kWh/a) * Emissionsfaktor (kg CO₂/kWh) = Jährlicher Kohlendioxidausstoß kg CO₂/a</pre>
-<p>Der Emissionsfaktor für Erdgas beträgt <?=$CO2AufG->Emissionsfaktor()?> kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>
-<pre>   <strong class="red"><?=$Base->Kilowattstunden?></strong> kWh/a x 0,20088 kg CO₂/kWh = <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/a</pre>
-<p>Geteilt durch die Gesamtwohnfläche des Hauses ergibt sich ein Wert pro Quadratmeter und Jahr:</p>
-<pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/a : <?=$Base->Gesamtwohnflaeche?> m² = <?=$CO2AufG->co2proQm()?> kg CO₂/m²/a</pre>
-<p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von <?=$CO2AufG->Verteilung()?> für den Mieter/Vermieter.</p>
-<p>Der Preis pro Tonne CO₂ betrug in 2023 <?=$CO2AufG->Kohlendioxydpreis()?> € pro Tonne oder <?=$CO2AufG->Kohlendioxydpreis(true)?> € pro kg. Es ergibt sich ergo ein Gesamtpreis:</p>
-<pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/m²/a x <?=$CO2AufG->Kohlendioxydpreis(true)?> € = <?=$Base->euro($CO2AufG->Emissionspreis())?></pre>
-<p>20% oder <?=$Base->euro($CO2AufG->Vermieterkosten())?> davon entfallen auf den Vermieter. Die verbleibenden 80% oder <?=$Base->euro($CO2AufG->Mieterkosten())?> verteilen sich nach m²:</p>
-
+    <p>CO₂KostAufG</p>
+    <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und der mit steigendem CO₂-Austoß größer werdende Vermieteranteil sollen zusätzliche Anreize für Energieeffiezienz schaffen. [<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
+    <p>Berechnung:</p>
+    <pre>   Jährlicher Brennstoffverbrauch (kWh/a) * Emissionsfaktor (kg CO₂/kWh) = Jährlicher Kohlendioxidausstoß kg CO₂/a</pre>
+    <p>Der Emissionsfaktor für Erdgas beträgt <?=$CO2AufG->Emissionsfaktor()?> kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>
+    <pre>   <strong class="red"><?=$Base->Kilowattstunden?></strong> kWh/a x 0,20088 kg CO₂/kWh = <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/a</pre>
+    <p>Geteilt durch die Gesamtwohnfläche des Hauses ergibt sich ein Wert pro Quadratmeter und Jahr:</p>
+    <pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/a : <?=$Base->Gesamtwohnflaeche?> m² = <?=$CO2AufG->co2proQm()?> kg CO₂/m²/a</pre>
+    <p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von <?=$CO2AufG->Verteilung()?> für den Mieter/Vermieter.</p>
+    <p>Der Preis pro Tonne CO₂ betrug in 2023 <?=$CO2AufG->Kohlendioxydpreis()?> € pro Tonne oder <?=$CO2AufG->Kohlendioxydpreis(true)?> € pro kg. Es ergibt sich ergo ein Gesamtpreis:</p>
+    <pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/m²/a x <?=$CO2AufG->Kohlendioxydpreis(true)?> € = <?=$Base->euro($CO2AufG->Emissionspreis())?></pre>
+    <p>20% oder <?=$Base->euro($CO2AufG->Vermieterkosten())?> davon entfallen auf den Vermieter. Die verbleibenden 80% oder <?=$Base->euro($CO2AufG->Mieterkosten())?> werden nach m² auf die Mieter verteilt.</p>
+    <pre>   <?=$Base->euro($CO2AufG->Mieterkosten())?> : <?=$Base->Gesamtwohnflaeche?> m² = <?=$Base->euro($CO2AufG->co2proQmTenant())?>/m²/a CO₂Kosten für den Mieter</pre>
+    <table>
+        <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>m²</th><th>Kosten</th></tr>
+<?php
+$totalCO2price = 0;
+foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
+    $totalCO2price += $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+    echo '<tr>
+    <td>' . $row['Nachname'] . '</td>
+    <td>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>
+    <td>' . $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ) . '</td>
+    <td class="alignRight">' . $row['qm'] . '</td>
+    <td class="alignRight">' . $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], true ) . '</td>
+    </tr>';
+}
+echo '<tr><td colspan="4"></td><td><strong>' . $Base->euro( $totalCO2price ) . '</strong></td></tr>';
+?>
+</table>
 
 <h2>Energieeffizienz-Richtlinie (EED)</h2>
 <p>Die <a href="https://bak.de/politik-und-praxis/klima-energie-und-ressourcen/gesetze-und-richtlinien/eu-gesetzgebung-2/eu-energieeffizienzrichtlinie-eed/" target="_blank">EED</a> verlangt folgende Informationen in der Abrechnung:

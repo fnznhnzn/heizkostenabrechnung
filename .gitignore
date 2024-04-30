@@ -3,6 +3,7 @@
 *.log
 *.test
 *.gz
+scripts/db.sql.gz
 utils
 bk
 .bash_logout
