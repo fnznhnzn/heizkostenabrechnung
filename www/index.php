@@ -210,14 +210,15 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
 $totalqm = 0;
 $totalww = 0;
 foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
+    $preiswg = $Warmwasser->preis_pro_wohnung( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
     $totalqm += $row['qm'];
-    $totalww += $row['qm'] * $Warmwasser->Preis_Warmwasser_pro_Quadratmeter;
+    $totalww += $preiswg;
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
     <td>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>
     <td>' . $CO2AufG->ComputeDays($row['Abrechnungsbeginn'], $row['Abrechnungsende']) . '</td>
     <td class="alignRight">' . $row['qm'] . '</td>
-    <td class="alignRight">' . $Base->euro( $row['qm'] * $Warmwasser->Preis_Warmwasser_pro_Quadratmeter ) . '</td>
+    <td class="alignRight">' . $Base->euro($preiswg) . '</td>
     </tr>';
 }
 ?>
