@@ -160,7 +160,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
     echo '</tr>';
 }
 ?>
-            <tr><td colspan="4"></td><td class="alignRight"><strong class="violet"><?=$Base->euro( $sqmSum )?></strong></td></tr>
+            <tr><td colspan="5"></td><td class="alignRight"><strong class="violet"><?=$Base->euro( $sqmSum )?></strong></td></tr>
         </table>
 <!-- 9. ------------------------------------------------------------------------------------------------------- Heizkosten gesamt pro Wohnung -->
 <br/>
@@ -171,6 +171,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 <?php
 $consumptionCostSum = 0;
 $proportionateCostSum = 0;
+$totalHeatingCost = 0;
 foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
     $totalHeatingCost = 0;
     $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
@@ -178,7 +179,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
     $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
     $consumptionCostSum += $consumptionCost;
     $proportionateCostSum += $proportionateCost;
-    $totalHeatingCost += $consumptionCost + $proportionateCost;
+    $totalHeatingCost += $consumptionCost + $proportionateCost;;
 
     echo '<tr>
         <td>' . $row['Nachname'] . '</td>
@@ -190,7 +191,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
 ?>
             <tr><td></td><td class="alignRight"><strong class="brown"><?=$Base->euro($consumptionCostSum)?></strong></td>
             <td class="alignRight"><strong class="violet"><?=$Base->euro($proportionateCostSum)?></strong></td>
-            <td class="alignRight"><strong class="orange"><?=$Base->euro($totalHeatingCost)?></strong></td></tr>
+            <td class="alignRight"><strong class="orange"><?=$Base->euro($consumptionCostSum + $proportionateCostSum)?></strong></td></tr>
         </table>
 <!-- 10. -------------------------------------------------------------------------------------------------------------------------- Warmwasserkosten -->
 <h2>Warmwasserkosten pro Wohnung</h2>
@@ -227,9 +228,8 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
 
 <br/>
 <!-- 11. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
-<h2>Kohlendioxidkostenaufteilungsgesetz</h2>
-    <p>CO₂KostAufG</p>
-    <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter und der mit steigendem CO₂-Austoß größer werdende Vermieteranteil sollen zusätzliche Anreize für Energieeffiezienz schaffen. [<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
+<h2>Kohlendioxidkostenaufteilungsgesetz / CO₂KostAufG</h2>
+    <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter. Der mit steigendem CO₂-Austoß größer werdende Vermieteranteil soll zusätzliche Anreize für Energieeffizienzmaßnahmen schaffen.<br/>[<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
     <p>Berechnung:</p>
     <pre>   Jährlicher Brennstoffverbrauch (kWh/a) * Emissionsfaktor (kg CO₂/kWh) = Jährlicher Kohlendioxidausstoß kg CO₂/a</pre>
     <p>Der Emissionsfaktor für Erdgas beträgt <?=$CO2AufG->Emissionsfaktor()?> kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>
