@@ -8,9 +8,10 @@
 6.  30% nach Fläche
 7.  Heizkosten nach HKV pro Wohnung
 8.  Heizkosten nach Wohnfläche pro Wohnung
-9.  Heizkosten gesamt pro Wohnung
+9.  Heizkosten pro Wohnung
 10. Warmwasserkosten
-11. Kohlendioxidkostenaufteilungsgesetz
+11. Energiekosten
+12. Kohlendioxidkostenaufteilungsgesetz
 */
 declare(strict_types=1);
 error_reporting(E_ALL);
@@ -116,7 +117,7 @@ $CO2AufG                = new CO2AufG();
 
 <!-- 7. ------------------------------------------------------------------------------------------------------ Heizkosten nach HKV pro Wohnung -->
 <br/>
-<h2>Heizkosten pro Wohnung nach HKV</h2>
+<h2>Heizkosten nach HKV</h2>
         <table>
             <tr><th>Mieter</th><th>HKV</th><th></th><th>Faktor</th><th></th><th></th><th></th><th>Euro</th></tr>
 
@@ -142,7 +143,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
 
 <!-- 8. ------------------------------------------------------------------------------------------------------ Heizkosten nach Wohnfläche pro Wohnung -->
 <br/>
-<h2>Heizkosten pro Wohnung nach Wohnfläche</h2>
+<h2>Heizkosten nach Wohnfläche</h2>
         <table>
             <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>m²</th><th>Faktor</th><th>Euro</th></tr>
 <?php
@@ -164,7 +165,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
         </table>
 <!-- 9. ------------------------------------------------------------------------------------------------------- Heizkosten gesamt pro Wohnung -->
 <br/>
-<h2>Heizkosten gesamt pro Wohnung für <?=$Base->Abrechnungsjahr?></h2>
+<h2>Heizkosten gesamt</h2>
 
             <table>
                 <tr><th>Mieter</th><th>p.Verbrauch</th><th>p.Fläche</th><th>Summe</th></tr>
@@ -193,8 +194,9 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
             <td class="alignRight"><strong class="violet"><?=$Base->euro($proportionateCostSum)?></strong></td>
             <td class="alignRight"><strong class="orange"><?=$Base->euro($consumptionCostSum + $proportionateCostSum)?></strong></td></tr>
         </table>
+        <br/>
 <!-- 10. -------------------------------------------------------------------------------------------------------------------------- Warmwasserkosten -->
-<h2>Warmwasserkosten pro Wohnung</h2>
+<h2>Warmwasserkosten</h2>
     <table>
         <tr>
             <th>Preis</th><th>Aufteilung</th><th>Gesamteinheiten</th><th>Preis pro Einheit</th>
@@ -223,11 +225,30 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
     </tr>';
 }
 ?>
-        <tr><td colspan="4"></td><td><?=$Base->euro( $totalww )?></td></tr>
+        <tr><td colspan="4"></td><td><strong class="violet"><?=$Base->euro( $totalww )?></strong></td></tr>
     </table>
-
 <br/>
-<!-- 11. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
+<!-- 11. --------------------------------------------------------------------------------------------------------- Energiekosten -->
+<h2>Energiekosten</h2>
+<table>
+    <tr><th>Mieter</th><th>70%</th><th>30%</th><th>WW</th><th>Gesamt</th></tr>
+<?php
+foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
+    $hkvPrice = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
+    $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+    $preisWW = $Warmwasser->preis_pro_wohnung( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
+    echo '<tr>
+    <td>' . $row['Nachname'] . '</td>
+    <td>' . $hkvPrice . '</td>
+    <td>' . $proportionateCost . '</td>
+    <td>' . $preisWW . '</td>
+    <td></td>
+    </tr>';
+}
+?>
+</table>
+<br/>
+<!-- 12. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <h2>Kohlendioxidkostenaufteilungsgesetz / CO₂KostAufG</h2>
     <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter. Der mit steigendem CO₂-Austoß größer werdende Vermieteranteil soll zusätzliche Anreize für Energieeffizienzmaßnahmen schaffen.<br/>[<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
     <p>Berechnung:</p>
