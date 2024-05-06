@@ -8,10 +8,9 @@
 6.  30% nach Fläche
 7.  Heizkosten nach HKV pro Wohnung
 8.  Heizkosten nach Wohnfläche pro Wohnung
-9.  Heizkosten pro Wohnung
-10. Warmwasserkosten
-11. Energiekosten
-12. Kohlendioxidkostenaufteilungsgesetz
+9.  Kohlendioxidkostenaufteilungsgesetz
+10. Zusammenfassung
+11. Erneuerbare Energien Gesetz
 */
 declare(strict_types=1);
 error_reporting(E_ALL);
@@ -101,7 +100,7 @@ $CO2AufG                = new CO2AufG();
         Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert.</p>
 
 <!-- 6. -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
-<h2>30% nach Wohnfläche</h2>
+        <h2>30% nach Wohnfläche</h2>
         <p>30% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0.3 = <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></p>
         <p>Ergibt Kosten pro m²: <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong> / <?=$Base->Gesamtwohnflaeche?> m² Gesamtfläche = <?=$Flaechenverteilung->Preis_pro_Quadratmeter?> €</p>
 
@@ -116,8 +115,8 @@ $CO2AufG                = new CO2AufG();
         <br/>
 
 <!-- 7. ------------------------------------------------------------------------------------------------------ Heizkosten nach HKV pro Wohnung -->
-<br/>
-<h2>Heizkosten nach HKV</h2>
+        <br/>
+        <h2>Heizkosten nach HKV</h2>
         <table>
             <tr><th>Mieter</th><th>HKV</th><th></th><th>Faktor</th><th></th><th></th><th></th><th>Euro</th></tr>
 
@@ -163,92 +162,8 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 ?>
             <tr><td colspan="5"></td><td class="alignRight"><strong class="violet"><?=$Base->euro( $sqmSum )?></strong></td></tr>
         </table>
-<!-- 9. ------------------------------------------------------------------------------------------------------- Heizkosten gesamt pro Wohnung -->
-<br/>
-<h2>Heizkosten gesamt</h2>
-
-            <table>
-                <tr><th>Mieter</th><th>p.Verbrauch</th><th>p.Fläche</th><th>Summe</th></tr>
-<?php
-$consumptionCostSum = 0;
-$proportionateCostSum = 0;
-$totalHeatingCost = 0;
-foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
-    $totalHeatingCost = 0;
-    $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
-    $consumptionCost = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
-    $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
-    $consumptionCostSum += $consumptionCost;
-    $proportionateCostSum += $proportionateCost;
-    $totalHeatingCost += $consumptionCost + $proportionateCost;;
-
-    echo '<tr>
-        <td>' . $row['Nachname'] . '</td>
-        <td class="alignRight">' . $Base->euro( $consumptionCost ) . '</td>
-        <td class="alignRight">' . $Base->euro( $proportionateCost ) . '</td>
-        <td class="alignRight"><strong>' . $Base->euro( $consumptionCost + $proportionateCost ) . '</strong></td>
-        </tr>';
-}
-?>
-            <tr><td></td><td class="alignRight"><strong class="brown"><?=$Base->euro($consumptionCostSum)?></strong></td>
-            <td class="alignRight"><strong class="violet"><?=$Base->euro($proportionateCostSum)?></strong></td>
-            <td class="alignRight"><strong class="orange"><?=$Base->euro($consumptionCostSum + $proportionateCostSum)?></strong></td></tr>
-        </table>
-        <br/>
-<!-- 10. -------------------------------------------------------------------------------------------------------------------------- Warmwasserkosten -->
-<h2>Warmwasserkosten</h2>
-    <table>
-        <tr>
-            <th>Preis</th><th>Aufteilung</th><th>Gesamteinheiten</th><th>Preis pro Einheit</th>
-        </tr>
-        <tr>
-            <td><strong class="violet"><?=$Warmwasser->Preis_WarmwasserE?></strong></td>
-            <td>m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Warmwasser->Preis_Warmwasser_pro_Quadratmeter?></td>
-        </tr>
-    </table>
-    <br/>
-    <table>
-        <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>m²</th><th>Kosten</th></tr>
-<?php
-$totalqm = 0;
-$totalww = 0;
-foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
-    $preiswg = $Warmwasser->preis_pro_wohnung( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
-    $totalqm += $row['qm'];
-    $totalww += $preiswg;
-    echo '<tr>
-    <td>' . $row['Nachname'] . '</td>
-    <td>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>
-    <td>' . $CO2AufG->ComputeDays($row['Abrechnungsbeginn'], $row['Abrechnungsende']) . '</td>
-    <td class="alignRight">' . $row['qm'] . '</td>
-    <td class="alignRight">' . $Base->euro($preiswg) . '</td>
-    </tr>';
-}
-?>
-        <tr><td colspan="4"></td><td><strong class="violet"><?=$Base->euro( $totalww )?></strong></td></tr>
-    </table>
-<br/>
-<!-- 11. --------------------------------------------------------------------------------------------------------- Energiekosten -->
-<h2>Energiekosten</h2>
-<table>
-    <tr><th>Mieter</th><th>70%</th><th>30%</th><th>WW</th><th>Gesamt</th></tr>
-<?php
-foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
-    $hkvPrice = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
-    $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
-    $preisWW = $Warmwasser->preis_pro_wohnung( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
-    echo '<tr>
-    <td>' . $row['Nachname'] . '</td>
-    <td>' . $hkvPrice . '</td>
-    <td>' . $proportionateCost . '</td>
-    <td>' . $preisWW . '</td>
-    <td></td>
-    </tr>';
-}
-?>
-</table>
-<br/>
-<!-- 12. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
+</br>
+<!-- 9. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <h2>Kohlendioxidkostenaufteilungsgesetz / CO₂KostAufG</h2>
     <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter. Der mit steigendem CO₂-Austoß größer werdende Vermieteranteil soll zusätzliche Anreize für Energieeffizienzmaßnahmen schaffen.<br/>[<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
     <p>Berechnung:</p>
@@ -262,24 +177,75 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row){
     <pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/m²/a x <?=$CO2AufG->Kohlendioxydpreis(true)?> € = <?=$Base->euro($CO2AufG->Emissionspreis())?></pre>
     <p>20% oder <?=$Base->euro($CO2AufG->Vermieterkosten())?> davon entfallen auf den Vermieter. Die verbleibenden 80% oder <?=$Base->euro($CO2AufG->Mieterkosten())?> werden nach m² auf die Mieter verteilt.</p>
     <pre>   <?=$Base->euro($CO2AufG->Mieterkosten())?> : <?=$Base->Gesamtwohnflaeche?> m² = <?=$Base->euro($CO2AufG->co2proQmTenant())?>/m²/a CO₂Kosten für den Mieter</pre>
-    <table>
-        <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>m²</th><th>Kosten</th></tr>
+
+
+<!-- 10. -------------------------------------------------------------------------------------------------------- Zusammenfassung -->
+<h2>Zusammenfassung</h2>
+<p>Heizkosten, Wassererwärmung, CO₂-Emission</p>
+<table>
+            <tr><th>Kosten</th><th>Preis</th><th>Aufteilung</th><th>Gesamteinheiten</th><th>Preis pro Einheit</th></tr>
+            <tr><td>70% Heizung</td><td class="alignRight"><strong><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></td><td class="center">HKV</td><td><?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?></td><td><?=$Heizkostenverteiler->Preis_pro_MesswertD?></td><td>€/HKV-Wert</td></tr>
+            <tr><td>30% Heizung</td><td class="alignRight"><strong><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Flaechenverteilung->Preis_pro_QuadratmeterD?></td><td>€/m²/a</td></tr>
+            <tr><td>Warmwasser</td><td class="alignRight"><strong><?=$Warmwasser->Preis_WarmwasserE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Warmwasser->Preis_Warmwasser_pro_Quadratmeter?></td><td>€/m²/a</td></tr>
+            <?php
+                $heating7030Water = $Heizkostenverteiler->Preis_Heizung_70Prozent + $Flaechenverteilung->PreisHeizung30Prozent + $Warmwasser->Preis_Warmwasser;
+            ?>
+            <tr><td></td><td class="alignRight"><?=$Base->euro($heating7030Water)?></td><td colspan="4"></td></tr>
+            <tr><td>CO₂-Emission</td><td class="alignRight"><strong><?=$Base->euro($CO2AufG->Mieterkosten())?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Base->euro($CO2AufG->co2proQmTenant())?></td><td>€/m²/a</td></tr>
+            <?php
+                $heating7030WaterCo2 = $heating7030Water + $CO2AufG->Mieterkosten();
+            ?>
+            <tr><td></td><td class="alignRight"><strong><?=$Base->euro($heating7030WaterCo2)?></strong></td><td colspan="4"></td></tr>
+        </table>
+        <small>HKV = Heizkostenverteiler (Messgeräte an den Heizkörpern)</small>
+        <br/>
+</table>
+<br/>
+<table>
+    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>m²</th><th>HKV-Werte</th><th>70%</th><th>30%</th><th>WW</th><th>CO₂</th><th>Gesamt</th></tr>
+    <tr class="subline"><td colspan="5"></td><td class="center">*HKV</td><td class="center">*m²</td><td class="center">*m²</td><td class="center">*m²</td><td></td></tr>
 <?php
-$totalCO2price = 0;
+$totalQm = 0;
+$totalConsumptionCost = 0;
+$totalProportionateCost = 0;
+$totalPreisWW = 0;
+$totalCo2perTenant = 0;
 foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
-    $totalCO2price += $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+    $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
+    $consumptionCost = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
+    $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+    $preisWW = $Warmwasser->preis_pro_wohnung( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
+    $co2perTenant = $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], false );
+    $co2perTenantE = $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], true );
+    $totalTenantCost = $consumptionCost + $proportionateCost + $preisWW + $co2perTenant;
+    $totalConsumptionCost += $consumptionCost;
+    $totalProportionateCost += $proportionateCost;
+    $totalPreisWW += $preisWW;
+    $totalCo2perTenant += $co2perTenant;
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
-    <td>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>
-    <td>' . $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ) . '</td>
+    <td nowrap>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>
+    <td class="alignRight">' . $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ) . '</td>
     <td class="alignRight">' . $row['qm'] . '</td>
-    <td class="alignRight">' . $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], true ) . '</td>
+    <td class="alignRight">' . $consumption . '</td>
+    <td class="alignRight">' . $Base->euro( $consumptionCost ) . '</td>
+    <td class="alignRight">' . $Base->euro( $proportionateCost ) . '</td>
+    <td class="alignRight">' . $Base->euro( $preisWW ) . '</td>
+    <td class="alignRight">' . $co2perTenantE . '</td>
+    <td class="alignRight">' . $Base->euro( $totalTenantCost ) . '</td>
     </tr>';
 }
-echo '<tr><td colspan="4"></td><td><strong>' . $Base->euro( $totalCO2price ) . '</strong></td></tr>';
 ?>
+    <tr><td colspan="5"></td>
+        <td class="alignRight"><strong><?=$Base->euro($totalConsumptionCost)?></strong></td>
+        <td class="alignRight"><strong><?=$Base->euro($totalProportionateCost)?></strong></td>
+        <td class="alignRight"><strong><?=$Base->euro($totalPreisWW)?></strong></td>
+        <td class="alignRight"><strong><?=$Base->euro($totalCo2perTenant)?></strong></td>
+        <td class="alignRight"><strong><?=$Base->euro($totalConsumptionCost + $totalProportionateCost + $totalPreisWW + $totalCo2perTenant)?></strong></td>
+    </tr> 
 </table>
-
+<br/>
+<!-- 11. -------------------------------------------------------------------------------------------------------- Erneuerbare Energien Gesetz -->
 <h2>Energieeffizienz-Richtlinie (EED)</h2>
 <p>Die <a href="https://bak.de/politik-und-praxis/klima-energie-und-ressourcen/gesetze-und-richtlinien/eu-gesetzgebung-2/eu-energieeffizienzrichtlinie-eed/" target="_blank">EED</a> verlangt folgende Informationen in der Abrechnung:
 <ul>
