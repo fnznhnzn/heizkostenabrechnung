@@ -10,7 +10,7 @@
 8.  Heizkosten nach Wohnfläche pro Wohnung
 9.  Kohlendioxidkostenaufteilungsgesetz
 10. Zusammenfassung
-11. Erneuerbare Energien Gesetz
+11. Energieeffizienz Richtlinie
 */
 declare(strict_types=1);
 error_reporting(E_ALL);
@@ -64,7 +64,7 @@ $CO2AufG                = new CO2AufG();
         <pre>    <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> x 1,11 = <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong></pre>
         <p>Die Kosten für die gesamte Wassererwärmung betragen folglich:</p>
         <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh Gasverbrauch x <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong> = <strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></strong></pre>
-        <p>Oder mit Verhälnissen gerechnet:</p>
+        <p>Oder mit Verhältnissen gerechnet:</p>
         <pre>    <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong> kWh für Warmwasser : <strong class="red"><?=$Base->Kilowattstunden?></strong> kWh Gesamtverbrauch x <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong> = <strong class="pink"><?=$Base->euro($Warmwasser->Preis_Warmwasser_BrunataStyle)?></strong></pre>
 
 <!-- 2. ---------------------------------------------------------------------------------------------------------------------------- Heizung -->
@@ -175,7 +175,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
     <p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von <?=$CO2AufG->Verteilung()?> für den Mieter/Vermieter.</p>
     <p>Der Preis pro Tonne CO₂ betrug in 2023 <?=$CO2AufG->Kohlendioxydpreis()?> € pro Tonne oder <?=$CO2AufG->Kohlendioxydpreis(true)?> € pro kg. Es ergibt sich ergo ein Gesamtpreis:</p>
     <pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/m²/a x <?=$CO2AufG->Kohlendioxydpreis(true)?> € = <?=$Base->euro($CO2AufG->Emissionspreis())?></pre>
-    <p>20% oder <?=$Base->euro($CO2AufG->Vermieterkosten())?> davon entfallen auf den Vermieter. Die verbleibenden 80% oder <?=$Base->euro($CO2AufG->Mieterkosten())?> werden nach m² auf die Mieter verteilt.</p>
+    <p>20% oder <?=$Base->euro($CO2AufG->Vermieterkosten())?> davon entfallen auf den Vermieter. Die verbleibenden 80% oder <strong class="gray"><?=$Base->euro($CO2AufG->Mieterkosten())?></strong> werden nach m² auf die Mieter verteilt.</p>
     <pre>   <?=$Base->euro($CO2AufG->Mieterkosten())?> : <?=$Base->Gesamtwohnflaeche?> m² = <?=$Base->euro($CO2AufG->co2proQmTenant())?>/m²/a CO₂Kosten für den Mieter</pre>
 
 
@@ -184,14 +184,14 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 <p>Heizkosten, Wassererwärmung, CO₂-Emission</p>
 <table>
             <tr><th>Kosten</th><th>Preis</th><th>Aufteilung</th><th>Gesamteinheiten</th><th>Preis pro Einheit</th></tr>
-            <tr><td>70% Heizung</td><td class="alignRight"><strong><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></td><td class="center">HKV</td><td><?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?></td><td><?=$Heizkostenverteiler->Preis_pro_MesswertD?></td><td>€/HKV-Wert</td></tr>
-            <tr><td>30% Heizung</td><td class="alignRight"><strong><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Flaechenverteilung->Preis_pro_QuadratmeterD?></td><td>€/m²/a</td></tr>
-            <tr><td>Warmwasser</td><td class="alignRight"><strong><?=$Warmwasser->Preis_WarmwasserE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Warmwasser->Preis_Warmwasser_pro_Quadratmeter?></td><td>€/m²/a</td></tr>
+            <tr><td>70% Heizung</td><td class="alignRight"><strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></td><td class="center">HKV</td><td><?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?></td><td><?=$Heizkostenverteiler->Preis_pro_MesswertD?></td><td>€/HKV-Wert</td></tr>
+            <tr><td>30% Heizung</td><td class="alignRight"><strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Flaechenverteilung->Preis_pro_QuadratmeterD?></td><td>€/m²/a</td></tr>
+            <tr><td>Warmwasser</td><td class="alignRight"><strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Warmwasser->Preis_Warmwasser_pro_Quadratmeter?></td><td>€/m²/a</td></tr>
             <?php
                 $heating7030Water = $Heizkostenverteiler->Preis_Heizung_70Prozent + $Flaechenverteilung->PreisHeizung30Prozent + $Warmwasser->Preis_Warmwasser;
             ?>
             <tr><td></td><td class="alignRight"><?=$Base->euro($heating7030Water)?></td><td colspan="4"></td></tr>
-            <tr><td>CO₂-Emission</td><td class="alignRight"><strong><?=$Base->euro($CO2AufG->Mieterkosten())?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Base->euro($CO2AufG->co2proQmTenant())?></td><td>€/m²/a</td></tr>
+            <tr><td>CO₂-Emission</td><td class="alignRight"><strong class="gray"><?=$Base->euro($CO2AufG->Mieterkosten())?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Base->euro($CO2AufG->co2proQmTenant())?></td><td>€/m²/a</td></tr>
             <?php
                 $heating7030WaterCo2 = $heating7030Water + $CO2AufG->Mieterkosten();
             ?>
@@ -237,17 +237,17 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
 }
 ?>
     <tr><td colspan="5"></td>
-        <td class="alignRight"><strong><?=$Base->euro($totalConsumptionCost)?></strong></td>
-        <td class="alignRight"><strong><?=$Base->euro($totalProportionateCost)?></strong></td>
-        <td class="alignRight"><strong><?=$Base->euro($totalPreisWW)?></strong></td>
-        <td class="alignRight"><strong><?=$Base->euro($totalCo2perTenant)?></strong></td>
+        <td class="alignRight"><strong class="brown"><?=$Base->euro($totalConsumptionCost)?></strong></td>
+        <td class="alignRight"><strong class="violet"><?=$Base->euro($totalProportionateCost)?></strong></td>
+        <td class="alignRight"><strong class="pink"><?=$Base->euro($totalPreisWW)?></strong></td>
+        <td class="alignRight"><strong class="gray"><?=$Base->euro($totalCo2perTenant)?></strong></td>
         <td class="alignRight"><strong><?=$Base->euro($totalConsumptionCost + $totalProportionateCost + $totalPreisWW + $totalCo2perTenant)?></strong></td>
     </tr> 
 </table>
 <br/>
 <!-- 11. -------------------------------------------------------------------------------------------------------- Erneuerbare Energien Gesetz -->
 <h2>Energieeffizienz-Richtlinie (EED)</h2>
-<p>Die <a href="https://bak.de/politik-und-praxis/klima-energie-und-ressourcen/gesetze-und-richtlinien/eu-gesetzgebung-2/eu-energieeffizienzrichtlinie-eed/" target="_blank">EED</a> verlangt folgende Informationen in der Abrechnung:
+<p>Die <a href="https://www.bfee-online.de/BfEE/DE/Effizienzpolitik/EuropaeischeEnergieeffizienzpolitik/europaeischeenergieeffizienzpolitik.html" target="_blank">EED</a> verlangt folgende Informationen in der Abrechnung:
 <ul>
     <li>Vorjahresverbrauch des Nutzers (klimabereinigt)</li>
     <li>klimabereinigter Vergleich zu einem genormten Durchschnittsnutzer</li>
