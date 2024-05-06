@@ -77,7 +77,7 @@ $CO2AufG                = new CO2AufG();
         </table>
 
 <!-- 3. -------------------------------------------------------------------------------------------------------- 70% Heizkosten nach Verbrauch -->
-        <h2>Verbrauchsabhängige Aufteilung</h2>
+        <h2>70% nach Verbrauch</h2>
         <p>50-70% der verbleibenden Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §6 + §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
         <p>70% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0,7 = <strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></p>
 
@@ -202,8 +202,8 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 </table>
 <br/>
 <table>
-    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>m²</th><th>HKV-Werte</th><th>70%</th><th>30%</th><th>WW</th><th>CO₂</th><th>Gesamt</th></tr>
-    <tr class="subline"><td colspan="5"></td><td class="center">*HKV</td><td class="center">*m²</td><td class="center">*m²</td><td class="center">*m²</td><td></td></tr>
+    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>m²</th><th>30%</th><th>WW</th><th>CO₂</th><th>Gesamt</th></tr>
+    <tr class="subline"><td colspan="4"></td><td class="center">*HKV</td><td></td><td class="center">*m²</td><td class="center">*m²</td><td class="center">*m²</td><td></td></tr>
 <?php
 $totalQm = 0;
 $totalConsumptionCost = 0;
@@ -226,9 +226,9 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     <td>' . $row['Nachname'] . '</td>
     <td nowrap>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>
     <td class="alignRight">' . $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ) . '</td>
-    <td class="alignRight">' . $row['qm'] . '</td>
     <td class="alignRight">' . $consumption . '</td>
     <td class="alignRight">' . $Base->euro( $consumptionCost ) . '</td>
+    <td class="alignRight">' . $row['qm'] . '</td>
     <td class="alignRight">' . $Base->euro( $proportionateCost ) . '</td>
     <td class="alignRight">' . $Base->euro( $preisWW ) . '</td>
     <td class="alignRight">' . $co2perTenantE . '</td>
@@ -236,8 +236,9 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     </tr>';
 }
 ?>
-    <tr><td colspan="5"></td>
+    <tr><td colspan="4"></td>
         <td class="alignRight"><strong class="brown"><?=$Base->euro($totalConsumptionCost)?></strong></td>
+        <td></td>
         <td class="alignRight"><strong class="violet"><?=$Base->euro($totalProportionateCost)?></strong></td>
         <td class="alignRight"><strong class="pink"><?=$Base->euro($totalPreisWW)?></strong></td>
         <td class="alignRight"><strong class="gray"><?=$Base->euro($totalCo2perTenant)?></strong></td>
