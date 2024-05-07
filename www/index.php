@@ -165,19 +165,34 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 </br>
 <!-- 9. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <h2>Kohlendioxidkostenaufteilungsgesetz / CO₂KostAufG</h2>
-    <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung der Kosten zwischen Mieter und Vermieter. Der mit steigendem CO₂-Austoß größer werdende Vermieteranteil soll zusätzliche Anreize für Energieeffizienzmaßnahmen schaffen.<br/>[<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
+    <p>Energieversorger müssen nach dem 2021 in Kraft getretenen Bundesemissionshandelsgesetz (BEHG) für den von ihnen gelieferten Brennstoff CO₂-Gebühren zahlen 
+        und stellen diese ihren Kunden in Rechnung. Bisher zahlte folglich der Mieter die vollen CO₂-Kosten.</p>
+    <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung dieser 
+    Kosten zwischen Mieter und Vermieter. Der mit steigendem CO₂-Austoß größer werdende Vermieteranteil soll zusätzliche Anreize für Energieeffizienzmaßnahmen 
+    schaffen.</p>
+    <p>Der CO₂-Preis wird Energieverbrauch ermittelt, nominell nach Wohnfläche verteilt und der Vermieteranteil dem Mieter erlassen.</p>
+    [<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
     <p>Berechnung:</p>
+    
     <pre>   Jährlicher Brennstoffverbrauch (kWh/a) * Emissionsfaktor (kg CO₂/kWh) = Jährlicher Kohlendioxidausstoß kg CO₂/a</pre>
+    
     <p>Der Emissionsfaktor für Erdgas beträgt <?=$CO2AufG->Emissionsfaktor()?> kg CO₂/kWh. Damit ergibt sich für das Jahr <?=$Base->Abrechnungsjahr?>:</p>
+    
     <pre>   <strong class="red"><?=$Base->Kilowattstunden?></strong> kWh/a x 0,20088 kg CO₂/kWh = <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/a</pre>
+    
     <p>Geteilt durch die Gesamtwohnfläche des Hauses ergibt sich ein Wert pro Quadratmeter und Jahr:</p>
+    
     <pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/a : <?=$Base->Gesamtwohnflaeche?> m² = <?=$CO2AufG->co2proQm()?> kg CO₂/m²/a</pre>
-    <p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von <?=$CO2AufG->Verteilung()?> für den Mieter/Vermieter.</p>
+    
     <p>Der Preis pro Tonne CO₂ betrug in 2023 <?=$CO2AufG->Kohlendioxydpreis()?> € pro Tonne oder <?=$CO2AufG->Kohlendioxydpreis(true)?> € pro kg. Es ergibt sich ergo ein Gesamtpreis:</p>
+    
     <pre>   <strong class="yellowgreen"><?=$CO2AufG->Emission()?></strong> kg CO₂/m²/a x <?=$CO2AufG->Kohlendioxydpreis(true)?> € = <?=$Base->euro($CO2AufG->Emissionspreis())?></pre>
-    <p>20% oder <?=$Base->euro($CO2AufG->Vermieterkosten())?> davon entfallen auf den Vermieter. Die verbleibenden 80% oder <strong class="gray"><?=$Base->euro($CO2AufG->Mieterkosten())?></strong> werden nach m² auf die Mieter verteilt.</p>
+    
+    <p>Bei einem denkmalgeschützten und damit sanierungsbeschränkten Altbau gilt für diese Menge eine Aufteilung von <?=$CO2AufG->Verteilung()?> für den 
+    Mieter/Vermieter. Der Vermieteranteil beträgt also <?=$Base->euro($CO2AufG->Vermieterkosten())?> und wird den Mietern anteilig nach Wohnfläche erlassen.</p>
+    
+    <pre>   <?=$Base->euro($CO2AufG->Vermieterkosten())?> : <?=$Base->Gesamtwohnflaeche?> m² = <?=$Base->euro($CO2AufG->co2proQmLandlord())?>/m²/a CO₂Kosten für den Vermieter</pre>
     <pre>   <?=$Base->euro($CO2AufG->Mieterkosten())?> : <?=$Base->Gesamtwohnflaeche?> m² = <?=$Base->euro($CO2AufG->co2proQmTenant())?>/m²/a CO₂Kosten für den Mieter</pre>
-
 
 <!-- 10. -------------------------------------------------------------------------------------------------------- Zusammenfassung -->
 <h2>Zusammenfassung</h2>

@@ -30,7 +30,11 @@ class CO2AufG extends Base {
         return $this->Mieterkosten() / $this->Gesamtwohnflaeche;
     }
 
-    private function Vermieteranteil(){
+    public function co2proQmLandlord(){
+        return $this->Vermieterkosten() / $this->Gesamtwohnflaeche;
+    }
+
+    public function Vermieteranteil(){
         $co2 = $this->co2proQm();
         switch( $co2 ){
             case $co2 < 12:  $vm = 0;  break;
@@ -60,6 +64,7 @@ class CO2AufG extends Base {
     public function Kohlendioxydpreis($proKg = false){
         switch( $this->Abrechnungsjahr ){ # Preis pro Tonne
             case '2024': $kp = 45; break;
+            case '2025': $kp = 55; break;
             default: $kp = 30; break;
         }
         if( $proKg === true ){
@@ -91,6 +96,8 @@ class CO2AufG extends Base {
             return $part;
         }
     }
+
+
 }
 
 
