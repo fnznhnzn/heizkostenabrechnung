@@ -217,14 +217,15 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 </table>
 <br/>
 <table>
-    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>m²</th><th>30%</th><th>WW</th><th>CO₂</th><th>Gesamt</th></tr>
-    <tr class="subline"><td colspan="4"></td><td class="center">*HKV</td><td></td><td class="center">*m²</td><td class="center">*m²</td><td class="center">*m²</td><td></td></tr>
+    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>m²</th><th>30%</th><th>WW</th><th>CO₂ Vermieter</th><th>Gesamt</th><th>CO₂ Mieter</th></tr>
+    <tr class="subline"><td colspan="4"></td><td class="center">*HKV</td><td></td><td class="center">*m²</td><td class="center">*m²</td><td class="center">*m²</td><td></td><td></td></tr>
 <?php
 $totalQm = 0;
 $totalConsumptionCost = 0;
 $totalProportionateCost = 0;
 $totalPreisWW = 0;
 $totalCo2perTenant = 0;
+$totalLandlordCost = 0;
 foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
     $consumptionCost = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
@@ -232,7 +233,10 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $preisWW = $Warmwasser->preis_pro_wohnung( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
     $co2perTenant = $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], false );
     $co2perTenantE = $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], true );
+    $landlordCostPerTenant = $CO2AufG->landlordCostPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], false );
+    $landlordCostPerTenantE = $CO2AufG->landlordCostPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], true );
     $totalTenantCost = $consumptionCost + $proportionateCost + $preisWW + $co2perTenant;
+    $totalLandlordCost += $landlordCostPerTenant;
     $totalConsumptionCost += $consumptionCost;
     $totalProportionateCost += $proportionateCost;
     $totalPreisWW += $preisWW;
@@ -246,8 +250,9 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     <td class="alignRight">' . $row['qm'] . '</td>
     <td class="alignRight">' . $Base->euro( $proportionateCost ) . '</td>
     <td class="alignRight">' . $Base->euro( $preisWW ) . '</td>
-    <td class="alignRight">' . $co2perTenantE . '</td>
+    <td class="alignRight">' . $landlordCostPerTenantE . ' </td>
     <td class="alignRight">' . $Base->euro( $totalTenantCost ) . '</td>
+    <td class="alignRight">' . $co2perTenantE . '</td>
     </tr>';
 }
 ?>
@@ -256,8 +261,9 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
         <td></td>
         <td class="alignRight"><strong class="violet"><?=$Base->euro($totalProportionateCost)?></strong></td>
         <td class="alignRight"><strong class="pink"><?=$Base->euro($totalPreisWW)?></strong></td>
-        <td class="alignRight"><strong class="gray"><?=$Base->euro($totalCo2perTenant)?></strong></td>
+        <td class="alignRight"><strong class="gray"><?=$Base->euro($totalLandlordCost)?></strong></td>
         <td class="alignRight"><strong><?=$Base->euro($totalConsumptionCost + $totalProportionateCost + $totalPreisWW + $totalCo2perTenant)?></strong></td>
+        <td></td>
     </tr> 
 </table>
 <br/>

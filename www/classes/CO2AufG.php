@@ -97,6 +97,17 @@ class CO2AufG extends Base {
         }
     }
 
+    public function landlordCostPerTenant( $qm, $fromDate, $toDate, $euroFormatted = false ){
+        $daysBilled = $this->computeDays( $fromDate, $toDate );
+        $cost = $this->co2proQmLandlord() * $qm;
+        $part = $cost / $this->daysInYear() * $daysBilled;
+        if( $euroFormatted === true ){
+            return $this->euro( $part );
+        } else {
+            return $part;
+        }
+    }
+
 
 }
 
