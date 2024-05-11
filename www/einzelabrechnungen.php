@@ -89,7 +89,7 @@ $CO2AufG                = new CO2AufG( $Base->Kilowattstunden );
         <tr><td></td><td>Wassererwärmung</td><td align="right"><?=$hotWaterE?></td></tr>
         <tr><td>+</td><td>Heizung 70%</td><td align="right"><?=$heatProportionateE?></td></tr>
         <tr><td>+</td><td>Heizung 30%</td><td align="right"><?=$heatBySquareMeterE?></td></tr>
-        <tr><td>-</td><td>Vermieteranteil CO2</td><td align="right"><?=$co2LandlordCostE?></td></tr>
+        <tr><td>-</td><td>Vermieteranteil CO₂</td><td align="right"><?=$co2LandlordCostE?></td></tr>
         <tr><td>=</td><td><strong>Gesamt</strong></td><td align="right"><strong><?=$totalE?></strong></td></tr>
     </table>
     <div class="page_break"></div>
