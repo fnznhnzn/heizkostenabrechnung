@@ -10,11 +10,13 @@ require_once('classes/Base.php');
 require_once('classes/Warmwasser.php');
 require_once('classes/Heizkostenverteiler.php');
 require_once('classes/Flaechenverteilung.php');
+require_once('classes/CO2AufG.php');
 
 $Base                   = new Base();
 $Warmwasser             = new Warmwasser();
 $Heizkostenverteiler    = new Heizkostenverteiler( $Warmwasser->Preis_Warmwasser );
 $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_Heizung );
+$CO2AufG                = new CO2AufG( $Base->Kilowattstunden );
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -30,6 +32,22 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 <!-- begin "hyper" loop ---------------------------------------------------------------------------------------------- -->
 <?php foreach($Base->getBillReceivers() as $index => $row){ 
     $tenantsConsumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'],  $row['Whg_ID'] );
+    $carbonPerTenant = $CO2AufG->carbonPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+
+    # raw values
+    $hotWater = $Warmwasser->preis_pro_Wohnung($row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
+    $heatProportionate = $Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption;
+    $heatBySquareMeter = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+    $co2LandlordCost = $CO2AufG->landlordCostPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], false );
+    
+    # formatted values
+    $hotWaterE = $Warmwasser->preis_pro_WohnungE($row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
+    $heatProportionateE = $Base->euro($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption);
+    $heatBySquareMeterE = $Base->euro($Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ));
+    $co2LandlordCostE = $CO2AufG->landlordCostPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], true );
+
+    $total = $hotWater + $heatProportionate + $heatBySquareMeter - $co2LandlordCost;
+    $totalE = $Base->euro($total);
 ?>
 
 <h1>Energiekostenabrechnung für <?=$Base->Abrechnungsjahr?></h1> 
@@ -37,31 +55,22 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 <p>Abrechnungszeitraum: <?=$Base->formatDate($row['Abrechnungsbeginn'])?> - <?=$Base->formatDate($row['Abrechnungsende'])?></p>
 
     <h3>Energiekosten</h3>
-    <p><?=$Base->KilowattstundenD?> Kilowattstunden Erdgas kosteten <?=$Base->Abrechnungsjahr?> <i><?=$Base->RechnungsbetragE?></i><br/>
-    Dies entspricht <?=$Base->KilowattstundenpreisE?> pro Kilowattstunde.</p>
+    <p><?=$Base->KilowattstundenD?> Kilowattstunden Erdgas kosteten <i><?=$Base->RechnungsbetragE?></i><br/></p>
 
     <h3>Warmwasser</h3>
     <p>Der Anteil am Gasverbrauch zur Erwärmung von insgesamt <?=$Warmwasser::WARMWASSERKUBIKMETER?> Kubikmetern in <?=$Base->Abrechnungsjahr?> verbrauchten Wassers beträgt nach HeizkostenV <?=$Warmwasser->kWh_Gas_fuer_WarmwasserD?> Kilowattstunden bzw. <?=$Warmwasser->Preis_WarmwasserE?>.</p>
     <p>Verteilt auf eine Gesamtfläche von <?=$Base->GesamtwohnflaecheD?> m² entspricht dies <?=$Warmwasser->Preis_Warmwasser_pro_QuadratmeterD?> € pro m².</p>
-    <p>Mit einer Fläche von <?=number_format(floatval($row['qm']),2,',','.')?> m² entfallen davon somit <?=$Warmwasser->preis_pro_WohnungE($row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'])?> auf diese Wohnung.</p>
+    <p>Mit einer Fläche von <?=number_format(floatval($row['qm']),2,',','.')?> m² entfallen <strong><?=$hotWaterE?></strong> auf diese Wohnung.</p>
 
     <h3>Heizung</h3>
-    <p><i><?=$Base->RechnungsbetragE?></i> Gasrechnung abzüglich <?=$Warmwasser->Preis_WarmwasserE?> Warmwasser = <?=$Heizkostenverteiler->Preis_HeizungE?> Heizkosten. Aufteilung lt. HeizkostenV: 70% per Verbrauch, 30% per Fläche.</p>
+    <p>Die verbleibenden Heizkosten von <?=$Heizkostenverteiler->Preis_HeizungE?> wurden gem. HeizkostenV zu 70% nach Verbrauch und zu 30% nach Fläche aufgeteilt. Die Verbrauchswerte werden, rechnerisch um Leistung und Trägheit des jeweiligen Heizkörpers bereinigt mit daran befestigten Heizkostenverteilern ermittelt.</p>
+    <p>70% oder <?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?> geteilt durch die Gesamtsumme der Messwerte (<?=$Heizkostenverteiler->Messergebnis_HausD?>) ergibt <?=$Heizkostenverteiler->Preis_pro_MesswertD?> € pro Wert. 
+    <?=number_format(floatval($tenantsConsumption), 12,',','.')?> in der Wohnung gemessenen Werte ergeben <strong><?=$Base->euro($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption)?></strong>.</p>
 
-    <p>70% der Heizkosten sind <?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?>. Geteilt durch die Gesamtsumme der Messwerte (<?=$Heizkostenverteiler->Messergebnis_HausD?>) ergibt das einen Preis pro Messwert von <?=$Heizkostenverteiler->Preis_pro_MesswertD?> €.</p> 
-    <p>Letzterer multipliziert mit <?=number_format(floatval($tenantsConsumption), 12,',','.')?>
-    in der Wohnung gemessenen Werten ergibt <?=number_format($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption,12,',','.')?> € verbrauchsmäßig der Wohnung zugeordnete Heizkosten.</p>
-
-    <p>30% der Heizkosten sind <?=$Flaechenverteilung->PreisHeizung30ProzentE?>. Geteilt durch die gesamte Wohnfläche des Hauses von <?=$Base->GesamtwohnflaecheD?> m² ergibt das einen Preis von <?=$Flaechenverteilung->Preis_pro_QuadratmeterD?> € pro Quadratmeter. Dieser mal <?=number_format(floatval($row['qm']),2,',','.')?> m² Wohnfläche an <?=$Flaechenverteilung->getDaysStayed($row['Abrechnungsbeginn'], $row['Abrechnungsende'])?> Tagen von <?=$row['Abrechnungsbeginn']?> bis <?=$row['Abrechnungsende']?> ergibt <?=number_format($Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ),12,',','.')?> €</p>
-
-    <p>Die Heizkosten betragen somit <?=$Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption?> + <?= $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );?> = <?=$Base->euro( ($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption) + $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ))?></p>
-
-    <p>Warmwasser 
-    <?=$Warmwasser->preis_pro_WohnungE($row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'])?>
-    + Heizung 
-    <?=$Base->euro( ($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption) + $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ))?> 
-    = 
-    <strong><?=$Base->euro($Warmwasser->preis_pro_Wohnung($row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']) + ($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption) + $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']))?></strong></p>
+    <p>30% oder <?=$Flaechenverteilung->PreisHeizung30ProzentE?> geteilt durch die gesamte Wohnfläche des Hauses von <?=$Base->GesamtwohnflaecheD?> m² ergibt den Preis 
+    von <?=$Flaechenverteilung->Preis_pro_QuadratmeterD?> € pro Quadratmeter. Dieser mal <?=number_format(floatval($row['qm']),2,',','.')?> m² Wohnfläche 
+    an <?=$Flaechenverteilung->getDaysStayed($row['Abrechnungsbeginn'], $row['Abrechnungsende'])?> Tagen (<?=$row['Abrechnungsbeginn']?> bis <?=$row['Abrechnungsende']?>) 
+    macht <strong><?=$heatBySquareMeterE?></strong></p>
 
     <?php
         $ww = $Warmwasser->preis_pro_Wohnung($row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
@@ -69,8 +78,21 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
         $hk += $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
     ?>
 
-    <p>Das Verhältnis von Warmwasser- zu Heizkosten ist <?=$Base->percentage($ww,$hk)[0]?>% zu <?=$Base->percentage($ww,$hk)[1]?>%</p>
-<div class="page_break"></div>
+    <p>Das Verhältnis von Heizung zu Wassererwärmung entspricht dabei <?=$Base->percentage($ww,$hk)[0]?>% zu <?=$Base->percentage($ww,$hk)[1]?>%</p>
+
+    <h3>Kohlendioxidkostenaufteilungsgesetz (CO₂KostAufG)</h3>
+    <p>Mit dem am 1.1.2023 inkraft getretenen CO₂KostAufG übernimmt der Vermieter einen Teil der im Energiepreis enthaltenen CO₂-Abgabe.</p>
+    <p><?=$Base->KilowattstundenD?> kWh verbranntes Erdgas emittierten <?=$CO2AufG->EmissionTons()?> Tonnen CO₂ in die Erdatmosphäre. 
+    Auf diese Wohnung entfallen davon <?=number_format($carbonPerTenant,3,',','.')?> Tonnen. <strong><?=$co2LandlordCostE?></strong> der Emissionsabgabe werden übernommen.</p>
+    <h3>Zusammenfassung</h3>
+    <table>
+        <tr><td></td><td>Wassererwärmung</td><td align="right"><?=$hotWaterE?></td></tr>
+        <tr><td>+</td><td>Heizung 70%</td><td align="right"><?=$heatProportionateE?></td></tr>
+        <tr><td>+</td><td>Heizung 30%</td><td align="right"><?=$heatBySquareMeterE?></td></tr>
+        <tr><td>-</td><td>Vermieteranteil CO2</td><td align="right"><?=$co2LandlordCostE?></td></tr>
+        <tr><td>=</td><td><strong>Gesamt</strong></td><td align="right"><strong><?=$totalE?></strong></td></tr>
+    </table>
+    <div class="page_break"></div>
 <br/>
 <!-- end loop ------------------------------------------------------------------------------------------------ -->
 <?php } ?>

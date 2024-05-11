@@ -104,7 +104,7 @@ $CO2AufG                = new CO2AufG();
         <p>30% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0.3 = <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></p>
         <p>Ergibt Kosten pro m²: <strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong> / <?=$Base->Gesamtwohnflaeche?> m² Gesamtfläche = <?=$Flaechenverteilung->Preis_pro_Quadratmeter?> €</p>
 
-             
+<!--             
         <br/>
         <table>
             <tr><th>Anteil</th><th>Preis</th><th>Aufteilung</th><th>Gesamteinheiten</th><th>Preis pro Einheit</th></tr>
@@ -113,8 +113,9 @@ $CO2AufG                = new CO2AufG();
         </table>
         <small>HKV = Heizkostenverteiler (Messgeräte an den Heizkörpern)</small>
         <br/>
-
+-->
 <!-- 7. ------------------------------------------------------------------------------------------------------ Heizkosten nach HKV pro Wohnung -->
+<!--
         <br/>
         <h2>Heizkosten nach HKV</h2>
         <table>
@@ -139,8 +140,9 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
 ?>
             <tr><td colspan="5"></td><td class="alignRight"><strong class="brown"><?=$Base->euro( $hkvSum )?></strong></td></tr>
         </table>
-
+->
 <!-- 8. ------------------------------------------------------------------------------------------------------ Heizkosten nach Wohnfläche pro Wohnung -->
+<!--
 <br/>
 <h2>Heizkosten nach Wohnfläche</h2>
         <table>
@@ -163,6 +165,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
             <tr><td colspan="5"></td><td class="alignRight"><strong class="violet"><?=$Base->euro( $sqmSum )?></strong></td></tr>
         </table>
 </br>
+-->
 <!-- 9. -------------------------------------------------------------------------------------------------------- Kohlendioxidkostenverteilungsgesetz -->
 <h2>Kohlendioxidkostenaufteilungsgesetz / CO₂KostAufG</h2>
     <p>Energieversorger müssen nach dem 2021 in Kraft getretenen Bundesemissionshandelsgesetz (BEHG) für den von ihnen gelieferten Brennstoff CO₂-Gebühren zahlen 
@@ -206,6 +209,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
                 $heating7030Water = $Heizkostenverteiler->Preis_Heizung_70Prozent + $Flaechenverteilung->PreisHeizung30Prozent + $Warmwasser->Preis_Warmwasser;
             ?>
             <tr><td></td><td class="alignRight"><?=$Base->euro($heating7030Water)?></td><td colspan="4"></td></tr>
+            <tr><td>CO₂-Emission</td><td class="alignRight"><?=$Base->euro($CO2AufG->Emissionspreis())?></td><td class="center">m²</td><td><?=$CO2AufG->EmissionTons()?> t</td><td colspan="2"></td></tr>
             <tr><td>CO₂-Vermieter</td><td class="alignRight"><strong class="gray"><?=$Base->euro($CO2AufG->Vermieterkosten())?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Base->euro($CO2AufG->co2proQmLandlord())?></td><td>€/m²/a</td></tr>
             <?php
                 $heatingMinusLandlordCo2 = $heating7030Water - $CO2AufG->Vermieterkosten();
@@ -218,12 +222,15 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 </table>
 <br/>
 <table>
-    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>m²</th><th>30%</th><th>WW</th><th>Gesamt</th><th>CO₂ Vermieter</th><th>Heat - Carbon</th><th>CO₂ Mieter</th></tr>
-    <tr class="subline"><td colspan="4"></td><td class="center">*HKV</td><td></td><td class="center">*m²</td><td class="center">*m²</td><td></td><td class="center">abzüglich</td><td>Heat - Carbon</td><td class="center">zur Info</td></tr>
+    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>m²</th><th>30%</th><th>WW</th><th>Gesamt</th><th>CO2</th>
+    <th>CO₂ Vermieter</th><th>Netto</th><th>CO₂ Mieter</th></tr>
+    <tr class="subline"><td colspan="4"></td><td class="center">*HKV</td><td></td><td class="center">*m²</td><td class="center">*m²</td><td></td>
+    <td class="center">in Tonnen</td><td class="center">abzüglich</td><td>Heat - Carbon</td><td class="center">zur Info</td></tr>
 <?php
 $totalHeatConsumptionCost = 0;
 $totalHeatProportionateCost = 0;
 $totalHotWaterCost = 0;
+$totalCarbon = 0;
 $totalCo2TenantCost = 0;
 $totalCo2LandlordCost = 0;
 foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
@@ -233,12 +240,15 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $proportionateCost = $Flaechenverteilung->calculatedHeatingCostPerFlat( $Base->Abrechnungsjahr, $row['Whg_ID'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
     $hotWaterCost = $Warmwasser->preis_pro_wohnung( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende']);
     # carbon
+    $carbonPerTenant = $CO2AufG->carbonPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
     $co2TenantCost = $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], false );
     $co2TenantCostE = $CO2AufG->costPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], true );
     $co2LandlordCost = $CO2AufG->landlordCostPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], false );
     $co2LandlordCostE = $CO2AufG->landlordCostPerTenant( $row['qm'], $row['Abrechnungsbeginn'], $row['Abrechnungsende'], true );
+    # total carbon
+    $totalCarbon += $carbonPerTenant;
     # totals on right
-    $totalHeatCostPerTenant = $consumptionCost + $proportionateCost + $hotWaterCost + $co2TenantCost;
+    $totalHeatCostPerTenant = $consumptionCost + $proportionateCost + $hotWaterCost;
     $totalHeatCostPerTenantMinusCarbon = $totalHeatCostPerTenant - $co2LandlordCost;
     # totals on bottom
     $totalCo2LandlordCost += $co2LandlordCost;
@@ -256,6 +266,7 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     <td class="alignRight">' . $Base->euro( $proportionateCost ) . '</td>
     <td class="alignRight">' . $Base->euro( $hotWaterCost ) . '</td>
     <td class="alignRight">' . $Base->euro( $totalHeatCostPerTenant ) . '</td>
+    <td class="alignRight">' . number_format($carbonPerTenant, 3, ',', '.') . '</td>
     <td class="alignRight">' . $co2LandlordCostE . ' </td>
     <td class0"alignRight">' . $Base->euro( $totalHeatCostPerTenantMinusCarbon ) . '</td>
     <td class="alignRight">' . $co2TenantCostE . '</td>
@@ -268,6 +279,7 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
         <td class="alignRight"><strong class="violet"><?=$Base->euro($totalHeatProportionateCost)?></strong></td>
         <td class="alignRight"><strong class="pink"><?=$Base->euro($totalHotWaterCost)?></strong></td>
         <td class="alignRight"><strong><?=$Base->euro($totalHeatConsumptionCost + $totalHeatProportionateCost + $totalHotWaterCost + $totalCo2TenantCost)?></strong></td>
+        <td><?=number_format($totalCarbon, 3, ',', '.')?></td>
         <td class="alignRight"><strong class="gray"><?=$Base->euro($totalCo2LandlordCost)?></strong></td>
         <td></td>
         <td><?=$Base->euro($totalCo2TenantCost)?></td>

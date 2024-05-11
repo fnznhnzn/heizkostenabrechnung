@@ -22,6 +22,11 @@ class CO2AufG extends Base {
         return $this->Kilowattstunden * $this->Emissionsfaktor();
     }
 
+    public function EmissionTons(){
+        $E = $this->Emission() / 1000;
+        return number_format( $E, 3, ',', '.' );
+    }
+
     public function co2proQm(){
         return $this->Kilowattstunden * $this->Emissionsfaktor() / $this->Gesamtwohnflaeche;
     }
@@ -84,6 +89,13 @@ class CO2AufG extends Base {
     public function Mieterkosten(){
         return $this->Emissionspreis( $this->Kilowattstunden, $this->Brennstoff, $this->Abrechnungsjahr, $this->Gebaeudeart) - 
         $this->Vermieterkosten( $this->Kilowattstunden, $this->Brennstoff, $this->Abrechnungsjahr, $this->Gebaeudeart );
+    }
+
+    public function carbonPerTenant( $qm, $fromDate, $toDate ){ # tons
+        $daysBilled = $this->computeDays( $fromDate, $toDate );
+        $carbon = $this->co2proQm() * $qm;
+        $part = $carbon / $this->daysInYear() * $daysBilled;
+        return $part / 1000 ;
     }
 
     public function costPerTenant( $qm, $fromDate, $toDate, $euroFormatted = false ){
