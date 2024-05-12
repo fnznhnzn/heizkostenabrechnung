@@ -50,7 +50,7 @@ $CO2AufG                = new CO2AufG( $Base->Kilowattstunden );
     $totalE = $Base->euro($total);
 ?>
 
-<h1>Energiekostenabrechnung für <?=$Base->Abrechnungsjahr?></h1> 
+<h1>Energie- und Kohlendioxydkostenabrechnung für <?=$Base->Abrechnungsjahr?></h1> 
 <h2><?=$row['Etage']?> <?=$row['Lage']?> - <?=$row['Nachname']?>, <?=$row['Vorname']?></h2>
 <p>Abrechnungszeitraum: <?=$Base->formatDate($row['Abrechnungsbeginn'])?> - <?=$Base->formatDate($row['Abrechnungsende'])?></p>
 

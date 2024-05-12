@@ -222,17 +222,20 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 </table>
 <br/>
 <table>
-    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>m²</th><th>30%</th><th>WW</th><th>Gesamt</th><th>CO2</th>
+    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>Fläche</th><th>30%</th><th>WW</th><th>Gesamt</th><th>CO2</th>
     <th>CO₂ Vermieter</th><th>Netto</th><th>CO₂ Mieter</th></tr>
-    <tr class="subline"><td colspan="4"></td><td class="center">*HKV</td><td></td><td class="center">*m²</td><td class="center">*m²</td><td></td>
-    <td class="center">in Tonnen</td><td class="center">abzüglich</td><td>Heat - Carbon</td><td class="center">zur Info</td></tr>
+    <tr class="subline"><td colspan="3"></td><td class="center">bereinigt um Kc und Kq</td><td class="center">per HKV</td><td class="center">m²</td><td class="center">per m²</td>
+    <td class="center">per m²</td><td class="center">Heizung + WW</td><td class="center">Tonnen</td><td class="center">abzüglich</td><td class="center">Heat - Carbon</td>
+    <td class="center">zur Info</td></tr>
 <?php
 $totalHeatConsumptionCost = 0;
 $totalHeatProportionateCost = 0;
 $totalHotWaterCost = 0;
+$totalHeatCost = 0;
 $totalCarbon = 0;
 $totalCo2TenantCost = 0;
 $totalCo2LandlordCost = 0;
+$totalNetSum = 0;
 foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     # heat
     $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
@@ -251,10 +254,12 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $totalHeatCostPerTenant = $consumptionCost + $proportionateCost + $hotWaterCost;
     $totalHeatCostPerTenantMinusCarbon = $totalHeatCostPerTenant - $co2LandlordCost;
     # totals on bottom
-    $totalCo2LandlordCost += $co2LandlordCost;
     $totalHeatConsumptionCost += $consumptionCost;
     $totalHeatProportionateCost += $proportionateCost;
     $totalHotWaterCost += $hotWaterCost;
+    $totalHeatCost += $totalHeatCostPerTenant;
+    $totalCo2LandlordCost += $co2LandlordCost;
+    $totalNetSum += $totalHeatCostPerTenantMinusCarbon;
     $totalCo2TenantCost += $co2TenantCost;
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
@@ -262,13 +267,13 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     <td class="alignRight">' . $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ) . '</td>
     <td class="alignRight">' . $consumption . '</td>
     <td class="alignRight">' . $Base->euro( $consumptionCost ) . '</td>
-    <td class="alignRight">' . $row['qm'] . '</td>
+    <td class="alignRight"><i>' . $row['qm'] . '</i></td>
     <td class="alignRight">' . $Base->euro( $proportionateCost ) . '</td>
     <td class="alignRight">' . $Base->euro( $hotWaterCost ) . '</td>
     <td class="alignRight">' . $Base->euro( $totalHeatCostPerTenant ) . '</td>
-    <td class="alignRight">' . number_format($carbonPerTenant, 3, ',', '.') . '</td>
+    <td class="alignRight" nowrap><i>' . number_format($carbonPerTenant, 3, ',', '.') . ' t</i></td>
     <td class="alignRight">' . $co2LandlordCostE . ' </td>
-    <td class0"alignRight">' . $Base->euro( $totalHeatCostPerTenantMinusCarbon ) . '</td>
+    <td class="alignRight"><strong>' . $Base->euro( $totalHeatCostPerTenantMinusCarbon ) . '</strong></td>
     <td class="alignRight">' . $co2TenantCostE . '</td>
     </tr>';
 }
@@ -278,11 +283,11 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
         <td></td>
         <td class="alignRight"><strong class="violet"><?=$Base->euro($totalHeatProportionateCost)?></strong></td>
         <td class="alignRight"><strong class="pink"><?=$Base->euro($totalHotWaterCost)?></strong></td>
-        <td class="alignRight"><strong><?=$Base->euro($totalHeatConsumptionCost + $totalHeatProportionateCost + $totalHotWaterCost + $totalCo2TenantCost)?></strong></td>
-        <td><?=number_format($totalCarbon, 3, ',', '.')?></td>
+        <td class="alignRight"><strong><?=$Base->euro($totalHeatCost)?></strong></td>
+        <td><i><?=number_format($totalCarbon, 3, ',', '.')?></i></td>
         <td class="alignRight"><strong class="gray"><?=$Base->euro($totalCo2LandlordCost)?></strong></td>
-        <td></td>
-        <td><?=$Base->euro($totalCo2TenantCost)?></td>
+        <td><strong><?=$Base->euro($totalNetSum)?></strong></td>
+        <td><strong><?=$Base->euro($totalCo2TenantCost)?></strong></td>
     </tr> 
 </table>
 <br/>
