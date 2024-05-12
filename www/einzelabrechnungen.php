@@ -54,29 +54,30 @@ $CO2AufG                = new CO2AufG( $Base->Kilowattstunden );
 
 <h1>Energierechnung für <?=$Base->Abrechnungsjahr?></h1> 
 <h2><?=$row['Etage']?> <?=$row['Lage']?> - <?=$row['Nachname']?>, <?=$row['Vorname']?></h2>
-<p>Abrechnungszeitraum: <?=$Base->formatDate($row['Abrechnungsbeginn'])?> - <?=$Base->formatDate($row['Abrechnungsende'])?></p>
+<p>Abrechnungszeitraum: <?=$Base->formatDate($row['Abrechnungsbeginn'])?> - <?=$Base->formatDate($row['Abrechnungsende'])?> 
+(<?=$Base->ComputeDays($row['Abrechnungsbeginn'], $row['Abrechnungsende'])?> Tage)</p>
 
 <!-- Brennstoff ------------------------------------------------------------------------------------------------ -->
     <h3>Brennstoff</h3>
-    <p><?=$Base->KilowattstundenD?> Kilowattstunden Erdgas kosteten <i><?=$Base->RechnungsbetragE?></i><br/></p>
+    <p><?=$Base->KilowattstundenD?> Kilowattstunden Erdgas, <?=$Base->RechnungsbetragE?><br/></p>
 
 <!-- Wassererwärmung ------------------------------------------------------------------------------------------- -->
     <h3>Wassererwärmung</h3>
-    <p>Die Erwärmung von <?=$Warmwasser::WARMWASSERKUBIKMETER?> Kubikmetern Wasser verbrauchten <?=$Warmwasser->kWh_Gas_fuer_WarmwasserD?> 
+    <p>Die Erwärmung von <?=$Warmwasser::WARMWASSERKUBIKMETER?> Kubikmetern Wasser verbrauchte <?=$Warmwasser->kWh_Gas_fuer_WarmwasserD?> 
     Kilowattstunden Gas zu <?=$Warmwasser->Preis_WarmwasserE?>. Verteilt auf die Gesamtfläche von <?=$Base->GesamtwohnflaecheD?> m² 
     entspricht dies <?=$Warmwasser->Preis_Warmwasser_pro_QuadratmeterD?> € pro m². Auf <?=number_format(floatval($row['qm']),2,',','.')?> m² 
-    entfallen damit <strong><?=$hotWaterE?></strong>.</p>
+    entfallen somit <strong><?=$hotWaterE?></strong>.</p>
 
 <!-- Heizung --------------------------------------------------------------------------------------------------- -->
     <h3>Heizung</h3>
     <p><?=$Heizkostenverteiler->Preis_HeizungE?> wurden gem. HeizkostenV zu 70% nach Verbrauch und zu 30% nach Fläche verteilt. Die Verbrauchswerte 
-    werden mit Heizkostenverteilern ermittelt und um Leistung und Trägheit der Heizkörper bereinigt.</p>
+    werden mit Heizkostenverteilern ermittelt und jeweils um Leistung und Trägheit der Heizkörper bereinigt.</p>
     
-    <p>70% oder <?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?> geteilt durch die Summe der Messwerte (<?=$Heizkostenverteiler->Messergebnis_HausD?>) ergibt 
-    <?=$Heizkostenverteiler->Preis_pro_MesswertD?> € pro Wert. <?=number_format(floatval($tenantsConsumption), 2,',','.')?> in der Wohnung gemessenen Werte 
+    <p><i>70%:</i> <?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?> geteilt durch die Summe der Messwerte von <?=$Heizkostenverteiler->Messergebnis_HausD?> ergibt 
+    <?=$Heizkostenverteiler->Preis_pro_MesswertD?> € pro Messwert. <?=number_format(floatval($tenantsConsumption), 2,',','.')?> in der Wohnung gemessenen Werte 
     entsprechen folglich <strong><?=$Base->euro($Heizkostenverteiler->Preis_pro_Messwert * $tenantsConsumption)?></strong>.</p>
 
-    <p>30% oder <?=$Flaechenverteilung->PreisHeizung30ProzentE?> geteilt durch die Gesamtfläche ergibt <?=$Flaechenverteilung->Preis_pro_QuadratmeterD?> € 
+    <p><i>30%:</i> <?=$Flaechenverteilung->PreisHeizung30ProzentE?> geteilt durch die Gesamtfläche ergibt <?=$Flaechenverteilung->Preis_pro_QuadratmeterD?> € 
     pro Quadratmeter. <?=number_format(floatval($row['qm']),2,',','.')?> m² Wohnfläche entsprechen <strong><?=$heatBySquareMeterE?></strong></p>
 
     <p>Verhältnis Heizung/Wassererwärmung: <?=$Base->percentage($hotWater,$totalHeat)[0]?>% zu <?=$Base->percentage($hotWater,$totalHeat)[1]?>%</p>
@@ -84,7 +85,7 @@ $CO2AufG                = new CO2AufG( $Base->Kilowattstunden );
 <!-- CO2 ------------------------------------------------------------------------------------------------------- -->
     <h3>Kohlendioxid</h3>
     <p>Mit dem am 1.1.2023 inkraftgetretenen CO₂KostAufG übernimmt der Vermieter einen Teil der im Brennstoffpreis enthaltenen CO₂-Kosten.</p>
-    <p><?=$Base->KilowattstundenD?> kWh verbranntes Erdgas emittierten <?=$CO2AufG->EmissionTons()?> Tonnen CO₂. 
+    <p><?=$Base->KilowattstundenD?> kWh verbranntes Erdgas emittierte <?=$CO2AufG->EmissionTons()?> Tonnen CO₂. 
     Auf <?=number_format(floatval($row['qm']),2,',','.')?> m² entfallen davon <?=number_format($carbonPerTenant,3,',','.')?> Tonnen.
     Der erstattete Vermieteranteil der Emissionsabgabe beträgt <strong><?=$co2LandlordCostE?></strong>.</p>
  
