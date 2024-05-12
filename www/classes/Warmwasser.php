@@ -26,7 +26,7 @@ class Warmwasser extends Base {
         $this->Preis_Warmwasser_BrunataStyle = $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor / $this->Kilowattstunden * $this->Rechnungsbetrag;
         $this->Preis_Warmwasser_pro_Quadratmeter = $this->Preis_Warmwasser / $this->Gesamtwohnflaeche;
         $this->Preis_Warmwasser_pro_QuadratmeterE = $this->euro( $this->Preis_Warmwasser_pro_Quadratmeter );
-        $this->Preis_Warmwasser_pro_QuadratmeterD = number_format( $this->Preis_Warmwasser_pro_Quadratmeter, 12, ',', '.' );
+        $this->Preis_Warmwasser_pro_QuadratmeterD = number_format( $this->Preis_Warmwasser_pro_Quadratmeter, 4, ',', '.' );
     }
     
     public function preis_pro_Wohnung( $Quadratmeter, $Abrechnungsbeginn, $Abrechnungsende ){

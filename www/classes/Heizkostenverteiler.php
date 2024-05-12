@@ -18,7 +18,7 @@ class Heizkostenverteiler extends Base {
         $this->Preis_Heizung_70Prozent = $this->Preis_Heizung * 0.7;
         $this->Preis_Heizung_70ProzentE = $this->euro( $this->Preis_Heizung_70Prozent );
         $this->Messergebnis_Haus = $this->getMeteredData( $this->Abrechnungsjahr, '0000-00-00', '0000-00-00' ); # 0000-00-00 give us full year
-        $this->Messergebnis_HausD = number_format( $this->Messergebnis_Haus, 12, ',', '.');
+        $this->Messergebnis_HausD = number_format( $this->Messergebnis_Haus, 2, ',', '.');
         $this->Preis_pro_Messwert = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
         $this->Preis_pro_MesswertD = number_format($this->Preis_pro_Messwert, 10, ',', '.');
     }
@@ -69,7 +69,7 @@ class Heizkostenverteiler extends Base {
             
         $res = $this->conn->query($sql);
         $consumption = mysqli_fetch_assoc( $res );
-        return round( $consumption['consumption'], 10 );
+        return round( $consumption['consumption'], 2 );
     }
 
     public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){

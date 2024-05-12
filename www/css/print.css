@@ -5,6 +5,8 @@
 @page :first { margin-top: 0; padding-top: 0; }
 body { padding: 6mm 3cm 2cm 2cm; margin: 0; }
 h1, h2, h3, h4, h5 { page-break-after: avoid; }
+h3 { margin-bottom:0; }
+p { margin-top:4px; }
 table, figure, p { page-break-inside: avoid; }
 p { }
 .page_break { page-break-after: always; }
