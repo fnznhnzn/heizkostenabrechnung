@@ -263,7 +263,7 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $totalCo2TenantCost += $co2TenantCost;
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
-    <td nowrap>' . $row['Abrechnungsbeginn'] . ' - ' . $row['Abrechnungsende'] . '</td>
+    <td nowrap>' . $Base->formatDate($row['Abrechnungsbeginn']) . ' - ' . $Base->formatDate($row['Abrechnungsende']) . '</td>
     <td class="alignRight">' . $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ) . '</td>
     <td class="alignRight">' . $consumption . '</td>
     <td class="alignRight">' . $Base->euro( $consumptionCost ) . '</td>
