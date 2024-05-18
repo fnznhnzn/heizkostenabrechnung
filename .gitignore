@@ -1,12 +1,9 @@
-*.csv
-*.cfg
 *.log
 *.test
 *.gz
-scripts/db.sql.gz
-utils
 bk
 .bash_logout
 .bashrc
+.bash_history
 .profile
 
