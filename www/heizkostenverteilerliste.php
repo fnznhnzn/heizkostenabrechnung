@@ -1,10 +1,9 @@
 <?php
 /* Einzelwerte pro Monat, wie theoretisch nach Heizkostenverordnung vorgeschrieben.
  * Skript ist erst am Anfang aber lovely LAG()-Funktion in Mariadb funktioniert!
- * Es fehlen noch Monatsangaben in der Spalten und die Auswahl des Jahres
+ * Es fehlen noch Monatsangaben in der Spalten und die Auswahl des Jahres <= Hierzu kompletten Tabelleninhalt erst in mehrdimensionales Array schreiben
  *
- * + wichtig zu klären: Resetten die HKV am 31.12. oder nicht? (den csv-Daten nach zu urteilen sieht es fast so aus)
- * + Müssen HKV bei Niederwettberg noch auf Ultimo umgestellt werden (Monatsletzen)?
+ * + wichtig zu klären: Resetten die Zähler von Wallace am 31.12.?
  */
 declare(strict_types=1);
 error_reporting(E_ALL);
@@ -22,7 +21,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
 # get heat cost allocators
 $sql = <<<SQL
-    SELECT z.ID z, mi.Nachname n, z.Raum r
+    SELECT z.ID z, mi.Nachname n, z.Raum r, w.ID w
     FROM Zaehler z
     LEFT JOIN Messwerte m ON m.Zaehler_ID = z.ID
     LEFT JOIN Heizkoerper h ON h.ID = z.Heizkoerper_ID
@@ -31,9 +30,6 @@ $sql = <<<SQL
     GROUP BY z.ID
     ORDER BY w.ID, Raum, z.ID
 SQL;
-
-#print_r( $Heizkostenverteiler->getLastMeteredValue( '21116062', false ) );
-#die();
 
 ?>
 <!DOCTYPE html>
@@ -45,13 +41,17 @@ SQL;
     </head>
     <body>
         <?php include("nav.inc.php"); ?>
-        <table><th>Zähler</th><th>Mieter</th><th>Raum</th><th>p.a.</th><th>alle Werte</th>
+        <h1>Rohwerte</h1>
+        <p>Gemessene Werte vor Korrektur um Kc, Kq und Brennwertfaktor</p>
+        <table>
 <?php
-$nn;
+echo '<th>Zähler</th><th>Mieter</th><th>Raum</th><th>p.a.</th><th>Werte</th>';
+
+$lastName;
 foreach ($Base->conn->query( $sql ) as $index => $row) {
-    global $nn; 
+    global $lastName; 
     # empty row before new tenant
-    if( $nn !== $row['n'] && $nn !== null ) { 
+    if( $lastName !== $row['n'] && $lastName !== null ) { 
         echo "\r\n".'<tr><td colspan="14" style="border:none;"><br/></td></tr>'."\r\n";
     }
 
@@ -62,13 +62,24 @@ foreach ($Base->conn->query( $sql ) as $index => $row) {
     <td>'.$row['n'].'</td>
     <td>'.$row['r'].'</td>
     <td class="alignRight">'. round( floatval( $total ), 1 ) . '</td>';
+/*
     $resArray = $Heizkostenverteiler->getLastMeteredValue( $row['z'], false );
     foreach( $resArray as $val){
-        echo '<td class="alignRight">' . round(floatval($val['LetzterWert']),1) . '</td>';
+        $t = strtotime($val['Zeitpunkt']);
+        echo '<td>' . date('My', $t). '<br/>' . round(floatval($val['LetzterWert']),1) . '</td>';
     }
+*/
+    #print_r( $Heizkostenverteiler->getMeteredDataByMonth( '2023-01-01', '2023-12-31', 1 ) );
+
+    $resArray = $Heizkostenverteiler->getRawData( $row['z'] );
+    foreach( $resArray as $val){
+        $t = strtotime($val['d']);
+        echo '<td nowrap>' . date('My', $t) . '<br/>' . round(floatval($val['v']),2) . '</td>';
+    }
+
     echo "\r\n" . '</tr>';
 
-    $nn = $row['n']; 
+    $lastName = $row['n']; 
 }
 ?>
 </table>

@@ -69,6 +69,7 @@ class Heizkostenverteiler extends Base {
             
         $res = $this->conn->query($sql);
         $consumption = mysqli_fetch_assoc( $res );
+        if( $consumption['consumption'] === null ){ return 0; }
         return round( $consumption['consumption'], 2 );
     }
 
@@ -121,27 +122,18 @@ class Heizkostenverteiler extends Base {
         return $resArray;
     }
 
-    private function parkedSQL(){
+    public function getRawData( $zaehlerID ){
         $sql = <<<SQL
-            SELECT 
-                CONCAT(SUBSTRING(MONTHNAME(Zeitpunkt),1,3),' ',YEAR(Zeitpunkt)) d, 
-                /*MAX( Wert * h.Kq * h.Kc / 1.181 ) v*/
-                z.Raum,
-                z.ID,
-                Wert * h.Kq * h.Kc / 1.181 v
-            FROM Wohnungen w
-            LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
-            LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
-            LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
-            LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
-            WHERE w.ID LIKE '1'
-            AND MONTH(Zeitpunkt) 
-                BETWEEN MONTH(STR_TO_DATE('2023-01-01', '%Y-%m-%d')) 
-                AND MONTH(STR_TO_DATE('2023-12-31', '%Y-%m-%d'))
-            GROUP BY z.ID, MONTH(Zeitpunkt)
-            ORDER BY z.Raum, z.ID, Zeitpunkt
-            SQL;
-
-    }
-                
-}         
+                SELECT Zeitpunkt d, Wert v
+                FROM Messwerte
+                WHERE Zaehler_ID = '$zaehlerID'
+                ORDER BY Zeitpunkt
+        SQL;
+        $res = $this->conn->query($sql);
+        while($row = $res->fetch_assoc()){
+            $resArray[] = $row;
+        }
+        return $resArray;            
+    } 
+    
+}
