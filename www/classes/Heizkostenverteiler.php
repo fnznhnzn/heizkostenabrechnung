@@ -124,8 +124,10 @@ class Heizkostenverteiler extends Base {
 
     public function getRawData( $zaehlerID ){
         $sql = <<<SQL
-                SELECT Zeitpunkt d, Wert v
+                SELECT Zeitpunkt d, Wert v, Wert * h.Kq * h.Kc / 1.181 cv
                 FROM Messwerte
+                JOIN Zaehler z ON Messwerte.Zaehler_ID = z.ID
+                JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
                 WHERE Zaehler_ID = '$zaehlerID'
                 ORDER BY Zeitpunkt
         SQL;
