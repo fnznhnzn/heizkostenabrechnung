@@ -10,6 +10,7 @@ class Heizkostenverteiler extends Base {
     public $Messergebnis_HausD;
     public $Preis_pro_Messwert;
     public $Preis_pro_MesswertD;
+    public $efq = 2.288; # Engelmann-Fühler-Quotient, 1-Fühler 1.181, 2-Fühler 2.288, Fernfühler 1.097
 
     public function __construct( $Preis_Warmwasser ){
         parent::__construct();
@@ -32,12 +33,12 @@ class Heizkostenverteiler extends Base {
         }
         # meters keep counting, so take each one's last (=highest) reading and subtract last year's.
         # will return total if no apartment given
-        # values of heat cost allocators are mathematically corrected by radiator characteristics
+        # values of heat cost allocators are mathematically corrected by radiator and meter characteristics
         $sql = <<<SQL
                     SELECT 
                     (
                         SELECT SUM(val) FROM (
-                            SELECT MAX( Wert * h.Kq * h.Kc / 1.181 ) val /* Wert x Leistung x Trägheit : Basisempfindlichkeit */
+                            SELECT MAX( Wert * h.Kq * h.Kc / $this->efq ) val /* Wert x Leistung x Trägheit : Basisempfindlichkeit */
                             FROM Wohnungen w
                             LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
                             LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
@@ -53,7 +54,7 @@ class Heizkostenverteiler extends Base {
                     ) - 
                     (
                         SELECT SUM(val) FROM (
-                            SELECT MAX( Wert * h.Kq * h.Kc / 1.181 ) val 
+                            SELECT MAX( Wert * h.Kq * h.Kc / $this->efq ) val 
                             FROM Wohnungen w
                             LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
                             LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
@@ -77,7 +78,7 @@ class Heizkostenverteiler extends Base {
         $sql = <<<SQL
             SELECT 
                 CONCAT( SUBSTRING( MONTHNAME( Zeitpunkt ), 1 ,3 ), ' ', YEAR( Zeitpunkt ) ) d, 
-                MAX( Wert * h.Kq * h.Kc / 1.181 ) v
+                MAX( Wert * h.Kq * h.Kc / $this->efq ) v
             FROM Wohnungen w
             LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
             LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
@@ -103,8 +104,8 @@ class Heizkostenverteiler extends Base {
                 SELECT 
                 Zaehler_ID,
                 Zeitpunkt,
-                Wert * h.Kq * h.Kc / 1.181 AS Wert,
-                ( Wert - LAG(Wert) OVER ( ORDER BY m.Zeitpunkt) ) * h.Kq * h.Kc / 1.181 AS LetzterWert
+                Wert * h.Kq * h.Kc / $this->efq AS Wert,
+                ( Wert - LAG(Wert) OVER ( ORDER BY m.Zeitpunkt) ) * h.Kq * h.Kc / $this->efq AS LetzterWert
                 FROM Wohnungen w
                 LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
                 LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
@@ -124,7 +125,7 @@ class Heizkostenverteiler extends Base {
 
     public function getRawData( $zaehlerID ){
         $sql = <<<SQL
-                SELECT Zeitpunkt d, Wert v, Wert * h.Kq * h.Kc / 1.181 cv
+                SELECT Zeitpunkt d, Wert v, Wert * h.Kq * h.Kc / $this->efq cv
                 FROM Messwerte
                 JOIN Zaehler z ON Messwerte.Zaehler_ID = z.ID
                 JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
