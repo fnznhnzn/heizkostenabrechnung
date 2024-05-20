@@ -90,7 +90,7 @@ $CO2AufG                = new CO2AufG();
             <li>M = Rohwert des Heizkostenverteilers</li>
             <li>Kc = Leistung des Heizkörpers in Kilowatt</li>
             <li>Kq = Trägheit des Heizkörpers</li>
-            <li>B = Basisempfindlichkeit des HKV, 1,181 bei Engelmann HCA e2 im 1-Fühler-Modus</li>
+            <li>B = Basisempfindlichkeit des HKV, 2,288 bei Engelmann HCA e2 im 2-Fühler-Modus</li>
         </ul>
         <a href="heizkostenverteilerliste.php?y=<?=$Base->Abrechnungsjahr?>">=> Liste Heizkostenverteiler</a>
 
