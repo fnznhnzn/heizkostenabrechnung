@@ -13,7 +13,8 @@
  *
  * After parsing, the csv files are moved to a seperate directory named after the current year.
  *
- * Sensus meters don't send a timestamp, so file creation time is used instead.
+ * Sensus meters don't send a timestamp, so file creation time is used instead. <= no more Sensus
+ * meters so that code could go, not now though
  *
  * Work is done in the following order:
  * 1 read
@@ -62,15 +63,10 @@ foreach( $CSVs as $c ) {
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
-            // Sensus does not send a timestamp (sic!), so we must use csv file modification time to not break uniqueness of records in db
-            if($chunks[1] === 'SEN'){
-                $csvFileCreationTime = date( 'Y-m-d H:i:s', filemtime( dirname(__DIR__, 1) . '/' . $c ) );
-                $sql .= '"' . $csvFileCreationTime . '"';
-            } else {
-                $sql .= '"' . chunkToDatetime( $chunks[9] ) . '"';
-            }
+            $sql .= '"' . chunkToDatetime( $chunks[9] ) . '"';
             $sql .= ', Wert = ';
-            $sql .= $chunks[10];
+            $sql .= str_replace( ',' , '.' , $chunks[10] );
+	    $sql .= ';';
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
         }
         $i++;
