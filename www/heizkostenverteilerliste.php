@@ -27,6 +27,7 @@ $sql = <<<SQL
     LEFT JOIN Heizkoerper h ON h.ID = z.Heizkoerper_ID
     LEFT JOIN Wohnungen w ON w.ID = z.Whg_ID
     LEFT JOIN Mieter mi ON mi.ID = z.Whg_ID
+    WHERE z.Whg_ID <> 0 /* ignore the basement */
     GROUP BY z.ID
     ORDER BY w.ID, Raum, z.ID
 SQL;
