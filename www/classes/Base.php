@@ -56,6 +56,10 @@ class Base {
         SQL;
 
         $res = mysqli_query( $this->conn, $sql );
+	if( $this->conn->affected_rows === 0 ) { 
+		echo 'Offenbar gibt es in den Daten noch keinen Gasverbrauch aus dem vergangenen Jahr. Bitte erst Gasrechnung eintragen'; 
+		die();
+	}
         $gas = mysqli_fetch_assoc( $res );
 
         $this->Lieferant                = $gas['Lieferant'];
