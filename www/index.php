@@ -208,7 +208,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
             <?php
                 $heating7030Water = $Heizkostenverteiler->Preis_Heizung_70Prozent + $Flaechenverteilung->PreisHeizung30Prozent + $Warmwasser->Preis_Warmwasser;
             ?>
-            <tr><td>= Gasrechnung</td><td class="alignRight"><?=$Base->euro($heating7030Water)?></td><td colspan="4"></td></tr>
+            <tr><td>= Gasrechnung</td><td class="alignRight"><strong class="skyblue"><?=$Base->euro($heating7030Water)?></strong></td><td colspan="4"></td></tr>
             <tr class="annotation"><td>davon CO₂-Kosten</td><td class="alignRight"><?=$Base->euro($CO2AufG->Emissionspreis())?></td><td class="center">m²</td><td><?=$CO2AufG->EmissionTons()?> t</td><td colspan="2"></td></tr>
             <tr><td>- CO₂-Vermieter</td><td class="alignRight"><strong><?=$Base->euro($CO2AufG->Vermieterkosten())?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Base->euro($CO2AufG->co2proQmLandlord())?></td><td>€/m²/a</td></tr>
             <?php
