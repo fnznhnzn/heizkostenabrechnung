@@ -42,8 +42,8 @@ $CO2AufG                = new CO2AufG();
 
         <h2>Gasrechnung</h2>
             <p>Gasrechnung vom <?=$Base->Rechnungsdatum?> von <?=$Base->Lieferant?> für das Jahr <?=$Base->Abrechnungsjahr?>:<br/>  
-            <strong class="red"><?=$Base->Kilowattstunden?></strong> Kilowattstunden Erdgas kosteten <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong><br/>
-            Der Preis für eine Kilowattstunde beträgt damit <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong></p>
+            <strong class="red"><?=$Base->Kilowattstunden?></strong> Kilowattstunden Erdgas zum Preis von <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong><br/>
+            Das entspricht <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong> pro Kilowattstunde.</p>
 
 <!-- 1. --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
         <h2>Wassererwärmung</h2>
@@ -69,21 +69,21 @@ $CO2AufG                = new CO2AufG();
 
 <!-- 2. ---------------------------------------------------------------------------------------------------------------------------- Heizung -->
         <h2>Heizung</h2>
-        <p>Die Gasrechnung abzüglich der Kosten für die Wassererwärmung ergibt die eigentlichen Heizkosten:</p>
+        <p>Die Gasrechnung abzüglich der Kosten für die Wassererwärmung ergibt die Heizkosten:</p>
         <table>
             <tr><td colspan="2">Gasrechnung</td><td class="alignRight"><strong class="skyblue"><?=$Base->RechnungsbetragE?></strong></td></tr>
-            <tr><td>minus</td><td>Wassererwärmung</td><td class="alignRight"><strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></pink></td></tr>
-            <tr><td>gleich</td><td>Heizkosten</td><td class="alignRight"><strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong></td></tr>
+            <tr><td>-</td><td>Wassererwärmung</td><td class="alignRight"><strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></pink></td></tr>
+            <tr><td>=</td><td>Heizkosten</td><td class="alignRight"><strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong></td></tr>
         </table>
 
 <!-- 3. -------------------------------------------------------------------------------------------------------- 70% Heizkosten nach Verbrauch -->
         <h2>70% nach Verbrauch</h2>
-        <p>50-70% der verbleibenden Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §6 + §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
+        <p>50-70% der Heizkosten müssen nach Verbrauch aufgeteilt werden (<a href="https://www.gesetze-im-internet.de/heizkostenv/BJNR002610981.html" target="_blank">HeizkostenV</a> §6 + §8 Absatz 1). 70% belohnt die Sparsamen und ist daher üblich.<p>
         <p>70% der Heizkosten: <strong class="orange"><?=$Heizkostenverteiler->Preis_HeizungE?></strong> x 0,7 = <strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></p>
 
 <!-- 4. -------------------------------------------------------------------------------------------------------- Heizkostenverteiler -->
         <h3>Heizkostenverteiler</h3>
-        <p>An jedem Heizkörper ist ein Heizkostenverteiler (HKV) befestigt. Heizkörper haben jedoch unterschiedliche Größen und Eigenschaften. Um die Messwerte der HKV vergleichbar zu machen, werden deren Messwerte wie folgt bereinigt:</p>
+        <p>An jedem Heizkörper ist ein Heizkostenverteiler (HKV) befestigt. Heizkörper haben jedoch unterschiedliche Größen und Eigenschaften. Um die Messungen der HKV vergleichbar zu machen werden die Messwerte deshalb wie folgt bereinigt:</p>
         <pre>Bereinigter Messwert = M x Kc x Kq / B </pre>
         <p>Dabei ist:</p>
         <ul>
@@ -96,8 +96,8 @@ $CO2AufG                = new CO2AufG();
 
 <!-- 5. ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
         <h3>Verteilung auf die Wohnungen</h3>
-        <p>Die Summe der jeweils wie s.o. bereinigten HKV-Messwerte des gesamten Hauses im Jahr <?=$Base->Abrechnungsjahr?> betrug: <?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?>. 
-        Teilt man die Heizkosten durch diese Summe erhält man den Preis pro Wert.</p>
+        <p>Die Summe der bereinigten HKV-Messwerte im Jahr <?=$Base->Abrechnungsjahr?> betrug: <?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?>. 
+        Teilt man o.g. 70% der Heizkosten durch diese Summe erhält man den Preis pro Wert. Diesen multipliziert man mit den Gesamtwerten einer Wohnung.</p>
 
 <!-- 6. -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
         <h2>30% nach Wohnfläche</h2>
