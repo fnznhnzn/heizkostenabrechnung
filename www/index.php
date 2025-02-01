@@ -203,19 +203,19 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 <table>
             <tr><th>Kosten</th><th>Preis</th><th>Aufteilung</th><th>Gesamteinheiten</th><th>Preis pro Einheit</th></tr>
             <tr><td>70% Heizung</td><td class="alignRight"><strong class="brown"><?=$Heizkostenverteiler->Preis_Heizung_70ProzentE?></strong></td><td class="center">HKV</td><td><?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?></td><td><?=$Heizkostenverteiler->Preis_pro_MesswertD?></td><td>€/HKV-Wert</td></tr>
-            <tr><td>30% Heizung</td><td class="alignRight"><strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Flaechenverteilung->Preis_pro_QuadratmeterD?></td><td>€/m²/a</td></tr>
-            <tr><td>Warmwasser</td><td class="alignRight"><strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Warmwasser->Preis_Warmwasser_pro_Quadratmeter?></td><td>€/m²/a</td></tr>
+            <tr><td>+ 30% Heizung</td><td class="alignRight"><strong class="violet"><?=$Flaechenverteilung->PreisHeizung30ProzentE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Flaechenverteilung->Preis_pro_QuadratmeterD?></td><td>€/m²/a</td></tr>
+            <tr><td>+ Warmwasser</td><td class="alignRight"><strong class="pink"><?=$Warmwasser->Preis_WarmwasserE?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Warmwasser->Preis_Warmwasser_pro_Quadratmeter?></td><td>€/m²/a</td></tr>
             <?php
                 $heating7030Water = $Heizkostenverteiler->Preis_Heizung_70Prozent + $Flaechenverteilung->PreisHeizung30Prozent + $Warmwasser->Preis_Warmwasser;
             ?>
-            <tr><td></td><td class="alignRight"><?=$Base->euro($heating7030Water)?></td><td colspan="4"></td></tr>
-            <tr><td>CO₂-Emission</td><td class="alignRight"><?=$Base->euro($CO2AufG->Emissionspreis())?></td><td class="center">m²</td><td><?=$CO2AufG->EmissionTons()?> t</td><td colspan="2"></td></tr>
-            <tr><td>CO₂-Vermieter</td><td class="alignRight"><strong class="gray"><?=$Base->euro($CO2AufG->Vermieterkosten())?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Base->euro($CO2AufG->co2proQmLandlord())?></td><td>€/m²/a</td></tr>
+            <tr><td>= Gasrechnung</td><td class="alignRight"><?=$Base->euro($heating7030Water)?></td><td colspan="4"></td></tr>
+            <tr class="annotation"><td>davon CO₂-Kosten</td><td class="alignRight"><?=$Base->euro($CO2AufG->Emissionspreis())?></td><td class="center">m²</td><td><?=$CO2AufG->EmissionTons()?> t</td><td colspan="2"></td></tr>
+            <tr><td>- CO₂-Vermieter</td><td class="alignRight"><strong><?=$Base->euro($CO2AufG->Vermieterkosten())?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Base->euro($CO2AufG->co2proQmLandlord())?></td><td>€/m²/a</td></tr>
             <?php
                 $heatingMinusLandlordCo2 = $heating7030Water - $CO2AufG->Vermieterkosten();
                 ?>
-            <tr><td></td><td class="alignRight"><strong><?=$Base->euro($heatingMinusLandlordCo2)?></strong></td><td colspan="4"></td></tr>
-            <tr><td>CO₂-Mieter</td><td class="alignRight"><strong class="gray"><?=$Base->euro($CO2AufG->Mieterkosten())?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Base->euro($CO2AufG->co2proQmTenant())?></td><td>€/m²/a</td></tr>
+            <tr><td>= Gas Mieter</td><td class="alignRight"><strong><?=$Base->euro($heatingMinusLandlordCo2)?></strong></td><td colspan="4"></td></tr>
+            <tr class="annotation"><td>CO₂-Mieter</td><td class="alignRight"><strong><?=$Base->euro($CO2AufG->Mieterkosten())?></strong></td><td class="center">m²</td><td><?=$Base->Gesamtwohnflaeche?></td><td><?=$Base->euro($CO2AufG->co2proQmTenant())?></td><td>€/m²/a</td></tr>
         </table>
         <small>HKV = Heizkostenverteiler (Messgeräte an den Heizkörpern)</small>
         <br/>
