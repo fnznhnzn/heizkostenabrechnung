@@ -31,9 +31,8 @@ class Heizkostenverteiler extends Base {
         if( substr($movedOut,0,4) != $year ){
             $movedOut = $year . '-12-31';
         }
-        # meters keep counting, so take each one's last (=highest) reading and subtract last year's.
         # will return total if no apartment given
-        # values of heat cost allocators are mathematically corrected by radiator and meter characteristics
+        # values of heat cost allocators are mathematically corrected by radiator- and meter-characteristics
         $sql = <<<SQL
                     SELECT 
                     (
@@ -51,20 +50,6 @@ class Heizkostenverteiler extends Base {
                             AND Zaehler_ID LIKE '$zaehlerID'
                             GROUP BY Zaehler_ID
                         ) totalThisYearsMeters
-                    ) - 
-                    (
-                        SELECT SUM(val) FROM (
-                            SELECT MAX( Wert * h.Kq * h.Kc / $this->efq ) val 
-                            FROM Wohnungen w
-                            LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
-                            LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
-                            LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
-                            LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
-                            WHERE w.ID LIKE '$Whg_ID'
-                            AND YEAR(Zeitpunkt) < $year
-                            AND Zaehler_ID LIKE '$zaehlerID'
-                            GROUP BY Zaehler_ID
-                        ) totalMetersBefore
                     ) consumption
                 SQL;
             
