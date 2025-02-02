@@ -63,7 +63,7 @@ $CO2AufG                = new CO2AufG( $Base->Kilowattstunden );
 
 <!-- Wassererwärmung ------------------------------------------------------------------------------------------- -->
     <h3>Wassererwärmung</h3>
-    <p>Die Erwärmung von <?=$Warmwasser::WARMWASSERKUBIKMETER?> Kubikmetern Wasser verbrauchte <?=$Warmwasser->kWh_Gas_fuer_WarmwasserD?> 
+    <p>Die Erwärmung von <?=$Warmwasser->WasserverbrauchD?> Kubikmetern Wasser verbrauchte <?=$Warmwasser->kWh_Gas_fuer_WarmwasserD?> 
     Kilowattstunden Gas zu <?=$Warmwasser->Preis_WarmwasserE?>. Verteilt auf die Gesamtfläche von <?=$Base->GesamtwohnflaecheD?> m² 
     entspricht dies <?=$Warmwasser->Preis_Warmwasser_pro_QuadratmeterD?> € pro m². Auf <?=number_format(floatval($row['qm']),2,',','.')?> m² 
     entfallen somit <strong><?=$hotWaterE?></strong>.</p>

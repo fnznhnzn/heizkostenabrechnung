@@ -4,7 +4,6 @@ class Warmwasser extends Base {
     
     public CONST TW = 56; # Temperatur Warmwasser
     public CONST Hi = 10; # Heizwert Erdgas H
-    public CONST WARMWASSERKUBIKMETER = 312; # <= to be changed soon!
     public $Wasserzaehler = 30015984; # Wasserzähler im Zulauf zum Boiler
     
     public $Wasserverbrauch;
