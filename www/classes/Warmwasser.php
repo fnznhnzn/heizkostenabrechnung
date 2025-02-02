@@ -5,7 +5,10 @@ class Warmwasser extends Base {
     public CONST TW = 56; # Temperatur Warmwasser
     public CONST Hi = 10; # Heizwert Erdgas H
     public CONST WARMWASSERKUBIKMETER = 312; # <= to be changed soon!
+    public $Wasserzaehler = 30015984; # Wasserzähler im Zulauf zum Boiler
     
+    public $Wasserverbrauch;
+    public $WasserverbrauchD;
     public $kWh_Gas_fuer_Warmwasser;
     public $kWh_Gas_fuer_WarmwasserD;
     public $kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor;
@@ -18,7 +21,9 @@ class Warmwasser extends Base {
 
     public function __construct(){
         parent::__construct();
-        $this->kWh_Gas_fuer_Warmwasser = 2.5 * self::WARMWASSERKUBIKMETER * ( self::TW - self::Hi ); # see HeizkostenV
+        $this->Wasserverbrauch = $this->getWaterConsumption();
+        $this->WasserverbrauchD = number_format( $this->Wasserverbrauch, 3, ',', '.' );
+        $this->kWh_Gas_fuer_Warmwasser = 2.5 * $this->Wasserverbrauch * ( self::TW - self::Hi ); # see HeizkostenV
         $this->kWh_Gas_fuer_WarmwasserD = number_format( $this->kWh_Gas_fuer_Warmwasser, 0, ',', '.');
         $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor = $this->kWh_Gas_fuer_Warmwasser * 1.11;
         $this->Preis_Warmwasser = $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor * $this->Kilowattstundenpreis; # money spent
@@ -39,6 +44,22 @@ class Warmwasser extends Base {
 
     public function preis_pro_WohnungE( $Quadratmeter, $Abrechnungsbeginn, $Abrechnungsende ){
         return $this->euro( $this->Preis_pro_Wohnung( $Quadratmeter, $Abrechnungsbeginn, $Abrechnungsende ) );
+    }
+
+    public function getWaterConsumption(){
+        $sql = "
+        SELECT
+            MAX(Wert) AS Verbrauch
+        FROM
+            Messwerte
+        WHERE
+            YEAR(Zeitpunkt) = '$this->Abrechnungsjahr'
+        AND
+            Zaehler_ID = '$this->Wasserzaehler'
+        ";
+        $res = $this->conn->query($sql);
+        $row = $res->fetch_assoc();
+        return $row['Verbrauch'];
     }
 
 }

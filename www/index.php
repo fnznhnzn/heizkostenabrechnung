@@ -57,9 +57,9 @@ $CO2AufG                = new CO2AufG();
             <li><?=$Warmwasser::Hi?> der Wert für die übliche Kaltwassereintrittstemperatur in die Warmwasserversorgungsanlage in Grad Celsius</li>
             <li>Q = Gasverbrauch in Kilowattstunden</li>
         </ul>
-        <p>In <?=$Base->Abrechnungsjahr?> wurden insgesamt <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> Kubikmeter warmes Wasser verbraucht. Damit ergibt sich 
+        <p>In <?=$Base->Abrechnungsjahr?> wurden insgesamt <strong><?=$Warmwasser->WasserverbrauchD?></strong> Kubikmeter warmes Wasser verbraucht. Damit ergibt sich 
         als Gasverbrauch für die Wassererwärmung (s.o.):</p>
-        <pre>                            2,5 x <strong><?=$Warmwasser::WARMWASSERKUBIKMETER?></strong> x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> kWh</pre>
+        <pre>                            2,5 x <strong><?=$Warmwasser->WasserverbrauchD?></strong> x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> kWh</pre>
         <p>Gemäß §9 HeizkostenV muss der Gasverbrauch bei brennwertbezogener Abrechnung mit 1,11 multipliziert werden:
         <pre>    <?=$Warmwasser->kWh_Gas_fuer_Warmwasser?> x 1,11 = <strong class="green"><?=$Warmwasser->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor?></strong></pre>
         <p>Die Kosten für die gesamte Wassererwärmung betragen folglich:</p>
