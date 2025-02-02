@@ -38,16 +38,16 @@ $CO2AufG                = new CO2AufG();
     </head>
     <body>
         <?php include("nav.inc.php"); ?>
-        <h1>Übersicht HK-Abrechnung <?=$Base->Abrechnungsjahr?></h1>
+        <h1>Heizkostenabbrechnung <?=$Base->Abrechnungsjahr?></h1>
 
-        <h3>Gasrechnung</h3>
-            <p>Gasrechnung vom <?=$Base->Rechnungsdatum?> von <?=$Base->Lieferant?> für das Jahr <?=$Base->Abrechnungsjahr?>:<br/>  
-            <strong class="red"><?=$Base->Kilowattstunden?></strong> Kilowattstunden Erdgas zum Preis von <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong><br/>
-            Das entspricht <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong> pro Kilowattstunde.</p>
+        <h3>Gasverbrauch</h3>
+            <p>Laut Gasrechnung der <?=$Base->Lieferant?> vom <?=$Base->Rechnungsdatum?> wurden im Jahr <?=$Base->Abrechnungsjahr?>  
+            <strong class="red"><?=$Base->KilowattstundenD?></strong> Kilowattstunden Erdgas verbraucht und zum Preis von <strong class="skyblue"><?=$Base->RechnungsbetragE?></strong> abgerechnet.
+            Eine Kilowattstunde kostete damit <strong class="yellow"><?=$Base->KilowattstundenpreisE?></strong>.</p>
 
 <!-- 1. --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
         <h2>Wassererwärmung</h2>
-        <p>Lt. <a href="https://www.gesetze-im-internet.de/heizkostenv/" target="_blank">HeizkostenV</a> müssen die Kosten für die Warmwassererwärmung zunächt abgezogen werden. Nach §9 Ziffer 2 ergibt sich der Gasverbrauch für eine zentrale Wassererwärmung wie folgt:</p>
+        <p>Gemäß  Heizkostenverordnung (<a href="https://www.gesetze-im-internet.de/heizkostenv/" target="_blank">HeizkostenV</a>) müssen die Kosten für die Warmwassererwärmung zunächt abgezogen werden. Nach deren §9 Ziffer 2 ergibt sich der Gasverbrauch bei zentraler Wassererwärmung wie folgt:</p>
         <pre>                            2,5 x V x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = Q</pre>
         <p>Dabei ist:</p>
         <ul>
