@@ -37,7 +37,6 @@ class Warmwasser extends Base {
         return $Anteil;
     }
 
-        
     public function preis_pro_WohnungE( $Quadratmeter, $Abrechnungsbeginn, $Abrechnungsende ){
         return $this->euro( $this->Preis_pro_Wohnung( $Quadratmeter, $Abrechnungsbeginn, $Abrechnungsende ) );
     }

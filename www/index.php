@@ -47,7 +47,7 @@ $CO2AufG                = new CO2AufG();
 
 <!-- 1. --------------------------------------------------------------------------------------------------------- Warmwasser (nach Wohnfläche) -->
         <h2>Wassererwärmung</h2>
-        <p>Gemäß  Heizkostenverordnung (<a href="https://www.gesetze-im-internet.de/heizkostenv/" target="_blank">HeizkostenV</a>) müssen die Kosten für die Warmwassererwärmung zunächt abgezogen werden. Nach deren §9 Ziffer 2 ergibt sich der Gasverbrauch bei zentraler Wassererwärmung wie folgt:</p>
+        <p>Gemäß Heizkostenverordnung (<a href="https://www.gesetze-im-internet.de/heizkostenv/" target="_blank">HeizkostenV</a>) müssen die Kosten für die Warmwassererwärmung zunächt abgezogen werden. Nach deren §9 Ziffer 2 ergibt sich der Gasverbrauch bei zentraler Wassererwärmung wie folgt:</p>
         <pre>                            2,5 x V x (<?=$Warmwasser::TW?>-<?=$Warmwasser::Hi?>) = Q</pre>
         <p>Dabei ist:</p>
         <ul>
