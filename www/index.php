@@ -96,8 +96,8 @@ $CO2AufG                = new CO2AufG();
 
 <!-- 5. ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
         <h4>Verteilung auf die Wohnungen</h4>
-        <p>Die Summe der bereinigten HKV-Messwerte im Jahr <?=$Base->Abrechnungsjahr?> betrug: <?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?>. 
-        Teilt man o.g. 70% der Heizkosten durch diese Summe erhält man den Preis pro Wert. Diesen multipliziert man mit den Gesamtwerten einer Wohnung.</p>
+        <p>Die Gesamtzahl der s.o. bereinigten HKV-Messwerte im Jahr <?=$Base->Abrechnungsjahr?> betrug <?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?>. 
+        Teilt man o.g. 70% der Heizkosten durch diese Summe erhält man den Preis pro Wert. Diesen multipliziert man dann wieder mit den Werten einer Wohnung.</p>
 
 <!-- 6. -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
         <h3>30% nach Wohnfläche</h3>
