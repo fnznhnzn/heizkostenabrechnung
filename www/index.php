@@ -220,7 +220,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 <!-- 10. -------------------------------------------------------------------------------------------------------- Zusammenfassung -->
 <h1>Gesamtübersicht</h1>
 <table>
-    <tr><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>Fläche</th><th>30%</th><th>WW</th><th>Gesamt</th><th>CO2</th>
+    <tr><th>Mieter</th><th>Whg</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>Fläche</th><th>30%</th><th>WW</th><th>Gesamt</th><th>CO2</th>
     <th>CO₂ Vermieter</th><th>Netto</th><th>CO₂ Mieter</th></tr>
     <tr class="subline"><td colspan="3"></td><td class="center">bereinigt um Kc und Kq</td><td class="center">per HKV</td><td class="center">m²</td><td class="center">per m²</td>
     <td class="center">per m²</td><td class="center">Heizung + WW</td><td class="center">Tonnen</td><td class="center">abzüglich</td><td class="center">Heat - Carbon</td>
@@ -261,6 +261,7 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $totalCo2TenantCost += $co2TenantCost;
     echo '<tr>
     <td>' . $row['Nachname'] . '</td>
+    <td>' . $row['Whg_ID'] . '</td>
     <td nowrap>' . $Base->formatDate($row['Abrechnungsbeginn']) . ' - ' . $Base->formatDate($row['Abrechnungsende']) . '</td>
     <td class="alignRight">' . $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ) . '</td>
     <td class="alignRight">' . $consumption . '</td>

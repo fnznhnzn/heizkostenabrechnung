@@ -94,7 +94,9 @@ class Base {
                     OR
                     YEAR(Auszug) > $this->Abrechnungsjahr
                 )
-        )";
+        )
+        ORDER BY
+            Whg_ID, Einzug";
 
         $res = $this->conn->query($sql);
         while($row = $res->fetch_assoc()){ # adjust in and out date for calculation
