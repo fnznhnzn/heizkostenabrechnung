@@ -146,6 +146,13 @@ class Base {
         return $days;
     }
 
+    public function daysInMonth($date){
+        $timestamp = strtotime($date);
+        $month = date('m', $timestamp);
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $this->Abrechnungsjahr);
+        return $daysInMonth;
+    }
+
     public function daysInYear(){
         if( date('L', strtotime( $this->Abrechnungsjahr . '-01-01' ) ) ){
             return 366;

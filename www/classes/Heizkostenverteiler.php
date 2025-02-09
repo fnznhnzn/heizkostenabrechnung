@@ -27,14 +27,16 @@ class Heizkostenverteiler extends Base {
     public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){ # Jahreswerte pro Wohnung oder Zähler 
         /*
         Problem: Bei untermonatigem Mieterwechsel wird der Verbrauch beiden Mietern für den gesamten Monat berechnet.
-        Lösung: Verbrauch tagesgenau tagesgenau abgrenzen
+        Lösung: Verbrauch tagesgenau abgrenzen
+        Aufgabe: Verbrauch pro Tag berechnen, obwohl nur Monatswerte vorliegen
         Prozedur:
-        - Erfolgt ein oder Auszug untermonatig?
+        - Ein oder Auszug untermonatig?
         - Wenn ja:
             1. jeweils Verbrauch für den Monat berechnen
             2. Verbrauch pro Tag = (Verbrauch des Monats / Anzahl Tage im Monat)
                 * Sommermonate werden nicht gemessen, Nullwerte abfangen
             3. Verbrauch = (Verbrauch pro Tag * Anzahl Tage anwesend)
+            4. nur restliche Monate voll berechnen
         */
 
         # Wenn Einzug oder Auszug nicht im Abrechnungsjahr, dann auf 1.1. bzw. 31.12. des Abrechnungsjahres setzen
@@ -44,6 +46,18 @@ class Heizkostenverteiler extends Base {
         if( substr($movedOut,0,4) != $year ){
             $movedOut = $year . '-12-31';
         }
+
+        # Einzug untermonatig?
+        if( substr($movedIn,8,2) != '01' ){
+            # Verbrauch für den Monat berechnen
+        }
+
+        # Auszug untermonatig?
+        if( substr($movedOut,8,2) != $this->daysInMonth( $movedOut ) ){
+            # Verbrauch für den Monat berechnen
+        }
+
+        # wenn untermonatiger Ein- oder Auszug, die verbleibenden Monate voll berechnen
 
         # will return total if no apartment given
         # values of heat cost allocators are mathematically corrected by radiator- and meter-characteristics
