@@ -7,6 +7,7 @@ require_once('../classes/Base.php');
 require_once('../classes/Heizkostenverteiler.php');
 
 $Heizkostenverteiler = new Heizkostenverteiler(null);
+$Base = new Base();
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -24,7 +25,7 @@ $Heizkostenverteiler = new Heizkostenverteiler(null);
                         type: "line",
                         dataPoints: [
                             <?php
-                            $consumption = $Heizkostenverteiler->getMeteredDataByMonth('2023-01-01', '2023-12-31', 1);
+                            $consumption = $Heizkostenverteiler->getMeteredDataByMonth('2023-01-01', $Base->Abrechnungsjahr . '-12-31', 1);
                             $last_key = array_key_last( $consumption );
                             foreach( $consumption as $key => $row ) {
                                 echo '{ label: "' . $row['d'] . '", y:' . $row['v'] . '}'; 
@@ -41,6 +42,7 @@ $Heizkostenverteiler = new Heizkostenverteiler(null);
         <title>Monatswerte</title>
     </head>
     <body>
+        to be debunked
         <div id="chartContainer" style="height: 300px; width: 100%;"></div>
 </body>
 </html>
