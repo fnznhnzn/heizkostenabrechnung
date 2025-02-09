@@ -25,6 +25,8 @@ class Heizkostenverteiler extends Base {
     }
     
     public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){ # Jahreswerte pro Wohnung oder Zähler 
+        $tsMovedIn  = strtotime( $movedIn );
+        $tsMovedOut = strtotime( $movedOut );
         /*
         Problem: Bei untermonatigem Mieterwechsel wird der Verbrauch beiden Mietern für den gesamten Monat berechnet.
         Lösung: Verbrauch tagesgenau abgrenzen
@@ -40,24 +42,28 @@ class Heizkostenverteiler extends Base {
         */
 
         # Wenn Einzug oder Auszug nicht im Abrechnungsjahr, dann auf 1.1. bzw. 31.12. des Abrechnungsjahres setzen
-        if( substr($movedIn,0,4) != $year ){
+        if( date('Y',$tsMovedIn) != $year ){
             $movedIn = $year . '-01-01';
         } 
-        if( substr($movedOut,0,4) != $year ){
+        if( date('Y',$tsMovedOut) != $year ){
             $movedOut = $year . '-12-31';
         }
 
         # Einzug untermonatig?
-        if( substr($movedIn,8,2) != '01' ){
-            # Verbrauch für den Monat berechnen
+        if( date('j',$tsMovedIn) != 1 ){
+            $days = $this->daysInMonth( $movedIn ) - date('j',$tsMovedIn);
+            # Anteiligen Verbrauch für den Monat berechnen
+            $this->getUnitsByDaysOfAMonth( date('n',$tsMovedIn), $days, $Whg_ID );
         }
 
         # Auszug untermonatig?
-        if( substr($movedOut,8,2) != $this->daysInMonth( $movedOut ) ){
-            # Verbrauch für den Monat berechnen
+        if( date('j',$tsMovedOut) != $this->daysInMonth( $movedOut ) ){
+            $days = date('j',$tsMovedOut);
+            # Anteiligen Verbrauch für den Monat berechnen
+            $this->getUnitsByDaysOfAMonth( date('n',$tsMovedOut), $days, $Whg_ID );
         }
 
-        # wenn untermonatiger Ein- oder Auszug, die verbleibenden Monate voll berechnen
+        # wenn untermonatiger Ein- oder Auszug, die verbleibenden Monate normal berechnen
 
         # will return total if no apartment given
         # values of heat cost allocators are mathematically corrected by radiator- and meter-characteristics
@@ -87,7 +93,11 @@ class Heizkostenverteiler extends Base {
         return round( $consumption['consumption'], 2 );
     }
 
-    public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){
+    public function getUnitsByDaysOfAMonth( $month, $days, $Whg_ID ){
+
+    }
+
+    public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){ # momentan nur von public/monatswerte.php genutzt
         $sql = <<<SQL
             SELECT 
                 CONCAT( SUBSTRING( MONTHNAME( Zeitpunkt ), 1 ,3 ), ' ', YEAR( Zeitpunkt ) ) d, 
