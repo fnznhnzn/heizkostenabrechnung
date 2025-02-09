@@ -220,12 +220,13 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
 <!-- 10. -------------------------------------------------------------------------------------------------------- Zusammenfassung -->
 <h1>Gesamtübersicht</h1>
 <table>
-    <tr><th>Mieter</th><th>Whg</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>Fläche</th><th>30%</th><th>WW</th><th>Gesamt</th><th>CO2</th>
+    <tr><th>Whg</th><th>Mieter</th><th>Zeitraum</th><th>Tage</th><th>HKV-Werte</th><th>70%</th><th>Fläche</th><th>30%</th><th>WW</th><th>Gesamt</th><th>CO2</th>
     <th>CO₂ Vermieter</th><th>Netto</th><th>CO₂ Mieter</th></tr>
-    <tr class="subline"><td colspan="3"></td><td class="center">bereinigt um Kc und Kq</td><td class="center">per HKV</td><td class="center">m²</td><td class="center">per m²</td>
+    <tr class="subline"><td colspan="4"></td><td class="center">bereinigt um Kc und Kq</td><td class="center">per HKV</td><td class="center">m²</td><td class="center">per m²</td>
     <td class="center">per m²</td><td class="center">Heizung + WW</td><td class="center">Tonnen</td><td class="center">abzüglich</td><td class="center">Heat - Carbon</td>
     <td class="center">zur Info</td></tr>
 <?php
+$totalDays = 0;
 $totalHeatConsumptionCost = 0;
 $totalHeatProportionateCost = 0;
 $totalHotWaterCost = 0;
@@ -234,7 +235,14 @@ $totalCarbon = 0;
 $totalCo2TenantCost = 0;
 $totalCo2LandlordCost = 0;
 $totalNetSum = 0;
+$wID = 0;
 foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
+    if( $wID == $row['Whg_ID'] ) {
+        $displayWid = ''; 
+    } else {
+        $displayWid = $row['Whg_ID'];
+    }
+    $wID = $row['Whg_ID'];
     # heat
     $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
     $consumptionCost = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
@@ -252,6 +260,7 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $totalHeatCostPerTenant = $consumptionCost + $proportionateCost + $hotWaterCost;
     $totalHeatCostPerTenantMinusCarbon = $totalHeatCostPerTenant - $co2LandlordCost;
     # totals on bottom
+    $totalDays += $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
     $totalHeatConsumptionCost += $consumptionCost;
     $totalHeatProportionateCost += $proportionateCost;
     $totalHotWaterCost += $hotWaterCost;
@@ -260,8 +269,8 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $totalNetSum += $totalHeatCostPerTenantMinusCarbon;
     $totalCo2TenantCost += $co2TenantCost;
     echo '<tr>
+    <td><strong>' . $displayWid . '</strong></td>
     <td>' . $row['Nachname'] . '</td>
-    <td>' . $row['Whg_ID'] . '</td>
     <td nowrap>' . $Base->formatDate($row['Abrechnungsbeginn']) . ' - ' . $Base->formatDate($row['Abrechnungsende']) . '</td>
     <td class="alignRight">' . $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] ) . '</td>
     <td class="alignRight">' . $consumption . '</td>
@@ -277,7 +286,9 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     </tr>';
 }
 ?>
-    <tr><td colspan="4"></td>
+    <tr><td colspan="3"></td>
+        <td class="alignRight"><strong class="gray"><?=$totalDays?></strong></td>
+        <td></td>
         <td class="alignRight"><strong class="brown"><?=$Base->euro($totalHeatConsumptionCost)?></strong></td>
         <td></td>
         <td class="alignRight"><strong class="violet"><?=$Base->euro($totalHeatProportionateCost)?></strong></td>
@@ -289,6 +300,11 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
         <td><strong><?=$Base->euro($totalCo2TenantCost)?></strong></td>
     </tr> 
 </table>
+<?php # check if days in year times total flats equals total days
+    if( $Base->daysInYear() * $Base->totalFlats() != $totalDays ) {
+        echo '<p style="color:red;">Daten überprüfen, Gesamtzahl der Tage (<strong>' . $totalDays . '</strong>) entspricht nicht ' . $Base->totalFlats() . ' x ' .  $Base->daysInYear() . '!</p>';
+    }
+?>
 <br/>
 <!-- 11. -------------------------------------------------------------------------------------------------------- Erneuerbare Energien Gesetz -->
 <h2>Energieeffizienz-Richtlinie (EED)</h2>
