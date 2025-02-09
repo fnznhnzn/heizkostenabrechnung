@@ -227,6 +227,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
     <td class="center">zur Info</td></tr>
 <?php
 $totalDays = 0;
+$totalUnits = 0;
 $totalHeatConsumptionCost = 0;
 $totalHeatProportionateCost = 0;
 $totalHotWaterCost = 0;
@@ -261,6 +262,7 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $totalHeatCostPerTenantMinusCarbon = $totalHeatCostPerTenant - $co2LandlordCost;
     # totals on bottom
     $totalDays += $CO2AufG->ComputeDays( $row['Abrechnungsbeginn'], $row['Abrechnungsende'] );
+    $totalUnits += $consumption;
     $totalHeatConsumptionCost += $consumptionCost;
     $totalHeatProportionateCost += $proportionateCost;
     $totalHotWaterCost += $hotWaterCost;
@@ -288,7 +290,7 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
 ?>
     <tr><td colspan="3"></td>
         <td class="alignRight"><strong class="gray"><?=$totalDays?></strong></td>
-        <td></td>
+        <td><strong class="gray"><?=$totalUnits?></strong></td>
         <td class="alignRight"><strong class="brown"><?=$Base->euro($totalHeatConsumptionCost)?></strong></td>
         <td></td>
         <td class="alignRight"><strong class="violet"><?=$Base->euro($totalHeatProportionateCost)?></strong></td>
