@@ -47,6 +47,7 @@ class Heizkostenverteiler extends Base {
     }
     
     public function getMeteredData( $year, $movedIn = '0000-00-00', $movedOut = '0000-00-00', $Whg_ID = '%', $zaehlerID = '%' ){ # Jahreswerte pro Wohnung oder Zähler 
+        # we are called per tenant with their move-in and move-out dates
         # give us back all units used this year between the dates
         # will return entire building if no tenant given
         
@@ -99,22 +100,25 @@ class Heizkostenverteiler extends Base {
         */
         $sql = <<<SQL
                 SELECT 
-                (
-                    SELECT SUM(val) FROM (
-                        SELECT SUM( Nettowert * h.Kq * h.Kc / $this->efq ) val /* Wert x Leistung x Trägheit : Basisempfindlichkeit */
-                        FROM Wohnungen w
-                        LEFT JOIN Zaehler z     ON w.ID = z.Whg_ID
-                        LEFT JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID
-                        LEFT JOIN Messwerte m   ON z.ID = m.Zaehler_ID
-                        LEFT JOIN Mieter mi     ON w.ID = mi.Whg_ID
-                        WHERE w.ID LIKE '$Whg_ID'
-                        AND MONTH(Zeitpunkt) 
-                            BETWEEN MONTH(STR_TO_DATE('$movedIn', '%Y-%m-%d')) 
-                            AND MONTH(STR_TO_DATE('$movedOut', '%Y-%m-%d'))
-                        AND Zaehler_ID LIKE '$zaehlerID'
-                        GROUP BY Zaehler_ID
-                    ) totalThisYearsMeters
-                ) consumption
+                    SUM( Nettowert * h.Kq * h.Kc / 2.288 ) consumption -- Wert x Leistung x Trägheit : Basisempfindlichkeit */
+                FROM 
+                    Wohnungen w
+                LEFT JOIN 
+                    Zaehler z     ON w.ID = z.Whg_ID
+                LEFT JOIN 
+                    Heizkoerper h ON z.Heizkoerper_ID = h.ID -- needed for Kq and Kc
+                LEFT JOIN 
+                    Messwerte m   ON z.ID = m.Zaehler_ID
+                WHERE 
+                    w.ID 
+                LIKE 
+                    '$Whg_ID'
+                AND 
+                    MONTH(Zeitpunkt) 
+                BETWEEN 
+                    MONTH(STR_TO_DATE('$movedIn', '%Y-%m-%d')) 
+                AND 
+                    MONTH(STR_TO_DATE('$movedOut', '%Y-%m-%d'))
             SQL;
             
         $res = $this->conn->query($sql);
@@ -124,12 +128,12 @@ class Heizkostenverteiler extends Base {
     }
 
     public function getUnitsForPartOfAMonth( $month, $days, $Whg_ID ){
-        # get full month's consumption (what if we don't have the data?)
+        # what if we don't have data?
         $monthFirst  = $this->Abrechnungsjahr . '-' . $month . '-01';
         $monthLast   = $this->Abrechnungsjahr . '-' . $month . '-' . $this->daysInMonth( $month );
         $monthTotal  = $this->getConsumption( $monthFirst, $monthLast, $Whg_ID );
         $unitsPerDay = $monthTotal / $this->daysInMonth( $month );
-        return $unitsPerDay * $days;
+        return round( $unitsPerDay * $days, 2 );
     }
 
     public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){ # momentan nur von public/monatswerte.php genutzt
