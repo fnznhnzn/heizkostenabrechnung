@@ -160,4 +160,16 @@ class Base {
             return 365;
         }
     }
+
+    public function getMonthsBetweenDates( $start, $end ){
+        $current = $start;
+        $ret = array();
+        while( $current<$end ){
+            
+            $ret[] = date('n', $current);
+            $next = @date('Y-M-01', $current) . "+1 month";
+            $current = @strtotime($next);
+        }
+        return array_reverse($ret);
+    }
 }
