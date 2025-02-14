@@ -1,8 +1,8 @@
 <?php
 /*
-Meters run up until reset every new year's day. They will hence show the total consumption
+Meters run up until reset every new year's day. Hence they will show the total consumption
 on the 31st of December. To be able to split between tenants during a year, one could simply
-divide the cost by 365.
+divide that by 365.
 
 Alas, if an energy saving tenant followed a wasteful one during mid-year, they would pay part
 of the excessive heating. Worse, if a tenant moved in just for summer, they would sitll be charged
@@ -12,7 +12,7 @@ Unless mititgated mathematically, this must have been the case with legacy evapo
 only once a year. Today's meters store (and transmit) readings monthly, so calculations can be 
 based on actual consumption.
 
-For the actual consumption, we must subtract that of the preceeding month, though not in January.
+For the actual consumption, we must subtract the preceeding month, though not in January.
 The auxilary script "getNetValues.php" stores the net values in column "Nettowert". 
 
 To save battery power, meters pause radio transmission in summer. If someone still used their
@@ -40,7 +40,7 @@ class Heizkostenverteiler extends Base {
         $this->Preis_HeizungE           = $this->euro( $this->Preis_Heizung );
         $this->Preis_Heizung_70Prozent  = $this->Preis_Heizung * 0.7;
         $this->Preis_Heizung_70ProzentE = $this->euro( $this->Preis_Heizung_70Prozent );
-        $this->Messergebnis_Haus        = $this->getMeteredData( $this->Abrechnungsjahr ); # 0000-00-00 give us full year
+        $this->Messergebnis_Haus        = $this->getMeteredData( $this->Abrechnungsjahr, $this->Abrechnungsjahr.'-01-01', $this->Abrechnungsjahr.'-12-31');
         $this->Messergebnis_HausD       = number_format( $this->Messergebnis_Haus, 2, ',', '.');
         $this->Preis_pro_Messwert       = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
         $this->Preis_pro_MesswertD      = number_format($this->Preis_pro_Messwert, 2, ',', '.');
@@ -53,7 +53,7 @@ class Heizkostenverteiler extends Base {
         
         $tsMovedIn  = strtotime( $movedIn );
         $tsMovedOut = strtotime( $movedOut );
-        $partMonthConsumption = 0;
+        $partMonthsConsumption = 0;
 
         # set all earlier and later dates to first and last of this year
         if( substr($movedIn,0,4)  != $year || $movedIn == '0000-00-00' ){
@@ -63,36 +63,36 @@ class Heizkostenverteiler extends Base {
             $movedOut = $year . '-12-31';
         }
 
-        # must we split within a month?
+        # need we split within a month?
         if( date('j',$tsMovedIn) != 1 ){ # moved in not on the first?
             $days  = $this->daysInMonth( $movedIn ) - date('j', $tsMovedIn) + 1; # +1 because move-in-day counts
             $month = date('n',$tsMovedIn);
-            $partMonthConsumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
+            $partMonthsConsumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
             # done, set movedIn to next for month further calculation
             $movedIn = date('Y-m-', strtotime( $movedIn . ' +1 month' )). '01'; 
             if( substr($movedIn,0,4) != $year ){
-                return $partMonthConsumption; # they moved in in December, we are done here
+                return $partMonthsConsumption; # they moved in in December, we are done here
             }
         }
         if( date('j',$tsMovedOut) != $this->daysInMonth( $movedOut ) ){ # moved out not on the last?
             $days  = date('j',$tsMovedOut);
             $month = date('n',$tsMovedOut);
-            $partMonthConsumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
+            $partMonthsConsumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
             # done, set movedOut to previous month
             $movedOut = date('Y-m-', strtotime( $movedOut . ' -1 month' ) ) . $this->daysInMonth( $movedOut ); 
             if( substr($movedOut,0,4) != $year ){
-                return $partMonthConsumption; # out in January, done
+                return $partMonthsConsumption; # out in January, no need to go further
             }
         }
 
-        # send all else to getConsumption()
-        $straightMonthsConsumption = $this->getConsumption( $movedIn, $movedOut, $Whg_ID, $zaehlerID );
+        # send all else to getUnitsForFullMonths()
+        $fullMonthsConsumption = $this->getUnitsForFullMonths( $movedIn, $movedOut, $Whg_ID, $zaehlerID );
 
         # if not already done above, return sum
-        return $straightMonthsConsumption + $partMonthConsumption;
+        return $fullMonthsConsumption + $partMonthsConsumption;
     }
 
-    public function getConsumption( $movedIn = '0000-00-00', $movedOut = '0000-00-00', $Whg_ID = '%', $zaehlerID = '%' ){
+    public function getUnitsForFullMonths( $movedIn = '0000-00-00', $movedOut = '0000-00-00', $Whg_ID = '%', $zaehlerID = '%' ){
         /*
         - will return total if no meter or apartment given
         - one reading per month, calculate sub-month if necessary 
@@ -129,11 +129,12 @@ class Heizkostenverteiler extends Base {
 
     public function getUnitsForPartOfAMonth( $month, $days, $Whg_ID ){
         # what if we don't have data?
-        $monthFirst  = $this->Abrechnungsjahr . '-' . $month . '-01';
-        $monthLast   = $this->Abrechnungsjahr . '-' . $month . '-' . $this->daysInMonth( $month );
-        $monthTotal  = $this->getConsumption( $monthFirst, $monthLast, $Whg_ID );
-        $unitsPerDay = $monthTotal / $this->daysInMonth( $month );
-        return round( $unitsPerDay * $days, 2 );
+        $monthFirst    = $this->Abrechnungsjahr . '-' . $month . '-01';
+        $monthLast     = $this->Abrechnungsjahr . '-' . $month . '-' . $this->daysInMonth( $month );
+        $monthTotal    = $this->getUnitsForFullMonths( $monthFirst, $monthLast, $Whg_ID );
+        $unitsPerDay   = $monthTotal / $this->daysInMonth( $month );
+        $unitsPerMonth = $unitsPerDay * $days;
+        return round( $unitsPerMonth, 2 );
     }
 
     public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){ # momentan nur von public/monatswerte.php genutzt
@@ -160,7 +161,7 @@ class Heizkostenverteiler extends Base {
         return $resArray;
     }
 
-    public function getLastMeteredValue( $zaehlerID, $lastOnly = false ){
+    public function getLastMeteredValue( $zaehlerID, $lastOnly = false ){ # not used yet
         # subtracts every previous value (as if meter started fresh)
         $sql = <<<SQL
                 SELECT 

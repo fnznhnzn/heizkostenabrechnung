@@ -122,17 +122,17 @@ class Base {
         return $billReceivers;
     }
 
-    public function formatDate($date){
+    public function formatDate( $date ){
         $date = strtotime( $date . '00:00:00' );
         $date = date('d.m.Y', $date);
         return $date;
     }
 
-    public function nf($n){
+    public function nf( $n ){
         return number_format($n, 10, ',', '.');
     }
 
-    public function percentage($warmwasserkosten, $heizkosten){
+    public function percentage( $warmwasserkosten, $heizkosten ){
         $percent[0] = round( $warmwasserkosten / ($warmwasserkosten + $heizkosten) * 100, 2);
         $percent[1] = round( 100 - $percent[0], 2);
         return $percent;
@@ -146,7 +146,7 @@ class Base {
         return $days;
     }
 
-    public function daysInMonth($date){
+    public function daysInMonth( $date ){
         $timestamp = strtotime($date);
         $month = date('m', $timestamp);
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $this->Abrechnungsjahr);
@@ -165,7 +165,6 @@ class Base {
         $current = $start;
         $ret = array();
         while( $current<$end ){
-            
             $ret[] = date('n', $current);
             $next = @date('Y-M-01', $current) . "+1 month";
             $current = @strtotime($next);
