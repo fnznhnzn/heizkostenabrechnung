@@ -96,7 +96,7 @@ $CO2AufG                = new CO2AufG();
 
 <!-- 5. ------------------------------------------------------------------------------------------------- Verteilung auf die Wohnungen -->
         <h4>Verteilung auf die Wohnungen</h4>
-        <p>Die Gesamtzahl der s.o. bereinigten HKV-Messwerte im Jahr <?=$Base->Abrechnungsjahr?> betrug <strong><?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?></strong>. 
+        <p>Die Gesamtzahl der bereinigten HKV-Einheiten im Jahr <?=$Base->Abrechnungsjahr?> betrug <strong class="turquoise"><?=$Base->nf($Heizkostenverteiler->Messergebnis_Haus)?></strong>. 
         Teilt man o.g. 70% der Heizkosten durch diese Summe erhält man den Preis pro Einheit. Diesen multipliziert man dann wieder mit den Werten einer Wohnung.</p>
 
 <!-- 6. -------------------------------------------------------------------------------------------------------- 30% Heizkosten nach Wohnfläche -->
@@ -170,7 +170,7 @@ foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ){
     <p>Das <a href="https://www.gesetze-im-internet.de/co2kostaufg/CO2KostAufG.pdf" target="_blank">CO2KostAufG</a> regelt seit 1.1.2023 die Aufteilung dieser 
     Kosten zwischen Mieter und Vermieter. Der mit steigendem CO₂-Austoß größer werdende Vermieteranteil soll zusätzliche Anreize für Energieeffizienzmaßnahmen 
     schaffen.</p>
-    <p>Der CO₂-Preis wird Energieverbrauch ermittelt, nominell nach Wohnfläche verteilt und der Vermieteranteil dem Mieter erlassen.</p>
+    <p>Der CO₂-Preis wird nach Energieverbrauch ermittelt, nominell nach Wohnfläche verteilt und der Vermieteranteil von diesem dem Mieter erlassen.</p>
     [<a href="https://www.bmwk.de/Redaktion/DE/Artikel/Energie/berechnung-aufteilung-kohlendioxidkosten.html" target="_blank">Leitfaden zur Berechnung BMWK</a>] [<a href="https://co2kostenaufteilung.bmwk.de" target="_blank">Online-Rechner des BMWK</a>]</p>
     <p>Berechnung:</p>
     
@@ -290,7 +290,7 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
 ?>
     <tr><td colspan="3"></td>
         <td class="alignRight"><strong class="gray"><?=$totalDays?></strong></td>
-        <td><strong class="gray"><?=$totalUnits?></strong></td>
+        <td><strong class="turquoise"><?=$totalUnits?></strong></td>
         <td class="alignRight"><strong class="brown"><?=$Base->euro($totalHeatConsumptionCost)?></strong></td>
         <td></td>
         <td class="alignRight"><strong class="violet"><?=$Base->euro($totalHeatProportionateCost)?></strong></td>

@@ -46,11 +46,8 @@ class Heizkostenverteiler extends Base {
         $this->Preis_pro_MesswertD      = number_format($this->Preis_pro_Messwert, 2, ',', '.');
     }
     
-    public function getMeteredData( $year, $movedIn = '0000-00-00', $movedOut = '0000-00-00', $Whg_ID = '%', $zaehlerID = '%' ){ # Jahreswerte pro Wohnung oder Zähler 
-        # we are called per tenant with their move-in and move-out dates
-        # give us back all units used this year between the dates
-        # will return entire building if no tenant given
-        
+    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){ 
+        # returns units used by tenant or building total
         $tsMovedIn  = strtotime( $movedIn );
         $tsMovedOut = strtotime( $movedOut );
         $partMonthsConsumption = 0;
@@ -124,7 +121,7 @@ class Heizkostenverteiler extends Base {
         $res = $this->conn->query($sql);
         $consumption = mysqli_fetch_assoc( $res );
         if( $consumption['consumption'] === null ){ return 0; }
-        return round( $consumption['consumption'], 2 );
+        return $consumption['consumption'];
     }
 
     public function getUnitsForPartOfAMonth( $month, $days, $Whg_ID ){
@@ -134,7 +131,7 @@ class Heizkostenverteiler extends Base {
         $monthTotal    = $this->getUnitsForFullMonths( $monthFirst, $monthLast, $Whg_ID );
         $unitsPerDay   = $monthTotal / $this->daysInMonth( $month );
         $unitsPerMonth = $unitsPerDay * $days;
-        return round( $unitsPerMonth, 2 );
+        return $unitsPerMonth;
     }
 
     public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){ # momentan nur von public/monatswerte.php genutzt
