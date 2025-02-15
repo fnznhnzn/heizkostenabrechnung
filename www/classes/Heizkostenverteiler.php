@@ -63,8 +63,8 @@ class Heizkostenverteiler extends Base {
         }
 
         # need we split within a month?
-        if( date('j',$tsMovedIn) != 1 ){ # didn't move in on the first?
-            $days  = $this->daysInMonth( $movedIn ) - date('j', $tsMovedIn) + 1; # +1 because move-in-day counts
+        if( date('j',$tsMovedIn) != 1 ){ # didn't move in on the month's first?
+            $days  = date('t', $tsMovedIn ) - date('j', $tsMovedIn) + 1; # +1 because move-in-day counts
             $month = date('n',$tsMovedIn);
             $partMonthsConsumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
             # done, set movedIn to next for month further calculation
@@ -73,7 +73,7 @@ class Heizkostenverteiler extends Base {
                 return $partMonthsConsumption; # they moved in in December, we are done here
             }
         }
-        if( date('j',$tsMovedOut) != $this->daysInMonth( $movedOut ) ){ # moved out not on the last?
+        if( date('j',$tsMovedOut) != date('t', $tsMovedOut ) ){ # didn't move out on month's last?
             $days  = date('j',$tsMovedOut);
             $month = date('n',$tsMovedOut);
             $partMonthsConsumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
@@ -124,8 +124,8 @@ class Heizkostenverteiler extends Base {
 
     public function getUnitsForPartOfAMonth( $month, $days, $Whg_ID ){
         # what if we don't have data?
-        $monthFirst    = $this->Abrechnungsjahr . '-' . $month . '-01';
-        $monthLast     = $this->Abrechnungsjahr . '-' . $month . '-' . $this->daysInMonth( $month );
+        $monthFirst    = $this->Abrechnungsjahr . '-' . $month . '-01 00:00:00';
+        $monthLast     = $this->Abrechnungsjahr . '-' . $month . '-' . $this->daysInMonth( $month ) . ' 23:59:59';
         $monthTotal    = $this->getUnitsForFullMonths( $monthFirst, $monthLast, $Whg_ID );
         $unitsPerDay   = $monthTotal / $this->daysInMonth( $month );
         $unitsPerMonth = $unitsPerDay * $days;
