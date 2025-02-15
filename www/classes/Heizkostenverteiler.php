@@ -40,13 +40,15 @@ class Heizkostenverteiler extends Base {
         $this->Preis_HeizungE           = $this->euro( $this->Preis_Heizung );
         $this->Preis_Heizung_70Prozent  = $this->Preis_Heizung * 0.7;
         $this->Preis_Heizung_70ProzentE = $this->euro( $this->Preis_Heizung_70Prozent );
-        $this->Messergebnis_Haus        = $this->getMeteredData( $this->Abrechnungsjahr, $this->Abrechnungsjahr.'-01-01', $this->Abrechnungsjahr.'-12-31');
+        $this->Messergebnis_Haus        = $this->getMeteredData( $this->Abrechnungsjahr, $this->Abrechnungsjahr.'-01-01 00:00:00', $this->Abrechnungsjahr.'-12-31 23:59:59' );
         $this->Messergebnis_HausD       = number_format( $this->Messergebnis_Haus, 2, ',', '.');
         $this->Preis_pro_Messwert       = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
         $this->Preis_pro_MesswertD      = number_format($this->Preis_pro_Messwert, 2, ',', '.');
     }
     
     public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){ 
+        strlen($movedIn)  == 10 ? $movedIn  .= ' 00:00:00' : null; # tenant dates lack time
+        strlen($movedOut) == 10 ? $movedOut .= ' 23:59:59' : null;
         # returns units used by tenant or building total
         $tsMovedIn  = strtotime( $movedIn );
         $tsMovedOut = strtotime( $movedOut );
@@ -54,14 +56,14 @@ class Heizkostenverteiler extends Base {
 
         # set all earlier and later dates to first and last of this year
         if( substr($movedIn,0,4)  != $year || $movedIn == '0000-00-00' ){
-            $movedIn  = $year . '-01-01';
+            $movedIn  = $year . '-01-01 00:00:00';
         } 
         if( substr($movedOut,0,4) != $year || $movedOut == '0000-00-00' ){
-            $movedOut = $year . '-12-31';
+            $movedOut = $year . '-12-31 23:59:59';
         }
 
         # need we split within a month?
-        if( date('j',$tsMovedIn) != 1 ){ # moved in not on the first?
+        if( date('j',$tsMovedIn) != 1 ){ # didn't move in on the first?
             $days  = $this->daysInMonth( $movedIn ) - date('j', $tsMovedIn) + 1; # +1 because move-in-day counts
             $month = date('n',$tsMovedIn);
             $partMonthsConsumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
@@ -89,7 +91,7 @@ class Heizkostenverteiler extends Base {
         return $fullMonthsConsumption + $partMonthsConsumption;
     }
 
-    public function getUnitsForFullMonths( $movedIn = '0000-00-00', $movedOut = '0000-00-00', $Whg_ID = '%', $zaehlerID = '%' ){
+    public function getUnitsForFullMonths( $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){
         /*
         - will return total if no meter or apartment given
         - one reading per month, calculate sub-month if necessary 
@@ -103,7 +105,7 @@ class Heizkostenverteiler extends Base {
                 LEFT JOIN 
                     Zaehler z     ON w.ID = z.Whg_ID
                 LEFT JOIN 
-                    Heizkoerper h ON z.Heizkoerper_ID = h.ID -- needed for Kq and Kc
+                    Heizkoerper h ON h.ID = z.Heizkoerper_ID -- needed for Kq and Kc
                 LEFT JOIN 
                     Messwerte m   ON z.ID = m.Zaehler_ID
                 WHERE 
@@ -111,11 +113,7 @@ class Heizkostenverteiler extends Base {
                 LIKE 
                     '$Whg_ID'
                 AND 
-                    MONTH(Zeitpunkt) 
-                BETWEEN 
-                    MONTH(STR_TO_DATE('$movedIn', '%Y-%m-%d')) 
-                AND 
-                    MONTH(STR_TO_DATE('$movedOut', '%Y-%m-%d'))
+                    Zeitpunkt BETWEEN '$movedIn' AND '$movedOut'
             SQL;
             
         $res = $this->conn->query($sql);
