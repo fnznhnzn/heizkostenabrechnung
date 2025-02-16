@@ -58,3 +58,23 @@ WHERE
     YEAR(Zeitpunkt) = '2024'
 SQL;
 
+# Verbrauch einer Wohnung für einen Monat
+$sql = <<<SQL
+SELECT
+    z.ID,
+    Zeitpunkt,
+    SUM(
+        Nettowert * h.Kq * h.Kc / 2.288
+    )
+FROM
+    Wohnungen w
+LEFT JOIN Zaehler z ON
+    w.ID = z.Whg_ID
+LEFT JOIN Heizkoerper h ON
+    h.ID = z.Heizkoerper_ID -- needed for Kq and Kc
+LEFT JOIN Messwerte m ON
+    z.ID = m.Zaehler_ID
+WHERE
+    YEAR(Zeitpunkt) = '2024' AND MONTH(Zeitpunkt) = 2 AND Whg_ID = 6
+SQL;
+

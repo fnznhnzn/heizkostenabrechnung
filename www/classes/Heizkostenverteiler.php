@@ -46,7 +46,20 @@ class Heizkostenverteiler extends Base {
         $this->Preis_pro_MesswertD      = number_format($this->Preis_pro_Messwert, 2, ',', '.');
     }
     
-    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){ 
+    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){  
+        # return units for each tenant or building total
+
+        # Problem: Behandelt ungeraden Ein- und Auszug nur richtig, wenn im selben Monat 
+        # wieder aus- bzw. eingezogen wird. Die Erkennung von ungeraden Ein- und Auszügen
+        # in unterschiedlichen Monaten ist noch nicht implementiert. Wir müssen doch durch
+        # jeden Monat iterieren und die Tage zählen, die der Mieter in diesem Monat da war.
+        # Vorteil: Dann kann für alles die gleiche Funktion genutzt werden.
+
+        # 1. schreibe alle Monate mit Anfang und Ende in ein Array
+        # 2. bestimme und ergänze die Tage für jeden Monat
+        # 3. schicke jeden Monat an getUnitsForPartOfAMonth()
+        # 4. gebe die Summe zurück
+
         strlen($movedIn)  == 10 ? $movedIn  .= ' 00:00:00' : null; # tenant dates lack time
         strlen($movedOut) == 10 ? $movedOut .= ' 23:59:59' : null;
         # returns units used by tenant or building total
@@ -124,12 +137,13 @@ class Heizkostenverteiler extends Base {
 
     public function getUnitsForPartOfAMonth( $month, $days, $Whg_ID ){
         # what if we don't have data?
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $this->Abrechnungsjahr);
         $monthFirst    = $this->Abrechnungsjahr . '-' . $month . '-01 00:00:00';
-        $monthLast     = $this->Abrechnungsjahr . '-' . $month . '-' . $this->daysInMonth( $month ) . ' 23:59:59';
+        $monthLast     = $this->Abrechnungsjahr . '-' . $month . '-' . $daysInMonth . ' 23:59:59';
         $monthTotal    = $this->getUnitsForFullMonths( $monthFirst, $monthLast, $Whg_ID );
-        $unitsPerDay   = $monthTotal / $this->daysInMonth( $month );
-        $unitsPerMonth = $unitsPerDay * $days;
-        return $unitsPerMonth;
+        $unitsPerDay   = $monthTotal / $daysInMonth;
+        $units = $unitsPerDay * $days;
+        return $units;
     }
 
     public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){ # momentan nur von public/monatswerte.php genutzt

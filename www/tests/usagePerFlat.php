@@ -15,7 +15,7 @@ $Flaechenverteilung     = new Flaechenverteilung( $Heizkostenverteiler->Preis_He
 
 $Base->totalFlats();
 
-$y = $_GET['y'] ?? date('Y');
+$y = $_GET['y'] ?? $Base->Abrechnungsjahr;
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -31,6 +31,8 @@ $y = $_GET['y'] ?? date('Y');
         @media (min-width: 80rem) { }
         .val { width:50px; text-align: right; }
     </style>
+</head>
+<?php include('../nav.inc.php'); ?>
 <h1>Zählerwerte pro Wohnung in <?=$y?></h1>
 <div class="column">
 <?php
