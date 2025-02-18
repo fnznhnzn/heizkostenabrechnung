@@ -46,62 +46,65 @@ class Heizkostenverteiler extends Base {
         $this->Preis_pro_MesswertD      = number_format($this->Preis_pro_Messwert, 2, ',', '.');
     }
     
-    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){  
-        # return units for each tenant or building total
-
-        # Problem: Behandelt ungeraden Ein- und Auszug nur richtig, wenn im selben Monat 
-        # wieder aus- bzw. eingezogen wird. Die Erkennung von ungeraden Ein- und Auszügen
-        # in unterschiedlichen Monaten ist noch nicht implementiert. Wir müssen doch durch
-        # jeden Monat iterieren und die Tage zählen, die der Mieter in diesem Monat da war.
-        # Vorteil: Dann kann für alles die gleiche Funktion genutzt werden.
-
-        # 1. schreibe alle Monate mit Anfang und Ende in ein Array
-        # 2. bestimme und ergänze die Tage für jeden Monat
-        # 3. schicke jeden Monat an getUnitsForPartOfAMonth()
-        # 4. gebe die Summe zurück
-
-        strlen($movedIn)  == 10 ? $movedIn  .= ' 00:00:00' : null; # tenant dates lack time
+    public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%', $nachname = '%' ){  
+        # return units for building or each tenant
+        strlen($movedIn)  == 10 ? $movedIn  .= ' 00:00:00' : null; # tenant dates lack time so add that
         strlen($movedOut) == 10 ? $movedOut .= ' 23:59:59' : null;
-        # returns units used by tenant or building total
         $tsMovedIn  = strtotime( $movedIn );
         $tsMovedOut = strtotime( $movedOut );
-        $partMonthsConsumption = 0;
-
+        
         # set all earlier and later dates to first and last of this year
-        if( substr($movedIn,0,4)  != $year || $movedIn == '0000-00-00' ){
+        if( date('Y', $tsMovedIn) < $year ){
             $movedIn  = $year . '-01-01 00:00:00';
         } 
-        if( substr($movedOut,0,4) != $year || $movedOut == '0000-00-00' ){
+        if( date('Y', $tsMovedOut) > $year ){
             $movedOut = $year . '-12-31 23:59:59';
         }
 
-        # need we split within a month?
-        if( date('j',$tsMovedIn) != 1 ){ # didn't move in on the month's first?
-            $days  = date('t', $tsMovedIn ) - date('j', $tsMovedIn) + 1; # +1 because move-in-day counts
-            $month = date('n',$tsMovedIn);
-            $partMonthsConsumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
-            # done, set movedIn to next for month further calculation
-            $movedIn = date('Y-m-', strtotime( $movedIn . ' +1 month' )). '01'; 
-            if( substr($movedIn,0,4) != $year ){
-                return $partMonthsConsumption; # they moved in in December, we are done here
-            }
-        }
-        if( date('j',$tsMovedOut) != date('t', $tsMovedOut ) ){ # didn't move out on month's last?
-            $days  = date('j',$tsMovedOut);
-            $month = date('n',$tsMovedOut);
-            $partMonthsConsumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
-            # done, set movedOut to previous month
-            $movedOut = date('Y-m-', strtotime( $movedOut . ' -1 month' ) ) . $this->daysInMonth( $movedOut ); 
-            if( substr($movedOut,0,4) != $year ){
-                return $partMonthsConsumption; # out in January, no need to go further
-            }
-        }
+        # process full years first
+        if($movedIn == $year . '-01-01 00:00:00' && $movedOut == $year . '-12-31 23:59:59'){
+            $yearsConsumption = $this->getUnitsForFullMonths( $movedIn, $movedOut, $Whg_ID, $zaehlerID );
+            return $yearsConsumption;
+        } else { # months and parts of them
+            $consumption = 0;
+            $firstMonth = date('n', $tsMovedIn);
+            $lastMonth  = date('n', $tsMovedOut);
+            $i=0;
+            for($i=$firstMonth; $i<=$lastMonth; $i++){
+                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i, $year);
+                $i < 10 ? $month = '0' . $i : $month = $i;
 
-        # send all else to getUnitsForFullMonths()
-        $fullMonthsConsumption = $this->getUnitsForFullMonths( $movedIn, $movedOut, $Whg_ID, $zaehlerID );
+                # first check if not moved in on the first day of the month. If so, process the part of the month
+                if( date('j', $tsMovedIn) != 1){
+                    $days = $daysInMonth - date('j', $tsMovedIn) + 1; # +1 because first the day counts
+                    $consumption = $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
+                }
 
-        # if not already done above, return sum
-        return $fullMonthsConsumption + $partMonthsConsumption;
+                # now check whether moved in on or before the first and moved on or after the last day of the month. If so, process full month
+                if( $tsMovedIn <= strtotime($year . '-' . $month . '-01 00:00:00') && $tsMovedOut >= strtotime($year . '-' . $month . '-' . $daysInMonth . ' 23:59:59') ){ # full month?
+                    $days = $daysInMonth;
+                    $consumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
+                }
+
+                # lastly check if moved out before the last day of the month. If so, process the part of the month
+                if( date('j', $tsMovedOut) != $daysInMonth ){ # didn't move out on month's last?
+                    $days  = date('j', $tsMovedOut);
+                    $consumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
+                }
+            }
+            return $consumption;
+        }
+    }
+
+    public function getUnitsForPartOfAMonth( $month, $days, $Whg_ID ){
+        # what if we don't have data?
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $this->Abrechnungsjahr);
+        $monthFirst    = $this->Abrechnungsjahr . '-' . $month . '-01 00:00:00';
+        $monthLast     = $this->Abrechnungsjahr . '-' . $month . '-' . $daysInMonth . ' 23:59:59';
+        $monthTotal    = $this->getUnitsForFullMonths( $monthFirst, $monthLast, $Whg_ID );
+        $unitsPerDay   = $monthTotal / $daysInMonth;
+        $units = $unitsPerDay * $days;
+        return $units;
     }
 
     public function getUnitsForFullMonths( $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%' ){
@@ -133,17 +136,6 @@ class Heizkostenverteiler extends Base {
         $consumption = mysqli_fetch_assoc( $res );
         if( $consumption['consumption'] === null ){ return 0; }
         return $consumption['consumption'];
-    }
-
-    public function getUnitsForPartOfAMonth( $month, $days, $Whg_ID ){
-        # what if we don't have data?
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $this->Abrechnungsjahr);
-        $monthFirst    = $this->Abrechnungsjahr . '-' . $month . '-01 00:00:00';
-        $monthLast     = $this->Abrechnungsjahr . '-' . $month . '-' . $daysInMonth . ' 23:59:59';
-        $monthTotal    = $this->getUnitsForFullMonths( $monthFirst, $monthLast, $Whg_ID );
-        $unitsPerDay   = $monthTotal / $daysInMonth;
-        $units = $unitsPerDay * $days;
-        return $units;
     }
 
     public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){ # momentan nur von public/monatswerte.php genutzt

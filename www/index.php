@@ -121,7 +121,7 @@ $CO2AufG                = new CO2AufG();
 <?php
 $hkvSum = 0;
 foreach( $Heizkostenverteiler->getBillReceivers() as $index => $row ) {
-    $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
+    $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID'], 'zaehler', $row['Nachname']);
     $price = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
     $hkvSum += $price;
     echo '<tr>
