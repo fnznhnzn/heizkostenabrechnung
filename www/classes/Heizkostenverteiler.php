@@ -81,13 +81,13 @@ class Heizkostenverteiler extends Base {
                 }
 
                 # now check whether moved in on or before the first and moved on or after the last day of the month. If so, process full month
-                if( $tsMovedIn <= strtotime($year . '-' . $month . '-01 00:00:00') && $tsMovedOut >= strtotime($year . '-' . $month . '-' . $daysInMonth . ' 23:59:59') ){ # full month?
+                elseif( $tsMovedIn <= strtotime($year . '-' . $month . '-01 00:00:00') && $tsMovedOut >= strtotime($year . '-' . $month . '-' . $daysInMonth . ' 23:59:59') ){ # full month?
                     $days = $daysInMonth;
                     $consumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
                 }
 
                 # lastly check if moved out before the last day of the month. If so, process the part of the month
-                if( date('j', $tsMovedOut) != $daysInMonth ){ # didn't move out on month's last?
+                elseif( date('j', $tsMovedOut) != $daysInMonth ){ # didn't move out on month's last?
                     $days  = date('j', $tsMovedOut);
                     $consumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
                 }
