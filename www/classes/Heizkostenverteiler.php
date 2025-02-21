@@ -59,40 +59,32 @@ class Heizkostenverteiler extends Base {
             $movedOut = $year . '-12-31 23:59:59';
         }
 
-        # process full years first
-        if($movedIn == $year . '-01-01 00:00:00' && $movedOut == $year . '-12-31 23:59:59'){
-            $yearsConsumption = $this->getUnitsForFullMonths( $movedIn, $movedOut, $Whg_ID, $zaehlerID );
-            return $yearsConsumption;
-        } else { # months and parts of them
-            $consumption = 0;
-            $firstMonth = date('n', strtotime($movedIn) );
-            $lastMonth  = date('n', strtotime($movedOut) );
-            $i=0;
-            for($i=$firstMonth; $i<=$lastMonth; $i++){
-                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i, $year);
-                $i < 10 ? $month = '0' . $i : $month = $i;
+        $consumption = 0;
+        $firstMonth = date('n', strtotime($movedIn) );
+        $lastMonth  = date('n', strtotime($movedOut) );
+        $i=0;
+        # loop through months
+        for($i=$firstMonth; $i<=$lastMonth; $i++){
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i, $year);
+            $i < 10 ? $month = '0' . $i : $month = $i;
 
-                # first check if not moved in on the first day of the month. If so, process the part of the month
-                if( date('n', strtotime($movedIn)) == $month && date('d', strtotime($movedIn) ) != '01'){
-                    $days = $daysInMonth - date('j', strtotime($movedIn) ) + 1; # +1 because the first day counts
-                    $consumption = $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
-                }
-
-                # now check whether moved in on or before the first and moved on or after the last day of the month. If so, process full month
-                elseif( strtotime($movedIn) <= strtotime($year . '-' . $month . '-01 00:00:00') 
-                        && strtotime($movedOut) >= strtotime($year . '-' . $month . '-' . $daysInMonth . ' 23:59:59') ){ # full month?
-                    $days = $daysInMonth;
-                    $consumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
-                }
-
-                # lastly check if moved out before the last day of the month. If so, process the part of the month
-                elseif( date('j', strtotime($movedOut) ) != $daysInMonth ){ # didn't move out on month's last?
-                    $days  = date('j', strtotime($movedOut) );
-                    $consumption += $this->getUnitsForPartOfAMonth( $month, $days, $Whg_ID );
-                }
+            # how many days of the current month must we account for?
+            if( date('n', strtotime($movedIn)) == $month ){ # moved in this month? Use the date
+                $accountFrom = $movedIn;
+            } else {                                        # moved before? Start with month's first
+                $accountFrom = $year . '-' . $month . '-01 00:00:00';
             }
-            return $consumption;
+
+            if( date('n', strtotime($movedOut)) == $month ){ # moved out this month? Use the date
+                $accountUntil = $movedOut;
+            } else {                                        # moved out after? Calculate until the end
+                $accountUntil = $year . '-' . $month . '-' . $daysInMonth . ' 23:59:59';
+            }
+
+            $daysToAccountFor = date('j', strtotime($accountUntil) ) - date('j', strtotime($accountFrom) ) + 1;
+            $consumption += $this->getUnitsForPartOfAMonth( $month, $daysToAccountFor, $Whg_ID );
         }
+        return $consumption;
     }
 
     public function getUnitsForPartOfAMonth( $month, $days, $Whg_ID ){
