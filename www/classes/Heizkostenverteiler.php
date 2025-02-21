@@ -1,18 +1,18 @@
 <?php
 /*
-Meters run up until reset every new year's day. Hence they will show the total consumption
+Meters run up until reset every new year's day. Hence they will show the total units
 on the 31st of December. To be able to split between tenants during a year, one could simply
 divide that by 365.
 
 Alas, if an energy saving tenant followed a wasteful one during mid-year, they would pay part
-of the excessive heating. Worse, if a tenant moved in just for summer, they would sitll be charged
+of the excessive heating. Worse, if a tenant moved in just for summer, they would be charged
 almost half of the year's total cost.
 
 Unless mititgated mathematically, this must have been the case with legacy evaporation meters read 
 only once a year. Today's meters store (and transmit) readings monthly, so calculations can be 
-based on actual consumption.
+more accurate and fair.
 
-For the actual consumption, we must subtract the preceeding month, though not in January.
+For the actual units, we must subtract the preceeding month, though not in January.
 The auxilary script "getNetValues.php" stores the net values in column "Nettowert". 
 
 To save battery power, meters pause radio transmission in summer. If someone still used their
@@ -40,58 +40,55 @@ class Heizkostenverteiler extends Base {
         $this->Preis_HeizungE           = $this->euro( $this->Preis_Heizung );
         $this->Preis_Heizung_70Prozent  = $this->Preis_Heizung * 0.7;
         $this->Preis_Heizung_70ProzentE = $this->euro( $this->Preis_Heizung_70Prozent );
-        $this->Messergebnis_Haus        = $this->getMeteredData( $this->Abrechnungsjahr, $this->Abrechnungsjahr.'-01-01 00:00:00', $this->Abrechnungsjahr.'-12-31 23:59:59' );
+        $this->Messergebnis_Haus        = $this->getMeteredData( $this->Abrechnungsjahr, $this->Abrechnungsjahr.'-01-01', $this->Abrechnungsjahr.'-12-31' );
         $this->Messergebnis_HausD       = number_format( $this->Messergebnis_Haus, 2, ',', '.');
         $this->Preis_pro_Messwert       = $this->Preis_Heizung_70Prozent / $this->Messergebnis_Haus;
         $this->Preis_pro_MesswertD      = number_format($this->Preis_pro_Messwert, 2, ',', '.');
     }
     
     public function getMeteredData( $year, $movedIn, $movedOut, $Whg_ID = '%', $zaehlerID = '%', $nachname = '%' ){  
-        # return units for building or each tenant
-        strlen($movedIn)  == 10 ? $movedIn  .= ' 00:00:00' : null; # tenant dates lack time so add that
-        strlen($movedOut) == 10 ? $movedOut .= ' 23:59:59' : null;
+        # returns units for whole building or each tenant
         
-        # set all earlier and later dates to first and last of this year
+        # 1. Moved in or out before or after this year? Adjust dates
         if( date('Y', strtotime($movedIn) ) < $year ){
-            $movedIn  = $year . '-01-01 00:00:00';
+            $movedIn  = $year . '-01-01';
         } 
         if( date('Y', strtotime($movedOut) ) > $year ){
-            $movedOut = $year . '-12-31 23:59:59';
+            $movedOut = $year . '-12-31';
         }
 
-        $consumption = 0;
+        # 2. Loop through months
         $firstMonth = date('n', strtotime($movedIn) );
         $lastMonth  = date('n', strtotime($movedOut) );
+        $units = 0;
         $i=0;
-        # loop through months
         for($i=$firstMonth; $i<=$lastMonth; $i++){
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i, $year);
             $i < 10 ? $month = '0' . $i : $month = $i;
 
-            # how many days of the current month must we account for?
-            if( date('n', strtotime($movedIn)) == $month ){ # moved in this month? Use the date
-                $accountFrom = $movedIn;
-            } else {                                        # moved before? Start with month's first
-                $accountFrom = $year . '-' . $month . '-01 00:00:00';
+            # Which days of this month must we account for?
+            if( date('n', strtotime($movedIn)) == $month ){             # Moved in this month?
+                $accountFrom = $movedIn;                                # Calculate from that date
+            } else {                                                    # Moved in before?
+                $accountFrom = $year . '-' . $month . '-01';            # Calculate from 1st
             }
 
-            if( date('n', strtotime($movedOut)) == $month ){ # moved out this month? Use the date
-                $accountUntil = $movedOut;
-            } else {                                        # moved out after? Calculate until the end
-                $accountUntil = $year . '-' . $month . '-' . $daysInMonth . ' 23:59:59';
+            if( date('n', strtotime($movedOut)) == $month ){            # Moved out this month? Use the date
+                $accountUntil = $movedOut;                              # Calculate until that date
+            } else {                                                    # Moved out after?
+                $accountUntil = $year.'-'.$month.'-'.$daysInMonth;      # Calculate until 31st (or 30th, 29th, 28th)
             }
 
             $daysToAccountFor = date('j', strtotime($accountUntil) ) - date('j', strtotime($accountFrom) ) + 1;
-            $consumption += $this->getUnitsForPartOfAMonth( $month, $daysToAccountFor, $Whg_ID );
+            $units += $this->getUnitsForPartOfAMonth( $month, $daysToAccountFor, $Whg_ID );
         }
-        return $consumption;
+        return $units;
     }
 
     public function getUnitsForPartOfAMonth( $month, $days, $Whg_ID ){
-        # what if we don't have data?
         $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $this->Abrechnungsjahr);
-        $monthFirst    = $this->Abrechnungsjahr . '-' . $month . '-01 00:00:00';
-        $monthLast     = $this->Abrechnungsjahr . '-' . $month . '-' . $daysInMonth . ' 23:59:59';
+        $monthFirst    = $this->Abrechnungsjahr . '-' . $month . '-01';
+        $monthLast     = $this->Abrechnungsjahr . '-' . $month . '-' . $daysInMonth;
         $monthTotal    = $this->getUnitsForFullMonths( $monthFirst, $monthLast, $Whg_ID );
         $unitsPerDay   = $monthTotal / $daysInMonth;
         $units = $unitsPerDay * $days;
@@ -107,7 +104,7 @@ class Heizkostenverteiler extends Base {
         */
         $sql = <<<SQL
                 SELECT 
-                    SUM( Nettowert * h.Kq * h.Kc / 2.288 ) consumption -- Wert x Leistung x Trägheit : Basisempfindlichkeit */
+                    SUM( Nettowert * h.Kq * h.Kc / 2.288 ) units -- Wert x Leistung x Trägheit : Basisempfindlichkeit */
                 FROM 
                     Wohnungen w
                 LEFT JOIN 
@@ -121,13 +118,14 @@ class Heizkostenverteiler extends Base {
                 LIKE 
                     '$Whg_ID'
                 AND 
-                    Zeitpunkt BETWEEN '$movedIn' AND '$movedOut'
+                    DATE(Zeitpunkt) BETWEEN '$movedIn' AND '$movedOut'
             SQL;
             
-        $res = $this->conn->query($sql);
-        $consumption = mysqli_fetch_assoc( $res );
-        if( $consumption['consumption'] === null ){ return 0; }
-        return $consumption['consumption'];
+            $res = $this->conn->query($sql);
+            $units = mysqli_fetch_assoc( $res );
+        # what if we don't have data?
+        if( $units['units'] === null ){ return 0; }
+        return $units['units'];
     }
 
     public function getMeteredDataByMonth($movedIn, $movedOut, $Whg_ID){ # momentan nur von public/monatswerte.php genutzt
