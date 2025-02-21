@@ -1,12 +1,11 @@
 <?php
 /*
-Meters genrally run up until reset every new year's day. Hence the total units are transmitted
-every 31st of December. 
+Meters generaly run up until reset every new year's day. Hence the total units show up
+in every year's final reading on the 31st of December. 
 
-To be able to fairly split between tenants even during a month, we use the readings 
-transmitted monthly and deduct the preceeding month's value to get the actual consumption, 
-as done by script "getNetValues.php" and stored in column 
-"Nettowert".
+To be able to fairly split between tenants even during a month, we use values transmitted 
+monthly, deduct the preceeding month's value (script "getNetValues.php") and devide that 
+by that month's number of days.
 
 More intel on Engelmann meters and gateway:  https://konrad.km-it.de/index.php/Engelmann
 For the concept of heat cost allocation see: https://konrad.km-it.de/index.php/Heizkostenverteilung
