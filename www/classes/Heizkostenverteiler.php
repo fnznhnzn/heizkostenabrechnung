@@ -1,26 +1,28 @@
 <?php
 /*
-Meters run up until reset every new year's day. Hence they will show the total units
-on the 31st of December. To be able to split between tenants during a year, one could simply
-divide that by 365.
+Meters genrally run up until reset every new year's day. Hence the total units are transmitted
+every 31st of December. 
 
-Alas, if an energy saving tenant followed a wasteful one during mid-year, they would pay part
-of the excessive heating. Worse, if a tenant moved in just for summer, they would be charged
-almost half of the year's total cost.
+To be able to fairly split between tenants even during a month, we use the readings 
+transmitted monthly and deduct the preceeding month's value to get the actual consumption, 
+as done by script "getNetValues.php" and stored in column 
+"Nettowert".
 
-Unless mititgated mathematically, this must have been the case with legacy evaporation meters read 
-only once a year. Today's meters store (and transmit) readings monthly, so calculations can be 
-more accurate and fair.
+More intel on Engelmann meters and gateway:  https://konrad.km-it.de/index.php/Engelmann
+For the concept of heat cost allocation see: https://konrad.km-it.de/index.php/Heizkostenverteilung
 
-For the actual units, we must subtract the preceeding month, though not in January.
-The auxilary script "getNetValues.php" stores the net values in column "Nettowert". 
-
+Further notes:
 To save battery power, meters pause radio transmission in summer. If someone still used their
 radiators it would show up in the first reading in fall. As tenants tend not to do that it
-seems acceptable for now to account for summer with zero consumption.
+seems acceptable to account for summer with zero consumption.
 
-If however one wanted to exactly attibute possible summer use to tenants possibly changing during 
-summer, one could "retro-"process the historic data stored in the devices up to 15 month back.
+If however one really wanted to exactly attibute possible summer use to tenants possibly changing 
+during summer, one could "retro-"process the historic data stored in the devices up to 15 month back.
+
+Fun fact: 
+With legacy evaporation meters, unless mitigated mathematically, a tenant moving in just for 
+summer was charged evenly for the whole year's heating cost. Worse, an energy saving one would 
+pay for their wasteful predecessor.
 */
 class Heizkostenverteiler extends Base {
 
