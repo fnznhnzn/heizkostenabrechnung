@@ -26,7 +26,13 @@ $sql = <<<SQL
     LEFT JOIN Messwerte m ON m.Zaehler_ID = z.ID
     LEFT JOIN Heizkoerper h ON h.ID = z.Heizkoerper_ID
     LEFT JOIN Wohnungen w ON w.ID = z.Whg_ID
-    LEFT JOIN Mieter mi ON mi.ID = z.Whg_ID
+    LEFT JOIN ( SELECT mi.*, MIN(mi.ID) dtID  /* latest tenant only */
+		FROM Mieter mi 
+		INNER JOIN Zaehler z 
+		ON mi.Whg_ID = z.Whg_ID 
+		GROUP BY mi.ID ) as dt
+	ON z.Whg_ID = dt.Whg_ID
+    LEFT JOIN Mieter mi ON mi.ID = dt.dtID
     WHERE z.Whg_ID <> 0 /* ignore the basement */
     GROUP BY z.ID
     ORDER BY w.ID, Raum, z.ID
