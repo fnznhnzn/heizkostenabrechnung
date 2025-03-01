@@ -1,14 +1,14 @@
 <?php
 /*
- * This script, run by a cron job, reads the CSV files uploaded by the gateway via ftp line by line.
- * The m-bus protocol lets each meter start with a line of attribute names followed by the actual 
- * values in the next line. Unlike processCSVs.php, we read all values stored in the meters 15 months back. 
+ * This script, run by a cron job, reads all CSV files found one directory above (put there by the gateway via ftp) 
+ * line by line. We read all values stored in the meters 15 months back and after that move the files to directories 
+ * for each year.
  * 
- * As consumption statements are typically generated once a year, it would suffice to run this script
- * then. One could even transmit values from the meters and run the gateway only once a year to save 
- * battery power. It seems advisable to collect data a little more often to detect errors early.
+ * Values are written to a db table with a combined unique index (meter id and date). Hence this  * script can be run 
+ * repeatedly without harm.
  * 
- * While we're at it: Detect values from water meter and store them separately.
+ * Todo:
+ * Store water meter readings
  * 
  * Relvant columns:
  *  [2]: Meter ID
@@ -21,21 +21,18 @@
  * [15]-[44]: 29 half-monthly values ("2"-"30", not summed)
  * [45]: Note or error code
  * [46]: Date of that
- *
- * Values are written to a db table with a combined unique index of$tsOfLastReading and value. So this
- * script can be run repeatedly without harm.
  * 
  * Order of procedure:
  * 1. look for uploaded files
  * 2. read csv line by line
  * 3. store sums from last reading
- * 4. store year's sums
- * 5. store 30 half-monthly values
+ * 4. store year's totals
+ * 5. store 30 readings
  * 6. move processed files into a folder named after the year
  *
 */
 
-/* -- 1. look for uploaded files ------------------------------------------------------------------------------------------------------ */
+/* -- 1. look for uploaded files ------------------------------------------------------------------------------------- 1. look for uploaded files -- */
 $files = scandir( dirname(__DIR__) );
 
 function isCSV( $filename ){
@@ -65,7 +62,7 @@ if( $dbc->connect_errno ){
     exit();
 }
 
-/* -- 2. read csv line by line --------------------------------------------------------------------------------------------------------- */
+/* -- 2. read csv line by line ----------------------------------------------------------------------------------------- 2. read csv line by line -- */
 foreach( $CSVs as $c ) {
     $lines = file( dirname(__DIR__, 1) . '/' . $c );
     $i = 0;
@@ -74,7 +71,7 @@ foreach( $CSVs as $c ) {
             $chunks = explode(";", $line);
             if( $chunks[2] == '30015984' ) continue 2; # skip water meter
             
-            /* -- 3. store sums from last reading --------------------------------------------------------------------------------------- */
+            /* -- 3. store most recent reading --------------------------------------------------------------------- 3. store most recend reading -- */
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
@@ -84,7 +81,7 @@ foreach( $CSVs as $c ) {
             $sql .= ';';
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
 
-            /* -- 4. store year's sums --------------------------------------------------------------------------------------------------- */
+            /* -- 4. store year's totals ----------------------------------------------------------------------------------- 4. store years totals -- */
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
@@ -94,7 +91,7 @@ foreach( $CSVs as $c ) {
             $sql .= ';';
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
 
-            /* -- 5. store 30 half-monthly values ----------------------------------------------------------------------------------------- */
+            /* -- 5. store 30 readings --------------------------------------------------------------------------------------- 5. store 30 readings -- */
             $readingDate = strtotime( $chunks[13] ); # first of the 30 stored readings
 
             for($e=14; $e<45; $e++){
@@ -113,7 +110,7 @@ foreach( $CSVs as $c ) {
                 $sql .= $chunks[2];
                 $sql .= ', Zeitpunkt = ';
                 $sql .= '"' . $zp . '"';
-                # inspite of the documentation, the first half month reading (14) is summed
+                # inspite of all documentation, the first half month reading ([14]) is summed
                 if( $e == 14 ){
                     $sql .= ', Wert = ';
                 } else {
@@ -128,7 +125,7 @@ foreach( $CSVs as $c ) {
     }
 }
 
-# 6. move processed files into a folder named after the year
+/*-- 6. move processed files into a folder named after the year ------------------------------------------------------------- 6. move processed files -- */
 foreach( $CSVs as $c ) {
     $year = '20' . substr( $c, 9, 2 ); # get year from file name
     if( !is_dir( dirname(__DIR__, 1) . '/' . $year ) ) {
