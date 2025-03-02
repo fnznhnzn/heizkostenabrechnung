@@ -12,6 +12,7 @@
  * 
  * Relvant columns:
  *  [2]: Meter ID
+ *  [4]: Device Type
  *  [9]: Date and Time of last reading
  * [10]: Value of last reading (summed)
  * [11]: Date of year's end reading (Dec 31st)
@@ -25,10 +26,11 @@
  * Order of procedure:
  * 1. look for uploaded files
  * 2. read csv line by line
- * 3. store sums from last reading
- * 4. store year's totals
- * 5. store 30 readings
- * 6. move processed files into a folder named after the year
+ * 3. store water meter readings
+ * 4. store sums from last reading
+ * 5. store year's totals
+ * 6. store 30 readings
+ * 7. move processed files into a folder named after the year
  *
 */
 
@@ -69,9 +71,31 @@ foreach( $CSVs as $c ) {
     foreach( $lines as $line_num => $line) {
         if( $i%2 ){ # M-BUS/OMS format: every other line has values
             $chunks = explode(";", $line);
-            if( $chunks[2] == '30015984' ) continue 2; # skip water meter
+
+            /* -- 3. store water meter readings ------------------------------------------------------------------- 3. store water meter readings -- */
+            if( $chunks[4] == 'Water' ){
+                # most recent reading
+                $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
+                $sql .= $chunks[2];
+                $sql .= ', Datum = ';
+                $sql .= '"' . chunkToDatetime( $chunks[9] ) . '"';
+                $sql .= ', Messwert = ';
+                $sql .= str_replace( ',' , '.' , $chunks[10] );
+                $sql .= ';';
+                $dbc->query( $sql ) or trigger_error ( $dbc->error );
+                # last year's total
+                $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
+                $sql .= $chunks[2];
+                $sql .= ', Datum = ';
+                $sql .= '"' . date( 'Y-m-d', strtotime($chunks[12]) ) . '"';
+                $sql .= ', Messwert = ';
+                $sql .= str_replace( ',' , '.' , $chunks[13] );
+                $sql .= ';';
+                $dbc->query( $sql ) or trigger_error ( $dbc->error );
+                continue 2;
+            } 
             
-            /* -- 3. store most recent reading --------------------------------------------------------------------- 3. store most recend reading -- */
+            /* -- 4. store most recent reading --------------------------------------------------------------------- 4. store most recend reading -- */
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
@@ -81,7 +105,7 @@ foreach( $CSVs as $c ) {
             $sql .= ';';
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
 
-            /* -- 4. store year's totals ----------------------------------------------------------------------------------- 4. store years totals -- */
+            /* -- 5. store year's totals ----------------------------------------------------------------------------------- 5. store years totals -- */
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
@@ -91,7 +115,7 @@ foreach( $CSVs as $c ) {
             $sql .= ';';
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
 
-            /* -- 5. store 30 readings --------------------------------------------------------------------------------------- 5. store 30 readings -- */
+            /* -- 6. store 30 readings --------------------------------------------------------------------------------------- 6. store 30 readings -- */
             $readingDate = strtotime( $chunks[13] ); # first of the 30 stored readings
 
             for($e=14; $e<45; $e++){
@@ -125,7 +149,7 @@ foreach( $CSVs as $c ) {
     }
 }
 
-/*-- 6. move processed files into a folder named after the year ------------------------------------------------------------- 6. move processed files -- */
+/*-- 7. move processed files into a folder named after the year ------------------------------------------------------------- 7. move processed files -- */
 foreach( $CSVs as $c ) {
     $year = '20' . substr( $c, 9, 2 ); # get year from file name
     if( !is_dir( dirname(__DIR__, 1) . '/' . $year ) ) {

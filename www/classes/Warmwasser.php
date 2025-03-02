@@ -4,7 +4,6 @@ class Warmwasser extends Base {
     
     public CONST TW = 56; # Temperatur Warmwasser
     public CONST Hi = 10; # Heizwert Erdgas H
-    public $Wasserzaehler = 30015984; # Wasserzähler im Zulauf zum Boiler
     
     public $Wasserverbrauch;
     public $WasserverbrauchD;
@@ -20,17 +19,17 @@ class Warmwasser extends Base {
 
     public function __construct(){
         parent::__construct();
-        $this->Wasserverbrauch = $this->getWaterConsumption();
-        $this->WasserverbrauchD = number_format( $this->Wasserverbrauch, 3, ',', '.' );
-        $this->kWh_Gas_fuer_Warmwasser = 2.5 * $this->Wasserverbrauch * ( self::TW - self::Hi ); # see HeizkostenV
-        $this->kWh_Gas_fuer_WarmwasserD = number_format( $this->kWh_Gas_fuer_Warmwasser, 0, ',', '.');
-        $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor = $this->kWh_Gas_fuer_Warmwasser * 1.11;
-        $this->Preis_Warmwasser = $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor * $this->Kilowattstundenpreis; # money spent
-        $this->Preis_WarmwasserE = $this->euro( $this->Preis_Warmwasser );
-        $this->Preis_Warmwasser_BrunataStyle = $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor / $this->Kilowattstunden * $this->Rechnungsbetrag;
-        $this->Preis_Warmwasser_pro_Quadratmeter = $this->Preis_Warmwasser / $this->Gesamtwohnflaeche;
-        $this->Preis_Warmwasser_pro_QuadratmeterE = $this->euro( $this->Preis_Warmwasser_pro_Quadratmeter );
-        $this->Preis_Warmwasser_pro_QuadratmeterD = number_format( $this->Preis_Warmwasser_pro_Quadratmeter, 4, ',', '.' );
+        $this->Wasserverbrauch                              = $this->getWaterConsumption();
+        $this->WasserverbrauchD                             = number_format( $this->Wasserverbrauch, 3, ',', '.' );
+        $this->kWh_Gas_fuer_Warmwasser                      = 2.5 * $this->Wasserverbrauch * ( self::TW - self::Hi ); # see HeizkostenV
+        $this->kWh_Gas_fuer_WarmwasserD                     = number_format( $this->kWh_Gas_fuer_Warmwasser, 0, ',', '.');
+        $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor  = $this->kWh_Gas_fuer_Warmwasser * 1.11;
+        $this->Preis_Warmwasser                             = $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor * $this->Kilowattstundenpreis; # money spent
+        $this->Preis_WarmwasserE                            = $this->euro( $this->Preis_Warmwasser );
+        $this->Preis_Warmwasser_BrunataStyle                = $this->kWh_Gas_fuer_Warmwasser_mit_Brennwertfaktor / $this->Kilowattstunden * $this->Rechnungsbetrag;
+        $this->Preis_Warmwasser_pro_Quadratmeter            = $this->Preis_Warmwasser / $this->Gesamtwohnflaeche;
+        $this->Preis_Warmwasser_pro_QuadratmeterE           = $this->euro( $this->Preis_Warmwasser_pro_Quadratmeter );
+        $this->Preis_Warmwasser_pro_QuadratmeterD           = number_format( $this->Preis_Warmwasser_pro_Quadratmeter, 4, ',', '.' );
     }
     
     public function preis_pro_Wohnung( $Quadratmeter, $Abrechnungsbeginn, $Abrechnungsende ){
@@ -48,13 +47,11 @@ class Warmwasser extends Base {
     public function getWaterConsumption(){
         $sql = "
         SELECT
-            MAX(Wert) AS Verbrauch
+            MAX(Messwert) AS Verbrauch
         FROM
-            Messwerte
+            Wasser
         WHERE
-            YEAR(Zeitpunkt) = '$this->Abrechnungsjahr'
-        AND
-            Zaehler_ID = '$this->Wasserzaehler'
+            YEAR(Datum) = '$this->Abrechnungsjahr'
         ";
         $res = $this->conn->query($sql);
         $row = $res->fetch_assoc();
