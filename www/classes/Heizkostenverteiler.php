@@ -1,26 +1,27 @@
 <?php
 /*
-Meters generaly run up until reset every new year's day. Hence the total units show up
-in every year's final reading on the 31st of December. 
+HCAe2 meters stores and transmits last year's total units, the current reading in total units 
+since the beginning of the year plus 30 net values for past half months. (To be precise, the
+meter itself retains total units while the gateway calculates net values)
 
-To be able to fairly split between tenants even during a month, we use values transmitted 
-monthly, deduct the preceeding month's value (script "getNetValues.php") and devide that 
-by that month's number of days.
+Meters generally reset themselves at 12am new year's day. Probably because they are deducted, 
+the preceding year's total values show up negative on January 15th, hence parseAndMoveCSVs.php 
+ommits them. 
 
-More intel on Engelmann meters and gateway:  https://konrad.km-it.de/index.php/Engelmann
-For the concept of heat cost allocation see: https://konrad.km-it.de/index.php/Heizkostenverteilung
+Also, these values together with the current, oldest and year's last reading show up as totals 
+while the rest are net values. Particular attention must be paid to the format of the CSVs uploaded 
+by the gateway as it is not exactly very intuitive.
+
+To fairly split between tenants during a month, we process every month separately and calculate 
+units for the days each tenant was present.
 
 Further notes:
-To save battery power, meters pause radio transmission in summer. If someone still used their
-radiators it would show up in the first reading in fall. As tenants tend not to do that it
-seems acceptable to account for summer with zero consumption.
-
-If however one really wanted to exactly attibute possible summer use to tenants possibly changing 
-during summer, one could "retro-"process the historic data stored in the devices up to 15 month back.
+To save battery power, meters can pause radio transmission in summer. If someone still used their
+radiators it would show up in the first reading in fall. 
 
 Fun fact: 
 With legacy evaporation meters, unless mitigated mathematically, a tenant moving in just for 
-summer was charged evenly for the whole year's heating cost. Worse, an energy saving one would 
+summer was charged evenly for the entire year's heating cost. Worse, an energy saving one would 
 pay for their wasteful predecessor.
 */
 class Heizkostenverteiler extends Base {
@@ -179,8 +180,9 @@ class Heizkostenverteiler extends Base {
     }
 
     public function getRawData( $zaehlerID ){
+        $resArray = [];
         $sql = <<<SQL
-                SELECT Zeitpunkt d, Wert v, Wert * h.Kq * h.Kc / $this->efq cv
+                SELECT Zeitpunkt d, Nettowert v, Nettowert * h.Kq * h.Kc / $this->efq cv
                 FROM Messwerte
                 JOIN Zaehler z ON Messwerte.Zaehler_ID = z.ID
                 JOIN Heizkoerper h ON z.Heizkoerper_ID = h.ID

@@ -1,9 +1,6 @@
 <?php
 /* Einzelwerte pro Monat, wie theoretisch nach Heizkostenverordnung vorgeschrieben.
- * Skript ist erst am Anfang aber lovely LAG()-Funktion in Mariadb funktioniert!
  * Es fehlen noch Monatsangaben in der Spalten und die Auswahl des Jahres <= Hierzu kompletten Tabelleninhalt erst in mehrdimensionales Array schreiben
- *
- * + wichtig zu klären: Resetten die Zähler von Wallace am 31.12.?
  */
 declare(strict_types=1);
 error_reporting(E_ALL);
