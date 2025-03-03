@@ -3,10 +3,8 @@
  * Hilfs-Script, subtrahiert jeweils den Wert des Vormonats und schreibt 
  * das Ergebnis in die Spalte "Nettowert" der Tabelle "Messwerte".
  * 
- * Unklar ist noch, wann und wo es ausgeführt wird. Möglichkeiten wären:
- * - jährlich per cron
- * - manuell
- * - per Trigger
+ * Nicht mehr in Benutzung, da parseAndMoveCSVs.php die Nettowerte aus den
+ * Zählern holt.
  * 
  */
 $year = '2025';
