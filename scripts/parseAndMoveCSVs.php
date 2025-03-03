@@ -1,14 +1,15 @@
 <?php
 /*
  * This script, run by a cron job, reads all CSV files found one directory above (put there by the gateway via ftp) 
- * line by line. We read all values stored in the meters 15 months back and after that move the files to directories 
- * for each year.
+ * line by line. We read all values stored in the meters 15 months back and move the files to directories named 
+ * after the year.
  * 
- * Values are written to a db table with a combined unique index (meter id and date). Hence this  * script can be run 
+ * Values are written to a db table with a combined unique index (meter id and date). Hence this script can be run 
  * repeatedly without harm.
  * 
  * Todo:
- * Store water meter readings
+ * Log error codes
+ * Verify that first reading is summed
  * 
  * Relvant columns:
  *  [2]: Meter ID
@@ -30,7 +31,8 @@
  * 4. store sums from last reading
  * 5. store year's totals
  * 6. store 30 readings
- * 7. move processed files into a folder named after the year
+ * 7. write error codes
+ * 8. move processed files into a folder named after the year
  *
 */
 
@@ -144,12 +146,24 @@ foreach( $CSVs as $c ) {
                 $sql .= ';';
                 $dbc->query( $sql ) or trigger_error ( $dbc->error );
             }
+
+            /* -- 7. write error codes --------------------------------------------------------------------------------------- 7. write error codes -- */
+            if( $chunks[4] == 'HCA' && $chunks[45] != '' ){
+                $sql  = 'INSERT IGNORE INTO Fehler SET Zaehler_ID = ';
+                $sql .= $chunks[2];
+                $sql .= ', Hinweisdatum = ';
+                $sql .= '"' . $chunks[45] . '"';
+                $sql .= ', Hinweisflag = ';
+                $sql .= '"' . $chunks[44] .'"';
+                $sql .= ';';
+                $dbc->query( $sql ) or trigger_error ( $dbc->error );
+            }
         }
         $i++;
     }
 }
 
-/*-- 7. move processed files into a folder named after the year ------------------------------------------------------------- 7. move processed files -- */
+/*-- 8. move processed files into a folder named after the year ------------------------------------------------------------- 7. move processed files -- */
 foreach( $CSVs as $c ) {
     $year = '20' . substr( $c, 9, 2 ); # get year from file name
     if( !is_dir( dirname(__DIR__, 1) . '/' . $year ) ) {
