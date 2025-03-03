@@ -20,7 +20,7 @@ class Flaechenverteilung extends Base {
     public function calculatedHeatingCostPerFlat( $year, $Whg_ID, $movedIn, $movedOut ){
         $kostenNachFlaeche = $this->getArea( $Whg_ID ) * $this->Preis_pro_Quadratmeter;
         $daysStayed = $this->getDaysStayed( $movedIn, $movedOut );
-        $proportionateCost = $kostenNachFlaeche / 365 * $daysStayed;
+        $proportionateCost = $kostenNachFlaeche / $this->daysInYear( $year ) * $daysStayed;
         return $proportionateCost;
     }
 
