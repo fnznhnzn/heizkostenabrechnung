@@ -1,14 +1,22 @@
+Heizkostenabrechnung für heizkostenverteiler, Wasseruhr und Gateway vom Hersteller Engelmann.
+
+Vorbereitung:
+-Alle Radioatoren, Handtuchheizkörper etc. mit Heizkostenverteilern HCAe2 ausstatten
+-Kq und Kc-Werte der Heizkörper ermitteln (lassen)
+-Gateway mit IoT-SIM-Karte für ftp-Server parametrieren und an funkgünstiger Stelle über Handbereich (2,50 Höhe) anbringen
+-HKVs in Tabelle Heizkostenverteiler eintragen
+-Heizkörper mit Kc- und Kq-Werten in Tabelle Heizkörper eintragen
+-Mieter und deren Wechsel Tabelle Mieter eintragen
+-parseAndMoveCSVs.php regelmäßig z.B. per Cron ausführen (Theoretisch reicht einmal pro Jahr, besser aber jeden Monat)
+
 Die Heizkostenabrechnung funktioniert in zwei Schritten:
 
-a) Datenerfassung
-1. Heizkostenverteiler an den Heizkörpern in der Dasselstraße senden ihre Daten an einen Gateway im Treppenhaus
-2. Der Gateway läd jeden Monat eine CSV-Datei per FTP hierhin hoch
-3. processCSVs.php in "scripts" scannt das Verzeichnis nach CSV-Dateien, schreibt ihren Inhalt in eine Datenbank und legt sie in Unterverzeichnisse nach Jahreszahl
-4.  Ist die Batterie eines Verteilers oder des Gateways erschöpft schickt das Script eine E-Mail
 
-b) Abrechnung
-Nach Ablauf eines Jahres kann man eine Website aufrufen, den Gas-Gesamtverbrauch eintragen und für alle Mieter eine Heizkostenabrechnung erzeugen.
+1. Heizkostenverteiler HCAe2 von Engelmann an den Heizkörpern senden ihre Daten an einen Engelmann-Gateway im Treppenhaus
+2. Dieser Gateway läd jeden Monat eine CSV-Datei per FTP hoch
+3. parseAndMoveCSVs.php in "scripts" scannt das Verzeichnis nach CSV-Dateien, schreibt ihren Inhalt in die Datenbank und legt sie in Unterverzeichnisse nach Jahreszahl
+4. Am Jahresende Gasrechnung eintragen
+5. Verschiedene Seiten zeigen Übersicht und druckbare Einzelabrechnungen
 
-further reading: https://konrad.km-it.de/index.php/Heizkostenverteilung
 
 
