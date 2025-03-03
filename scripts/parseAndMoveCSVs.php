@@ -8,7 +8,7 @@
  * repeatedly without harm.
  * 
  * Todo:
- * Log error codes
+ * Fix HKV-Liste
  * Verify that first reading is summed
  * 
  * Relvant columns:
@@ -148,7 +148,7 @@ foreach( $CSVs as $c ) {
             }
 
             /* -- 7. write error codes --------------------------------------------------------------------------------------- 7. write error codes -- */
-            if( $chunks[4] == 'HCA' && $chunks[45] != '' ){
+            if( $chunks[4] == 'HCA' && $chunks[44] != '0' ){
                 $sql  = 'INSERT IGNORE INTO Fehler SET Zaehler_ID = ';
                 $sql .= $chunks[2];
                 $sql .= ', Hinweisdatum = ';
