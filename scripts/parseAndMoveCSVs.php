@@ -1,17 +1,17 @@
 <?php
 /*
- * This script, run by a cron job, reads all CSV files found one directory above (put there by the gateway via ftp) 
- * line by line. We read all values stored in the meters 15 months back and move the files to directories named 
- * after the year.
+ * Run by a cron job, this scipt parses CSV files found one directory above (put there by the gateway via ftp).
+ * It reads the last 15 months' values stored in the meters, writes them to the database and then moves the 
+ * files to directories named after the year.
  * 
- * Values are written to a db table with a combined unique index (meter id and date). Hence this script can be run 
- * repeatedly without harm.
+ * Values are written to a db table with a combined unique index (meter id and date). 
+ * Hence this script can be run repeatedly without harm.
  * 
  * Todo:
+ * tame rouque for-loops
  * Fix HKV-Liste
- * Verify that first reading is summed
  * 
- * Relvant columns:
+ * Relvant columns in CSV file
  *  [2]: Meter ID
  *  [4]: Device Type
  *  [9]: Date and Time of last reading
