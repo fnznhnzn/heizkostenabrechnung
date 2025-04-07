@@ -48,7 +48,7 @@ SQL;
         <h1>Rohwerte</h1>
         <p>Gemessene Werte vor und nach Korrektur um Kq, Kc und Brennwertfaktor.<br/>
         <span class="subtle">Kq = Heizkörperleistung in Kw, Kc = Messgeräteträgheit, Brennwertfaktor des Kessels</span>
-        <pre>Wert x Kc x Kq / 1,181</pre> </p>
+        <pre>Wert x Kc x Kq / 2,288</pre> </p>
         <table>
 <?php
 echo '<th>Zähler</th><th></th><th></th><th colspan="8">Monat / Wert roh / Wert bereinigt</th>';
