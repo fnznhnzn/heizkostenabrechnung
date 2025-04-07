@@ -11,7 +11,7 @@
  * tame rouque for-loops
  * Fix HKV-Liste
  * 
- * Relvant columns in CSV file
+ * Relevant columns in CSV file
  *  [2]: Meter ID
  *  [4]: Device Type
  *  [9]: Date and Time of last reading
