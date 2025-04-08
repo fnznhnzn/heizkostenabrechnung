@@ -2,7 +2,7 @@
 /*
  * Run by a cron job, this scipt parses CSV files found one directory above (put there by the gateway via ftp).
  * It reads the last 15 months' values stored in the meters, writes them to the database and then moves the 
- * files to directories named after the year.
+ * files to a directory named after the year.
  * 
  * Values are written to a db table with a combined unique index (meter id and date). 
  * Hence this script can be run repeatedly without harm.
@@ -24,19 +24,35 @@
  * [45]: Note or error code
  * [46]: Date of that
  * 
- * Order of procedure:
- * 1. look for uploaded files
- * 2. read csv line by line
- * 3. store water meter readings
- * 4. store sums from last reading
- * 5. store year's totals
- * 6. store 30 readings
- * 7. write error codes
- * 8. move processed files into a folder named after the year
+ * Procedure:
+ * 1. provide some utils
+ * 2. look for uploaded files
+ * 3. read csv line by line
+ * 4. store water meter readings
+ * 5. store sums from last reading
+ * 6. store year's totals
+ * 7. store 30 readings
+ * 8. write error codes
+ * 9. move processed files into a folder named after the year
  *
 */
 
-/* -- 1. look for uploaded files ------------------------------------------------------------------------------------- 1. look for uploaded files -- */
+/* -- 1. utils ----------------------------------------------------------------------------------------------------------------------- 1. utils -- */
+# database connection
+$dbc = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
+if( $dbc->connect_errno ){
+    trigger_error( $dbc->connect_error );
+    exit();
+}
+
+# convert non-standard datetime
+function chunkToDatetime($chunk){
+    $datetime = substr( $chunk, 0, 16) . ":00";
+    $datetime = DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $datetime);
+    return $datetime->format('Y-m-d H:i:s');
+}
+
+/* -- 2. look for uploaded files ------------------------------------------------------------------------------------- 2. look for uploaded files -- */
 $files = scandir( dirname(__DIR__) );
 
 function isCSV( $filename ){
@@ -52,21 +68,7 @@ function isLOG( $filename ){
 $CSVs = array_filter( $files, 'isCSV' );
 $LOGs = array_filter( $files, 'isLOG' ); # future use
 
-# convert non-standard datetime
-function chunkToDatetime($chunk){
-    $datetime = substr( $chunk, 0, 16) . ":00";
-    $datetime = DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $datetime);
-    return $datetime->format('Y-m-d H:i:s');
-}
-
-# open database connection
-$dbc = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
-if( $dbc->connect_errno ){
-    trigger_error( $dbc->connect_error );
-    exit();
-}
-
-/* -- 2. read csv line by line ----------------------------------------------------------------------------------------- 2. read csv line by line -- */
+/* -- 3. read CSV line by line ----------------------------------------------------------------------------------------- 3. read csv line by line -- */
 foreach( $CSVs as $c ) {
     $lines = file( dirname(__DIR__, 1) . '/' . $c );
     $i = 0;
@@ -74,7 +76,7 @@ foreach( $CSVs as $c ) {
         if( $i%2 ){ # M-BUS/OMS format: every other line has values
             $chunks = explode(";", $line);
 
-            /* -- 3. store water meter readings ------------------------------------------------------------------- 3. store water meter readings -- */
+            /* -- 4. store water meter readings ------------------------------------------------------------------- 4. store water meter readings -- */
             if( $chunks[4] == 'Water' ){
                 # most recent reading
                 $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
@@ -97,7 +99,7 @@ foreach( $CSVs as $c ) {
                 continue 2;
             } 
             
-            /* -- 4. store most recent reading --------------------------------------------------------------------- 4. store most recend reading -- */
+            /* -- 5. store most recent reading --------------------------------------------------------------------- 5. store most recend reading -- */
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
@@ -107,7 +109,7 @@ foreach( $CSVs as $c ) {
             $sql .= ';';
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
 
-            /* -- 5. store year's totals ----------------------------------------------------------------------------------- 5. store years totals -- */
+            /* -- 6. store year's totals ----------------------------------------------------------------------------------- 7. store years totals -- */
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
@@ -117,7 +119,7 @@ foreach( $CSVs as $c ) {
             $sql .= ';';
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
 
-            /* -- 6. store 30 readings --------------------------------------------------------------------------------------- 6. store 30 readings -- */
+            /* -- 7. store 30 readings --------------------------------------------------------------------------------------- 7. store 30 readings -- */
             $readingDate = strtotime( $chunks[13] ); # first of the 30 stored readings
 
             for($e=14; $e<45; $e++){
@@ -147,7 +149,7 @@ foreach( $CSVs as $c ) {
                 $dbc->query( $sql ) or trigger_error ( $dbc->error );
             }
 
-            /* -- 7. write error codes --------------------------------------------------------------------------------------- 7. write error codes -- */
+            /* -- 8. write error codes --------------------------------------------------------------------------------------- 8. write error codes -- */
             if( $chunks[4] == 'HCA' && $chunks[44] != '0' ){
                 $sql  = 'INSERT IGNORE INTO Fehler SET Zaehler_ID = ';
                 $sql .= $chunks[2];
@@ -163,7 +165,7 @@ foreach( $CSVs as $c ) {
     }
 }
 
-/*-- 8. move processed files into a folder named after the year ------------------------------------------------------------- 7. move processed files -- */
+/*-- 9. move processed files into a folder named after the year ------------------------------------------------------------- 9. move processed files -- */
 foreach( $CSVs as $c ) {
     $year = '20' . substr( $c, 9, 2 ); # get year from file name
     if( !is_dir( dirname(__DIR__, 1) . '/' . $year ) ) {
