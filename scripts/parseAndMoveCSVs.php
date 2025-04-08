@@ -52,6 +52,28 @@ function chunkToDatetime($chunk){
     return $datetime->format('Y-m-d H:i:s');
 }
 
+# store water meter readings
+function storeWaterMeterReadings($dbc, $chunks){
+    # most recent reading
+    $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
+    $sql .= $chunks[2];
+    $sql .= ', Datum = ';
+    $sql .= '"' . chunkToDatetime( $chunks[9] ) . '"';
+    $sql .= ', Messwert = ';
+    $sql .= str_replace( ',' , '.' , $chunks[10] );
+    $sql .= ';';
+    # last year's total
+    $dbc->query( $sql ) or trigger_error ( $dbc->error );
+    $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
+    $sql .= $chunks[2];
+    $sql .= ', Datum = ';
+    $sql .= '"' . date( 'Y-m-d', strtotime($chunks[12]) ) . '"';
+    $sql .= ', Messwert = ';
+    $sql .= str_replace( ',' , '.' , $chunks[13] );
+    $sql .= ';';
+    $dbc->query( $sql ) or trigger_error ( $dbc->error );
+}
+
 /* -- 2. look for uploaded files ------------------------------------------------------------------------------------- 2. look for uploaded files -- */
 $files = scandir( dirname(__DIR__) );
 
@@ -78,24 +100,7 @@ foreach( $CSVs as $c ) {
 
             /* -- 4. store water meter readings ------------------------------------------------------------------- 4. store water meter readings -- */
             if( $chunks[4] == 'Water' ){
-                # most recent reading
-                $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
-                $sql .= $chunks[2];
-                $sql .= ', Datum = ';
-                $sql .= '"' . chunkToDatetime( $chunks[9] ) . '"';
-                $sql .= ', Messwert = ';
-                $sql .= str_replace( ',' , '.' , $chunks[10] );
-                $sql .= ';';
-                $dbc->query( $sql ) or trigger_error ( $dbc->error );
-                # last year's total
-                $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
-                $sql .= $chunks[2];
-                $sql .= ', Datum = ';
-                $sql .= '"' . date( 'Y-m-d', strtotime($chunks[12]) ) . '"';
-                $sql .= ', Messwert = ';
-                $sql .= str_replace( ',' , '.' , $chunks[13] );
-                $sql .= ';';
-                $dbc->query( $sql ) or trigger_error ( $dbc->error );
+                storeWaterMeterReadings($dbc, $chunks);
                 continue 2;
             } 
             
