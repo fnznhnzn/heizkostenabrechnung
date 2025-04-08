@@ -8,7 +8,8 @@
  * Hence this script can be run repeatedly without harm.
  * 
  * Todo:
- * tame rouque for-loops
+ * why is meter 21116044 not read?
+ * tame rouque loop starting in line 127
  * Fix HKV-Liste
  * 
  * Relevant columns in CSV file
@@ -52,7 +53,6 @@ function chunkToDatetime($chunk){
     return $datetime->format('Y-m-d H:i:s');
 }
 
-# store water meter readings
 function storeWaterMeterReadings($dbc, $chunks){
     # most recent reading
     $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
@@ -93,15 +93,14 @@ $LOGs = array_filter( $files, 'isLOG' ); # future use
 /* -- 3. read CSV line by line ----------------------------------------------------------------------------------------- 3. read csv line by line -- */
 foreach( $CSVs as $c ) {
     $lines = file( dirname(__DIR__, 1) . '/' . $c );
-    $i = 0;
     foreach( $lines as $line_num => $line) {
-        if( $i%2 ){ # M-BUS/OMS format: every other line has values
+        if( $line_num%2 ){ # M-BUS/OMS format: every other line has values
             $chunks = explode(";", $line);
 
             /* -- 4. store water meter readings ------------------------------------------------------------------- 4. store water meter readings -- */
             if( $chunks[4] == 'Water' ){
                 storeWaterMeterReadings($dbc, $chunks);
-                continue 2;
+                continue;
             } 
             
             /* -- 5. store most recent reading --------------------------------------------------------------------- 5. store most recend reading -- */
@@ -126,7 +125,7 @@ foreach( $CSVs as $c ) {
 
             /* -- 7. store 30 readings --------------------------------------------------------------------------------------- 7. store 30 readings -- */
             $readingDate = strtotime( $chunks[13] ); # first of the 30 stored readings
-
+/* >>> tame this loop! way too many records written to db! <<<
             for($e=14; $e<45; $e++){
                 # readings happen on every 15th and on every last day of the month
                 if($e%2){
@@ -153,7 +152,7 @@ foreach( $CSVs as $c ) {
                 $sql .= ';';
                 $dbc->query( $sql ) or trigger_error ( $dbc->error );
             }
-
+*/
             /* -- 8. write error codes --------------------------------------------------------------------------------------- 8. write error codes -- */
             if( $chunks[4] == 'HCA' && $chunks[44] != '0' ){
                 $sql  = 'INSERT IGNORE INTO Fehler SET Zaehler_ID = ';
@@ -166,7 +165,6 @@ foreach( $CSVs as $c ) {
                 $dbc->query( $sql ) or trigger_error ( $dbc->error );
             }
         }
-        $i++;
     }
 }
 
