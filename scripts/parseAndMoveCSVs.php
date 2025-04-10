@@ -8,7 +8,7 @@
  * Hence this script can be run repeatedly without harm.
  * 
  * Todo:
- * why is meter 21116044 not read?
+ * fix date conversion
  * tame rouque loop starting in line 127
  * Fix HKV-Liste
  * 
@@ -94,7 +94,7 @@ $LOGs = array_filter( $files, 'isLOG' ); # future use
 foreach( $CSVs as $c ) {
     $lines = file( dirname(__DIR__, 1) . '/' . $c );
     foreach( $lines as $line_num => $line) {
-        if( $line_num%2 ){ # M-BUS/OMS format: every other line has values
+        if( $line_num%2 ){ # M-BUS/OMS format: every other line holds values
             $chunks = explode(";", $line);
 
             /* -- 4. store water meter readings ------------------------------------------------------------------- 4. store water meter readings -- */
