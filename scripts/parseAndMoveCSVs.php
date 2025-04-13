@@ -1,7 +1,7 @@
 <?php
 /*
  * Run by a cron job, this scipt parses CSV files found one directory above (put there by the gateway via ftp).
- * It reads the last 15 months' values stored in the meters, writes them to the database and then moves the 
+ * It reads the last 30 bi-weekly values stored in the meters, writes them to the database and then moves the 
  * files to a directory named after the year.
  * 
  * Values are written to a db table with a combined unique index (meter id and date). 
@@ -129,7 +129,7 @@ foreach( $CSVs as $c ) {
 
             /* -- 7. store 30 readings --------------------------------------------------------------------------------------- 7. store 30 readings -- */
             $readingDate = strtotime( $chunks[13] ); # first of the 30 stored readings
-/* >>> tame this loop! way too many records written to db! <<<
+
             for($e=14; $e<45; $e++){
                 # readings happen on every 15th and on every last day of the month
                 if($e%2){
@@ -156,7 +156,7 @@ foreach( $CSVs as $c ) {
                 $sql .= ';';
                 $dbc->query( $sql ) or trigger_error ( $dbc->error );
             }
-*/
+
             /* -- 8. write error codes --------------------------------------------------------------------------------------- 8. write error codes -- */
             if( $chunks[4] == 'HCA' && $chunks[44] != '0' ){
                 $sql  = 'INSERT IGNORE INTO Fehler SET Zaehler_ID = ';
