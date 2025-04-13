@@ -142,7 +142,12 @@ foreach( $CSVs as $c ) {
                     $readingDate = strtotime("last day of +1 month", $readingDate);
                 }
 
-                # year's first reading is negative because meter was reset, don't use
+                # Year's first reading is negative because meter was reset, don't use.
+                /* 
+                * We *could* however, through subtracting from last year's total get the actual net value for 
+                * Jan 15th just as we *could* through adding and subtracting get the net value out of the otherwise 
+                * summed last reading. That seems a little over the top though, so just ignore for now.
+                */
                 if( substr($zp, 5, 5) === '01-15' ) continue; 
                 
                 $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
