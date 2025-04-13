@@ -8,8 +8,10 @@
  * Hence this script can be run repeatedly without harm.
  * 
  * Todo:
- * tame rouque loop starting in line 127
- * Fix HKV-Liste
+ * why does Nettowert not add up to Wert?
+ * add Minuswert for reset value on 15th of January?
+ * add error codes to db
+ * add error handling
  * 
  * Relevant columns in CSV file
  *  [0](A): Frame Type
