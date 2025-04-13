@@ -15,13 +15,13 @@
  * Relevant columns in CSV file
  *  [2]: Meter ID
  *  [4]: Device Type
- *  [9]: Date and Time of last reading
- * [10]: Value of last reading (summed)
- * [11]: Date of year's end reading (L)
- * [12]: Year's total
- * [13]: Date of reading 15 month before last reading
- * [14]: It's Value (summed)
- * [15]-[44]: 29 half-monthly values ("2"-"30", not summed)
+ *  [9](J): Date and Time of last reading
+ * [10](K): Value of last reading (summed)
+ * [11](L): Date of year's end reading
+ * [12](M): Year's total
+ * [13](N): Date of reading 15 month before last reading
+ * [14](O): It's Value (summed)
+ * [15](P)-[44](AR): 29 half-monthly values ("2"-"30", not summed)
  * [45]: Note or error code
  * [46]: Date of that
  * 
@@ -128,10 +128,10 @@ foreach( $CSVs as $c ) {
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
 
             /* -- 7. store 30 readings --------------------------------------------------------------------------------------- 7. store 30 readings -- */
-            $readingDate = strtotime( $chunks[13] ); # first of the 30 stored readings
+            $readingDate = strtotime( $chunks[13] ); # first of 30 stored readings in CSV
 
-            for($e=14; $e<45; $e++){
-                # readings happen on every 15th and on every last day of the month
+            for($e=14; $e<45; $e++){ // further 29 values in column 14 to 44
+                # readings happen on 15th and last day of every month
                 if($e%2){
                     $zp = date('Y-m-15 00:00:00', $readingDate);
                 } else {
