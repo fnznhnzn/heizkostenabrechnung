@@ -17,7 +17,7 @@
  *  [4]: Device Type
  *  [9]: Date and Time of last reading
  * [10]: Value of last reading (summed)
- * [11]: Date of year's end reading (Dec 31st) {L}
+ * [11]: Date of year's end reading (L)
  * [12]: Year's total
  * [13]: Date of reading 15 month before last reading
  * [14]: It's Value (summed)
@@ -47,9 +47,9 @@ if( $dbc->connect_errno ){
 }
 
 # convert non-standard dates
-function chunk9ToDatetime($chunk){
-    $datetime = substr( $chunk, 0, 16) . ":00";
-    $datetime = DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $datetime);
+function chunk9ToDatetime($c){
+    $d = substr( $c, 0, 16) . ":00";
+    $datetime = DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $d);
     return $datetime->format('Y-m-d H:i:s');
 }
 function chunk11ToDatetime($c){
