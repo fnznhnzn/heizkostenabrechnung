@@ -8,20 +8,21 @@
  * Hence this script can be run repeatedly without harm.
  * 
  * Todo:
- * fix date conversion
  * tame rouque loop starting in line 127
  * Fix HKV-Liste
  * 
  * Relevant columns in CSV file
- *  [2]: Meter ID
- *  [4]: Device Type
+ *  [0](A): Frame Type
+ *  [1](B): Manufacturer
+ *  [2](C): Meter ID
+ *  [4](D): Device Type
  *  [9](J): Date and Time of last reading
  * [10](K): Value of last reading (summed)
  * [11](L): Date of year's end reading
  * [12](M): Year's total
  * [13](N): Date of reading 15 month before last reading
  * [14](O): It's Value (summed)
- * [15](P)-[44](AR): 29 half-monthly values ("2"-"30", not summed)
+ * [15](P)-[44](AR): further 29 half-monthly values ("2"-"30", not summed)
  * [45]: Note or error code
  * [46]: Date of that
  * 
@@ -130,7 +131,7 @@ foreach( $CSVs as $c ) {
             /* -- 7. store 30 readings --------------------------------------------------------------------------------------- 7. store 30 readings -- */
             $readingDate = strtotime( $columns[13] ); # first of 30 stored readings in CSV
 
-            for($e=14; $e<45; $e++){ // further 29 values in columns 14 to 44 in CSV
+            for($e=14; $e<44; $e++){ // further 29 values in columns 14 to 43 in CSV
                 # readings happen on 15th and last day of every month
                 if($e%2){
                     $zp = date('Y-m-15 00:00:00', $readingDate);
