@@ -57,23 +57,23 @@ function chunk11ToDatetime($c){
     return $datetime->format('Y-m-d H:i:s');
 }
 
-function storeWaterMeterReadings($dbc, $chunks){
+function storeWaterMeterReadings($dbc, $columns){
     # most recent reading
     $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
-    $sql .= $chunks[2];
+    $sql .= $columns[2];
     $sql .= ', Datum = ';
-    $sql .= '"' . chunk9ToDatetime( $chunks[9] ) . '"';
+    $sql .= '"' . chunk9ToDatetime( $columns[9] ) . '"';
     $sql .= ', Messwert = ';
-    $sql .= str_replace( ',' , '.' , $chunks[10] );
+    $sql .= str_replace( ',' , '.' , $columns[10] );
     $sql .= ';';
     # last year's total
     $dbc->query( $sql ) or trigger_error ( $dbc->error );
     $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
-    $sql .= $chunks[2];
+    $sql .= $columns[2];
     $sql .= ', Datum = ';
-    $sql .= '"' . date( 'Y-m-d', strtotime($chunks[12]) ) . '"';
+    $sql .= '"' . date( 'Y-m-d', strtotime($columns[12]) ) . '"';
     $sql .= ', Messwert = ';
-    $sql .= str_replace( ',' , '.' , $chunks[13] );
+    $sql .= str_replace( ',' , '.' , $columns[13] );
     $sql .= ';';
     $dbc->query( $sql ) or trigger_error ( $dbc->error );
 }
@@ -99,38 +99,38 @@ foreach( $CSVs as $c ) {
     $lines = file( dirname(__DIR__, 1) . '/' . $c );
     foreach( $lines as $line_num => $line) {
         if( $line_num%2 ){ # M-BUS/OMS format: every other line holds values
-            $chunks = explode(";", $line);
+            $columns = explode(";", $line);
 
             /* -- 4. store water meter readings ------------------------------------------------------------------- 4. store water meter readings -- */
-            if( $chunks[4] == 'Water' ){
-                storeWaterMeterReadings($dbc, $chunks);
+            if( $columns[4] == 'Water' ){
+                storeWaterMeterReadings($dbc, $columns);
                 continue;
             } 
             
             /* -- 5. store most recent reading --------------------------------------------------------------------- 5. store most recend reading -- */
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
-            $sql .= $chunks[2];
+            $sql .= $columns[2];
             $sql .= ', Zeitpunkt = ';
-            $sql .= '"' . chunk9ToDatetime( $chunks[9] ) . '"';
+            $sql .= '"' . chunk9ToDatetime( $columns[9] ) . '"';
             $sql .= ', Wert = ';
-            $sql .= str_replace( ',' , '.' , $chunks[10] );
+            $sql .= str_replace( ',' , '.' , $columns[10] );
             $sql .= ';';
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
 
             /* -- 6. store year's totals ----------------------------------------------------------------------------------- 7. store years totals -- */
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
-            $sql .= $chunks[2];
+            $sql .= $columns[2];
             $sql .= ', Zeitpunkt = ';
-            $sql .= '"' . chunk11ToDatetime($chunks[11]) . '"';
+            $sql .= '"' . chunk11ToDatetime($columns[11]) . '"';
             $sql .= ', Wert = ';
-            $sql .= str_replace( ',' , '.' , $chunks[12] );
+            $sql .= str_replace( ',' , '.' , $columns[12] );
             $sql .= ';';
             $dbc->query( $sql ) or trigger_error ( $dbc->error );
 
             /* -- 7. store 30 readings --------------------------------------------------------------------------------------- 7. store 30 readings -- */
-            $readingDate = strtotime( $chunks[13] ); # first of 30 stored readings in CSV
+            $readingDate = strtotime( $columns[13] ); # first of 30 stored readings in CSV
 
-            for($e=14; $e<45; $e++){ // further 29 values in column 14 to 44
+            for($e=14; $e<45; $e++){ // further 29 values in columns 14 to 44 in CSV
                 # readings happen on 15th and last day of every month
                 if($e%2){
                     $zp = date('Y-m-15 00:00:00', $readingDate);
@@ -143,7 +143,7 @@ foreach( $CSVs as $c ) {
                 if( substr($zp, 5, 5) === '01-15' ) continue; 
                 
                 $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
-                $sql .= $chunks[2];
+                $sql .= $columns[2];
                 $sql .= ', Zeitpunkt = ';
                 $sql .= '"' . $zp . '"';
                 # inspite of all documentation, the first half month reading ([14]) is summed
@@ -152,19 +152,19 @@ foreach( $CSVs as $c ) {
                 } else {
                     $sql .= ', Nettowert = ';
                 }
-                $sql .= str_replace( ',' , '.' , $chunks[$e] );
+                $sql .= str_replace( ',' , '.' , $columns[$e] );
                 $sql .= ';';
                 $dbc->query( $sql ) or trigger_error ( $dbc->error );
             }
 
             /* -- 8. write error codes --------------------------------------------------------------------------------------- 8. write error codes -- */
-            if( $chunks[4] == 'HCA' && $chunks[44] != '0' ){
+            if( $columns[4] == 'HCA' && $columns[44] != '0' ){
                 $sql  = 'INSERT IGNORE INTO Fehler SET Zaehler_ID = ';
-                $sql .= $chunks[2];
+                $sql .= $columns[2];
                 $sql .= ', Hinweisdatum = ';
-                $sql .= '"' . $chunks[45] . '"';
+                $sql .= '"' . $columns[45] . '"';
                 $sql .= ', Hinweisflag = ';
-                $sql .= '"' . $chunks[44] .'"';
+                $sql .= '"' . $columns[44] .'"';
                 $sql .= ';';
                 $dbc->query( $sql ) or trigger_error ( $dbc->error );
             }
