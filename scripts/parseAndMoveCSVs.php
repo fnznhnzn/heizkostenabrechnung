@@ -146,7 +146,8 @@ foreach( $CSVs as $c ) {
                 /* 
                 * We *could* however, through subtracting from last year's total get the actual net value for 
                 * Jan 15th just as we *could* through adding and subtracting get the net value out of the otherwise 
-                * summed last reading. That seems a little over the top though, so just ignore for now.
+                * summed last reading. The former only made sense if an appartment ever changed hands halfway
+                * through January to evenly divide the reading. The latter isn't needed at all.
                 */
                 if( substr($zp, 5, 5) === '01-15' ) continue; 
                 
