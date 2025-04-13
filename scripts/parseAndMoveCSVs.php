@@ -17,7 +17,7 @@
  *  [4]: Device Type
  *  [9]: Date and Time of last reading
  * [10]: Value of last reading (summed)
- * [11]: Date of year's end reading (Dec 31st)
+ * [11]: Date of year's end reading (Dec 31st) {L}
  * [12]: Year's total
  * [13]: Date of reading 15 month before last reading
  * [14]: It's Value (summed)
@@ -46,10 +46,14 @@ if( $dbc->connect_errno ){
     exit();
 }
 
-# convert non-standard datetime
-function chunkToDatetime($chunk){
+# convert non-standard dates
+function chunk9ToDatetime($chunk){
     $datetime = substr( $chunk, 0, 16) . ":00";
     $datetime = DateTimeImmutable::createFromFormat('d.m.Y H:i:s', $datetime);
+    return $datetime->format('Y-m-d H:i:s');
+}
+function chunk11ToDatetime($c){
+    $datetime = DateTimeImmutable::createFromFormat('d.m.y', $c);
     return $datetime->format('Y-m-d H:i:s');
 }
 
@@ -58,7 +62,7 @@ function storeWaterMeterReadings($dbc, $chunks){
     $sql  = 'INSERT IGNORE INTO Wasser SET Zaehler_ID = ';
     $sql .= $chunks[2];
     $sql .= ', Datum = ';
-    $sql .= '"' . chunkToDatetime( $chunks[9] ) . '"';
+    $sql .= '"' . chunk9ToDatetime( $chunks[9] ) . '"';
     $sql .= ', Messwert = ';
     $sql .= str_replace( ',' , '.' , $chunks[10] );
     $sql .= ';';
@@ -107,7 +111,7 @@ foreach( $CSVs as $c ) {
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
-            $sql .= '"' . chunkToDatetime( $chunks[9] ) . '"';
+            $sql .= '"' . chunk9ToDatetime( $chunks[9] ) . '"';
             $sql .= ', Wert = ';
             $sql .= str_replace( ',' , '.' , $chunks[10] );
             $sql .= ';';
@@ -117,7 +121,7 @@ foreach( $CSVs as $c ) {
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $chunks[2];
             $sql .= ', Zeitpunkt = ';
-            $sql .= '"' . $chunks[11] . '"';
+            $sql .= '"' . chunk11ToDatetime($chunks[11]) . '"';
             $sql .= ', Wert = ';
             $sql .= str_replace( ',' , '.' , $chunks[12] );
             $sql .= ';';
