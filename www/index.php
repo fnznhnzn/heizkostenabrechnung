@@ -237,6 +237,7 @@ $totalCo2TenantCost = 0;
 $totalCo2LandlordCost = 0;
 $totalNetSum = 0;
 $wID = 0;
+$zebra = 0;
 foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     if( $wID == $row['Whg_ID'] ) {
         $displayWid = ''; 
@@ -244,6 +245,8 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
         $displayWid = $row['Whg_ID'];
     }
     $wID = $row['Whg_ID'];
+    $zebra%2?$z='#444':$z='#000';
+    $zebra++;
     # heat
     $consumption = $Heizkostenverteiler->getMeteredData( $Base->Abrechnungsjahr, $row['Abrechnungsbeginn'], $row['Abrechnungsende'], $row['Whg_ID']);
     $consumptionCost = $consumption * $Heizkostenverteiler->Preis_pro_Messwert;
@@ -270,7 +273,7 @@ foreach( $Heizkostenverteiler->getBillreceivers() as $index => $row){
     $totalCo2LandlordCost += $co2LandlordCost;
     $totalNetSum += $totalHeatCostPerTenantMinusCarbon;
     $totalCo2TenantCost += $co2TenantCost;
-    echo '<tr>
+    echo '<tr bgcolor="' . $z . '">
     <td><strong>' . $displayWid . '</strong></td>
     <td>' . $row['Nachname'] . '</td>
     <td nowrap>' . $Base->formatDate($row['Abrechnungsbeginn']) . ' - ' . $Base->formatDate($row['Abrechnungsende']) . '</td>
