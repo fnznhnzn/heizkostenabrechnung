@@ -110,7 +110,7 @@ foreach( $CSVs as $c ) {
                 continue;
             } 
             
-            /* -- 5. store most recent reading --------------------------------------------------------------------- 5. store most recend reading -- */
+            /* -- 5. store most recent reading --------------------------------------------------------------------- 5. store most recent reading -- */
             $sql  = 'INSERT IGNORE INTO Messwerte SET Zaehler_ID = ';
             $sql .= $columns[2];
             $sql .= ', Zeitpunkt = ';
