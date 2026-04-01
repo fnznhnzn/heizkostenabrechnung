@@ -1,4 +1,6 @@
 <?php
+# April 1st 2026, ten (!) Engelmann HCAe2 broke down and have to be replaced
+# To faciliate the process, this script does all the necessary database edits 
 declare(strict_types=1);
 error_reporting(E_ALL); 
 ini_set('display_errors', 'on');
@@ -13,13 +15,13 @@ if( $_GET && isEightDigits($_GET['oldHkv']) && isEightDigits($_GET['newHkv']) ){
     $newHkv = $_GET['newHkv'];
 
     $updateOld = <<<SQL
-        UPDATE ZaehlerBK
+        UPDATE Zaehler
         SET Ersetzt_durch = "$newHkv"
         WHERE ID = "$oldHkv"
     SQL;
 
     $insertNew = <<<SQL
-        INSERT INTO ZaehlerBK (ID, Whg_ID, Raum, Heizkoerper_ID, Installiert, Kennung)
+        INSERT INTO Zaehler (ID, Whg_ID, Raum, Heizkoerper_ID, Installiert, Kennung)
         SELECT "$newHkv", Whg_ID, Raum, Heizkoerper_ID, CURDATE(), "$newHkv-EFE-FF-FF"
         FROM ZaehlerBK
         WHERE ID = "$oldHkv"
@@ -50,7 +52,17 @@ function isEightDigits($x){
    #newHkvChooser { color:green; font-weight:bold; }
    #processButton { margin:40px 0 0 40px; font-size 5vw; width:200px; height:30px; }
  </style>
+
  <script>
+    async function sendRequest(o,n) {
+      const params = new URLSearchParams({ oldHkv: o, newHkv: n });
+      try {
+        const response = await fetch(`hkv-changer.php?${params}`);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     let oldHkv, newHkv;
     document.addEventListener("DOMContentLoaded", () => {
 
@@ -72,7 +84,9 @@ function isEightDigits($x){
             }
             let confirmed = confirm('Sind '+ oldHkv +' (alt) und '+ newHkv +' (neu) wirklich korrekt?');
             if(confirmed){
-                alert('jetzt würde die Eintragung erfolgen');
+                sendRequest(oldHkv, newHkv);
+                oldHkvChooser.value = '';
+                newHkvChooser.value = '';
             }
 
         });
