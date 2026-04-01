@@ -5,7 +5,8 @@ $sql = "SELECT * FROM Heizkoerper ORDER BY Kc";
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<link rel="stylesheet" href="style.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css"/>
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
 </head>
