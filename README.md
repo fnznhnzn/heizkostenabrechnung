@@ -1,13 +1,13 @@
 Heizkostenabrechnung für heizkostenverteiler, Wasseruhr und Gateway vom Hersteller Engelmann.
 
 Vorbereitung:
--Alle Radioatoren, Handtuchheizkörper etc. mit Heizkostenverteilern HCAe2 ausstatten
--Kq und Kc-Werte der Heizkörper ermitteln (lassen)
--Gateway mit IoT-SIM-Karte für ftp-Server parametrieren und an funkgünstiger Stelle über Handbereich (2,50 Höhe) anbringen
--HKVs in Tabelle Heizkostenverteiler eintragen
--Heizkörper mit Kc- und Kq-Werten in Tabelle Heizkörper eintragen
--Mieter und deren Wechsel Tabelle Mieter eintragen
--parseAndMoveCSVs.php regelmäßig z.B. per Cron ausführen (Theoretisch reicht einmal pro Jahr, besser aber jeden Monat)
+- Alle Radioatoren, Handtuchheizkörper etc. mit Heizkostenverteilern HCAe2 ausstatten
+- Kq und Kc-Werte der Heizkörper ermitteln (lassen)
+- Gateway mit IoT-SIM-Karte für ftp-Server parametrieren und an funkgünstiger Stelle über Handbereich (2,50 Höhe) anbringen
+- HKVs in Tabelle Heizkostenverteiler eintragen
+- Heizkörper mit Kc- und Kq-Werten in Tabelle Heizkörper eintragen
+- Mieter und deren Wechsel Tabelle Mieter eintragen
+- parseAndMoveCSVs.php regelmäßig z.B. per Cron ausführen (Theoretisch reicht einmal pro Jahr, besser aber jeden Monat)
 
 Die Heizkostenabrechnung funktioniert in zwei Schritten:
 
