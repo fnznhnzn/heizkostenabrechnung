@@ -1,4 +1,13 @@
 config.inc.php
+scripts/backup.php
+scripts/mqttlistener.php
+scripts/bk
+utils
+www/.well-known
+vendor
+composer.*
+refend-master
+whitelist.csv
 *.log
 *.test
 *.gz
@@ -9,6 +18,7 @@ bk
 .bashrc
 .bash_history
 .profile
+2023
 2024
 2025
 2026

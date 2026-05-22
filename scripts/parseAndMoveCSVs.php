@@ -43,7 +43,8 @@
 
 /* -- 1. utils ----------------------------------------------------------------------------------------------------------------------- 1. utils -- */
 # database connection
-$dbc = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
+require_once __DIR__ . '/../config.inc.php';
+$dbc = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if( $dbc->connect_errno ){
     trigger_error( $dbc->connect_error );
     exit();

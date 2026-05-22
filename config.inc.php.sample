@@ -1,0 +1,8 @@
+<?php
+### database credentials ###
+const DB_HOST = 'localhost';
+const DB_USER = 'heizkostenabrechnung';
+const DB_PASS = 'KA-)1*hf[u7Qw[A.';
+const DB_NAME = 'heizkostenabrechnung';
+
+
