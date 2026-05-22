@@ -1,7 +1,7 @@
-Heizkostenabrechnung für heizkostenverteiler, Wasseruhr und Gateway² vom Hersteller Engelmann.
+Heizkostenabrechnung für Heizkostenverteiler, Wasseruhr und Gateway² von Hersteller Engelmann.
 
 Vorbereitung:
-- Alle Radioatoren, Handtuchheizkörper etc. mit Heizkostenverteilern HCAe2 ausstatten (x mitte + y 75%)
+- Alle Radioatoren, Handtuchheizkörper etc. mit Heizkostenverteilern HCAe2 ausstatten (x Mitte + y 75%)
 - Kq- (Leistung in kW) und Kc- (Trägheit Messfühler) Werte der Heizkörper ermitteln (lassen bzw. Liste v. EM)
 - Gateway mit IoT-SIM-Karte für ftp-Server parametrieren und an funkgünstiger Stelle über Handbereich (2,50 Höhe) anbringen
 - HKVs in Tabelle Heizkostenverteiler eintragen
