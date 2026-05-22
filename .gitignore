@@ -3,6 +3,7 @@ scripts/backup.php
 scripts/mqttlistener.php
 scripts/bk
 utils
+www/canvasjs
 www/.well-known
 vendor
 composer.*
