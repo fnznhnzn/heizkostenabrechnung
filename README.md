@@ -1,4 +1,4 @@
-Heizkostenabrechnung für heizkostenverteiler, Wasseruhr und Gateway vom Hersteller Engelmann.
+Heizkostenabrechnung für heizkostenverteiler, Wasseruhr und Gateway² vom Hersteller Engelmann.
 
 Vorbereitung:
 - Alle Radioatoren, Handtuchheizkörper etc. mit Heizkostenverteilern HCAe2 ausstatten
@@ -18,5 +18,5 @@ Die Heizkostenabrechnung funktioniert in zwei Schritten:
 4. Am Jahresende Gasrechnung eintragen
 5. Verschiedene Seiten zeigen Übersicht und druckbare Einzelabrechnungen
 
-
+²Nach Jahren korrekter Abrechnungen Gateway defekt und EOL (2.2026), Integration Lobaro in Progress.  
 
