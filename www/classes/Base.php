@@ -1,5 +1,8 @@
 <?php  
 
+require_once __DIR__ . '/../../config.inc.php';
+
+
 class Base {
     # immutables
     public $conn;
@@ -20,7 +23,7 @@ class Base {
 
     public function __construct(){  
         # db
-        $this->conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
+        $this->conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
         $this->conn->query("SET lc_time_names = 'de_DE'");
 
         # building type
