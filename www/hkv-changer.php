@@ -6,7 +6,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 require_once('classes/Base.php');
 $Base = new Base();
-$conn = new mysqli("localhost", 'heizkostenabrechnung', "KA-)1*hf[u7Qw[A.", "heizkostenabrechnung");
 
 # We are our own ajax endpoint! Check input and update db:
 if( $_GET && isEightDigits($_GET['oldHkv']) && isEightDigits($_GET['newHkv']) ){
