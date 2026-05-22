@@ -1,8 +1,8 @@
-Heizkostenabrechnung für Heizkostenverteiler, Wasseruhr und Gateway² von Hersteller Engelmann.
+Heizkostenabrechnung für Heizkostenverteiler, Wasseruhr und Gateway² von Hersteller Engelmann
 
 Vorbereitung:
 - Alle Radioatoren, Handtuchheizkörper etc. mit Heizkostenverteilern HCAe2 ausstatten (x Mitte + y 75%)
-- Kq- (Leistung in kW) und Kc- (Trägheit Messfühler) Werte der Heizkörper ermitteln (lassen bzw. Liste v. EM)
+- Kq- (Leistung in kW) und Kc- (Trägheit Messfühler) Werte der Heizkörper ermitteln ("Heizkörperbestimmung" bzw. Liste v. EM)
 - Gateway mit IoT-SIM-Karte für ftp-Server parametrieren und an funkgünstiger Stelle über Handbereich (2,50 Höhe) anbringen
 - HKVs in Tabelle Heizkostenverteiler eintragen
 - Heizkörper mit Kc- und Kq- (Leistung in kW) Werten in Tabelle Heizkörper eintragen
@@ -18,5 +18,7 @@ Die Heizkostenabrechnung funktioniert in zwei Schritten:
 4. Am Jahresende Gasrechnung eintragen
 5. Verschiedene Seiten zeigen Übersicht und druckbare Einzelabrechnungen
 
-<sup>²Nach drei Jahren Betrieb Gateway defekt *und* EOL (2.2026), Integration Lobaro next</sup>
+Seit jahren hier einwandfrei laufend aber keine Garantie für nix!
+
+<sup>²Gateway defekt *und* EOL (2.2026), Integration Lobaro next</sup>
 
