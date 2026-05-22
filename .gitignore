@@ -2,6 +2,8 @@ config.inc.php
 *.log
 *.test
 *.gz
+.idea
+.vscode
 bk
 .bash_logout
 .bashrc
