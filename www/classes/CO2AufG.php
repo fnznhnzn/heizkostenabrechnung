@@ -70,6 +70,7 @@ class CO2AufG extends Base {
         switch( $this->Abrechnungsjahr ){ # Preis pro Tonne
             case '2024': $kp = 45; break;
             case '2025': $kp = 55; break;
+            case '2026': $kp = 55; break;
             default: $kp = 30; break;
         }
         if( $proKg === true ){
