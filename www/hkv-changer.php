@@ -20,9 +20,9 @@ if( $_GET && isEightDigits($_GET['oldHkv']) && isEightDigits($_GET['newHkv']) ){
     SQL;
 
     $insertNew = <<<SQL
-        INSERT INTO Zaehler (ID, Whg_ID, Raum, Heizkoerper_ID, Installiert, Kennung)
-        SELECT "$newHkv", Whg_ID, Raum, Heizkoerper_ID, CURDATE(), "$newHkv-EFE-FF-FF"
-        FROM ZaehlerBK
+        INSERT INTO Zaehler (ID, Whg_ID, Raum, Heizkoerper_ID, Installiert, Kennung, Ersetzt_durch)
+        SELECT "$newHkv", Whg_ID, Raum, Heizkoerper_ID, CURDATE(), "$newHkv-EFE-FF-FF", ""
+        FROM Zaehler
         WHERE ID = "$oldHkv"
     SQL;
 
@@ -86,6 +86,7 @@ function isEightDigits($x){
                 sendRequest(oldHkv, newHkv);
                 oldHkvChooser.value = '';
                 newHkvChooser.value = '';
+                location.reload();
             }
 
         });
