@@ -1,5 +1,8 @@
 <?php
 /*
+ * Parses and moves CSV files containing meter readings from Engelmann gateways sold until 2025.
+ * Engelmann now sells Lobaro devices instead of their own gateways. See parseAndMoveTelegrams.php for those.
+ *
  * Run by a cron job, this scipt parses CSV files found one directory above (put there by the gateway via ftp).
  * It reads the last 30 bi-weekly values stored in the meters, writes them to the database and then moves the 
  * files to a directory named after the year.
