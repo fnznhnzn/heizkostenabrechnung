@@ -17,7 +17,7 @@ Die Abrechnung funktioniert wie folgt:
 4. Am Jahresende Gasrechnung eintragen
 5. UI zeigt Übersicht und druckbare Einzelabrechnungen
 
-Seit jahren hier einwandfrei laufend aber keine Garantie für nix! Kein Login, nicht öffentlich betreiben!
+Seit Jahren hier einwandfrei laufend aber keine Garantie für nix! Kein Login, nicht öffentlich betreiben!
 
 <sup>²Gateway defekt *und* EOL (2.2026), Integration Lobaro next</sup>
 
