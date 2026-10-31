@@ -1,6 +1,5 @@
 config.inc.php
 scripts/backup.php
-scripts/mqttlistener.php
 scripts/bk
 utils
 www/canvasjs
