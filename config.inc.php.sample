@@ -5,4 +5,8 @@ const DB_USER = '';
 const DB_PASS = '';
 const DB_NAME = '';
 
+### other configuration settings ###
+const CSV_UPLOAD_DIR = '';
+const AES_KEY = '';
+
 
