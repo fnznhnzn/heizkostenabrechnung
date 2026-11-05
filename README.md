@@ -7,13 +7,13 @@ Vorbereitung:
 - HKVs in Tabelle Heizkostenverteiler eintragen
 - Heizkörper mit Kc- und Kq-Werten in Tabelle Heizkörper eintragen
 - Mieter und -wechsel in Tabelle Mieter pflegen
-- parseAndMoveCSVs.php regelmäßig z.B. per Cron ausführen (Theoretisch reicht einmal pro Jahr, besser aber jeden Monat)
+- parseEngelmann.php regelmäßig z.B. per Cron ausführen
 
 Die Abrechnung funktioniert wie folgt:
 
 1. HCAe2 senden ihre Daten an den Gateway
 2. Gateway läd monatlich CSV-Datei hoch
-3. parseAndMoveCSVs.php in "scripts" scannt das Verzeichnis nach CSV-Dateien, schreibt ihren Inhalt in die Datenbank und legt sie in Unterverzeichnisse nach Jahreszahl
+3. parseEngelmann.php in "scripts" scannt das Verzeichnis nach CSV-Dateien, schreibt deren Inhalt in die Datenbank und legt sie in Unterverzeichnisse nach Jahreszahl
 4. Am Jahresende Gasrechnung eintragen
 5. UI zeigt Übersicht und druckbare Einzelabrechnungen
 

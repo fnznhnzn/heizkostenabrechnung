@@ -14,6 +14,7 @@ whitelist.csv
 .idea
 .vscode
 bk
+scripts/bk
 .bash_logout
 .bashrc
 .bash_history
